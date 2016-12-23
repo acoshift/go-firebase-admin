@@ -41,8 +41,8 @@ type apiError struct {
 }
 
 type getAccountInfoRequest struct {
-	LocalID []string `json:"localId,omitempty"`
-	Email   []string `json:"email,omitempty"`
+	LocalIDs []string `json:"localId,omitempty"`
+	Emails   []string `json:"email,omitempty"`
 }
 
 var scopes = []string{
