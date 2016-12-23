@@ -176,3 +176,13 @@ func (auth *FirebaseAuth) GetAccountInfoByEmails(emails []string) ([]*User, erro
 	}
 	return resp.Users, nil
 }
+
+// DeleteAccount deletes an account by user id
+func (auth *FirebaseAuth) DeleteAccount(uid string) error {
+	if uid == "" {
+		return ErrRequireUID
+	}
+
+	var resp deleteAccountResponse
+	return auth.app.invokeRequest(httpPost, deleteAccount, &deleteAccountRequest{LocalID: uid}, &resp)
+}

@@ -43,6 +43,13 @@ type getAccountInfoResponse struct {
 	Users []*User `json:"users,omitempty"`
 }
 
+type deleteAccountRequest struct {
+	LocalID string `json:"localId,omitempty"`
+}
+
+type deleteAccountResponse struct {
+}
+
 var scopes = []string{
 	"https://www.googleapis.com/auth/userinfo.email",
 	"https://www.googleapis.com/auth/firebase.database",
