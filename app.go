@@ -1,8 +1,16 @@
 package admin
 
+import (
+	"golang.org/x/oauth2/google"
+	"golang.org/x/oauth2/jwt"
+)
+
 // FirebaseApp type
 type FirebaseApp struct {
-	projectID string
+	projectID      string
+	serviceAccount string
+	jwtConfig      *jwt.Config
+	databaseURL    string
 }
 
 type options struct {
@@ -22,7 +30,16 @@ func InitializeApp(opts ...OptionFunc) (*FirebaseApp, error) {
 	}
 
 	app := FirebaseApp{
-		projectID: opt.ProjectID,
+		projectID:   opt.ProjectID,
+		databaseURL: opt.DatabaseURL,
+	}
+
+	if opt.ServiceAccount != nil {
+		cfg, err := google.JWTConfigFromJSON(opt.ServiceAccount)
+		if err != nil {
+			return nil, err
+		}
+		app.jwtConfig = cfg
 	}
 
 	return &app, nil

@@ -29,12 +29,11 @@ func main() {
     panic(err)
   }
 
-  log.Println(claims)
+  userID := claims.UserID
+  log.Println(userID)
 }
 ```
 
 ## Available functions
 
 - VerifyIDToken
-
-

@@ -28,9 +28,28 @@ func newFirebaseAuth(app *FirebaseApp) *FirebaseAuth {
 	}
 }
 
+// CreateCustomToken creates custom token
+func (auth *FirebaseAuth) CreateCustomToken(userID string, claims interface{}) (string, error) {
+	if auth.app.jwtConfig == nil {
+		return "", fmt.Errorf("firebaseauth: Service account needed for create custom token")
+	}
+	now := time.Now()
+	payload := &Claims{
+		Issuer:    auth.app.jwtConfig.Email,
+		Subject:   auth.app.jwtConfig.Email,
+		Audience:  "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit",
+		IssuedAt:  now.Unix(),
+		ExpiresAt: now.Add(time.Hour).Unix(),
+		UserID:    userID,
+		Claims:    claims,
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, payload)
+	return token.SignedString(auth.app.jwtConfig.PrivateKey)
+}
+
 // VerifyIDToken verifies idToken
-func (auth *FirebaseAuth) VerifyIDToken(idToken string) (*jwt.StandardClaims, error) {
-	token, err := jwt.ParseWithClaims(idToken, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+func (auth *FirebaseAuth) VerifyIDToken(idToken string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(idToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("firebaseauth: Firebase ID token has incorrect algorithm. Expected \"RSA\" but got \"%#v\"", token.Header["alg"])
 		}
@@ -48,11 +67,11 @@ func (auth *FirebaseAuth) VerifyIDToken(idToken string) (*jwt.StandardClaims, er
 		return nil, err
 	}
 
-	if claims, ok := token.Claims.(*jwt.StandardClaims); ok && token.Valid {
-		if !claims.VerifyAudience(auth.app.projectID, true) {
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		if !claims.verifyAudience(auth.app.projectID) {
 			return nil, fmt.Errorf("firebaseauth: Firebase ID token has incorrect \"aud\" (audience) claim. Expected \"%s\" but got \"%s\"", auth.app.projectID, claims.Audience)
 		}
-		if !claims.VerifyIssuer("https://securetoken.google.com/"+auth.app.projectID, true) {
+		if !claims.verifyIssuer("https://securetoken.google.com/" + auth.app.projectID) {
 			return nil, fmt.Errorf("firebaseauth: Firebase ID token has incorrect \"iss\" (issuer) claim. Expected \"https://securetoken.google.com/%s\" but got \"%s\"", auth.app.projectID, claims.Issuer)
 		}
 		if claims.Subject == "" {
@@ -61,6 +80,8 @@ func (auth *FirebaseAuth) VerifyIDToken(idToken string) (*jwt.StandardClaims, er
 		if len(claims.Subject) > 128 {
 			return nil, fmt.Errorf("firebaseauth: Firebase ID token has \"sub\" (subject) claim longer than 128 characters")
 		}
+
+		claims.UserID = claims.Subject
 
 		return claims, nil
 	}
