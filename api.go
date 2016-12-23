@@ -50,6 +50,36 @@ type deleteAccountRequest struct {
 type deleteAccountResponse struct {
 }
 
+// CreateAccount type
+type CreateAccount struct {
+	LocalID       string `json:"localId,omitempty"`
+	Email         string `json:"email,omitempty"`
+	EmailVerified bool   `json:"emailVerified,omitempty"`
+	Password      string `json:"password,omitempty"`
+	RawPassword   string `json:"rawPassword,omitempty"`
+	DisplayName   string `json:"displayName,omitempty"`
+	PhotoURL      string `json:"photoUrl,omitempty"`
+	Disabled      bool   `json:"disabled,omitempty"`
+	DisableUser   bool   `json:"disableUser,omitempty"`
+}
+
+type uploadAccountRequest struct {
+	Users          []*CreateAccount `json:"users"`
+	AllowOverwrite bool             `json:"allowOverwrite"`
+	SanityCheck    bool             `json:"sanityCheck"`
+}
+
+type uploadAccountResponse struct {
+	Error []*struct {
+		Index   int    `json:"index,omitempty"`
+		Message string `json:"message,omitempty"`
+	} `json:"error,omitempty"`
+}
+
+type signupNewUserResponse struct {
+	LocalID string `json:"localId,omitempty"`
+}
+
 var scopes = []string{
 	"https://www.googleapis.com/auth/userinfo.email",
 	"https://www.googleapis.com/auth/firebase.database",
@@ -68,6 +98,7 @@ const (
 	setAccountInfo   apiMethod = "setAccountInfo"
 	deleteAccount    apiMethod = "deleteAccount"
 	uploadAccount    apiMethod = "uploadAccount"
+	signupNewUser    apiMethod = "signupNewUser"
 	downloadAccount  apiMethod = "downloadAccount"
 	getOOBCode       apiMethod = "getOobConfirmationCode"
 	getProjectConfig apiMethod = "getProjectConfig"

@@ -3,6 +3,7 @@ package admin
 import (
 	"crypto/rsa"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
@@ -185,4 +186,33 @@ func (auth *FirebaseAuth) DeleteAccount(uid string) error {
 
 	var resp deleteAccountResponse
 	return auth.app.invokeRequest(httpPost, deleteAccount, &deleteAccountRequest{LocalID: uid}, &resp)
+}
+
+// CreateAccount creates an account
+func (auth *FirebaseAuth) CreateAccount(user *CreateAccount) (string, error) {
+	var err error
+	if user.LocalID == "" {
+		var resp signupNewUserResponse
+		err = auth.app.invokeRequest(httpPost, signupNewUser, user, &resp)
+		if err != nil {
+			return "", err
+		}
+		if resp.LocalID == "" {
+			return "", errors.New("firebaseauth: create account error")
+		}
+		return resp.LocalID, nil
+	}
+	var resp uploadAccountResponse
+	err = auth.app.invokeRequest(httpPost, uploadAccount, &uploadAccountRequest{
+		Users:          []*CreateAccount{user},
+		AllowOverwrite: true,
+		SanityCheck:    true,
+	}, &resp)
+	if err != nil {
+		return "", err
+	}
+	if resp.Error != nil {
+		return "", errors.New("firebaseauth: upload account error")
+	}
+	return user.LocalID, nil
 }
