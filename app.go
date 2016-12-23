@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"crypto/rsa"
 	"encoding/json"
-	"errors"
+	"net/http"
 
 	jwtgo "github.com/dgrijalva/jwt-go"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
+	"google.golang.org/api/googleapi"
 )
 
 // FirebaseApp type
@@ -82,28 +83,38 @@ func (app *FirebaseApp) Auth() *FirebaseAuth {
 	return newFirebaseAuth(app)
 }
 
-func (app *FirebaseApp) invokePostRequest(endpoint string, requestData interface{}) (*apiResponse, error) {
+func (app *FirebaseApp) invokeRequest(method httpMethod, api apiMethod, requestData interface{}, response interface{}) error {
 	if app.jwtConfig == nil {
-		return nil, ErrRequireServiceAccount
+		return ErrRequireServiceAccount
 	}
 	ctx, cancel := getContext()
 	defer cancel()
 	client := app.jwtConfig.Client(ctx)
-	requestBytes, err := json.Marshal(requestData)
+
+	var resp *http.Response
+	var err error
+	path := baseURL + string(api)
+	if method == httpPost {
+		var requestBytes []byte
+		requestBytes, err = json.Marshal(requestData)
+		if err != nil {
+			return err
+		}
+		resp, err = client.Post(path, "application/json", bytes.NewReader(requestBytes))
+	} else {
+		resp, err = client.Get(path)
+	}
 	if err != nil {
-		return nil, err
+		return err
 	}
-	resp, err := client.Post(baseURL+endpoint, "application/json", bytes.NewReader(requestBytes))
+	defer resp.Body.Close()
+
+	if err = googleapi.CheckResponse(resp); err != nil {
+		return err
+	}
+	err = json.NewDecoder(resp.Body).Decode(response)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	var r apiResponse
-	err = json.NewDecoder(resp.Body).Decode(&r)
-	if err != nil {
-		return nil, err
-	}
-	if r.Error != nil {
-		return nil, errors.New(r.Error.Message)
-	}
-	return &r, nil
+	return nil
 }

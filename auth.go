@@ -141,7 +141,8 @@ func (auth *FirebaseAuth) GetAccountInfoByUID(uid string) (*User, error) {
 
 // GetAccountInfoByUIDs retrieves account info by user ids
 func (auth *FirebaseAuth) GetAccountInfoByUIDs(uids []string) ([]*User, error) {
-	resp, err := auth.app.invokePostRequest("getAccountInfo", &getAccountInfoRequest{LocalIDs: uids})
+	var resp getAccountInfoResponse
+	err := auth.app.invokeRequest(httpPost, getAccountInfo, &getAccountInfoRequest{LocalIDs: uids}, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +166,8 @@ func (auth *FirebaseAuth) GetAccountInfoByEmail(email string) (*User, error) {
 
 // GetAccountInfoByEmails retrieves account info by emails
 func (auth *FirebaseAuth) GetAccountInfoByEmails(emails []string) ([]*User, error) {
-	resp, err := auth.app.invokePostRequest("getAccountInfo", &getAccountInfoRequest{Emails: emails})
+	var resp getAccountInfoResponse
+	err := auth.app.invokeRequest(httpPost, getAccountInfo, &getAccountInfoRequest{Emails: emails}, &resp)
 	if err != nil {
 		return nil, err
 	}
