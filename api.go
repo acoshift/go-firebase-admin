@@ -7,19 +7,20 @@ import (
 
 // User is the firebase auth user
 type User struct {
-	LocalID           string              `json:"localId"`
-	Email             string              `json:"email"`
-	EmailVerified     bool                `json:"emailVerified"`
-	ProviderUserInfo  []*ProviderUserInfo `json:"providerUserInfo"`
-	PasswordHash      string              `json:"passwordHash"`
-	PasswordUpdatedAt float64             `json:"passwordUpdatedAt"`
-	ValidSince        string              `json:"validSince"`
-	LastLoginAt       string              `json:"lastLoginAt"`
-	CreatedAt         string              `json:"createdAt"`
+	LocalID           string      `json:"localId"`
+	Email             string      `json:"email"`
+	EmailVerified     bool        `json:"emailVerified"`
+	ProviderUserInfo  []*UserInfo `json:"providerUserInfo"`
+	PasswordHash      string      `json:"passwordHash"`
+	PasswordUpdatedAt float64     `json:"passwordUpdatedAt"`
+	ValidSince        string      `json:"validSince"`
+	Disabled          bool        `json:"disabled"`
+	LastLoginAt       string      `json:"lastLoginAt"`
+	CreatedAt         string      `json:"createdAt"`
 }
 
-// ProviderUserInfo type
-type ProviderUserInfo struct {
+// UserInfo type
+type UserInfo struct {
 	ProviderID  string `json:"providerId"`
 	DisplayName string `json:"displayName"`
 	PhotoURL    string `json:"photoUrl"`

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/rsa"
 	"encoding/json"
-
 	"errors"
 
 	jwtgo "github.com/dgrijalva/jwt-go"
