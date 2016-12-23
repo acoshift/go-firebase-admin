@@ -31,7 +31,7 @@ func newFirebaseAuth(app *FirebaseApp) *FirebaseAuth {
 // CreateCustomToken creates custom token
 func (auth *FirebaseAuth) CreateCustomToken(userID string, claims interface{}) (string, error) {
 	if auth.app.jwtConfig == nil || auth.app.privateKey == nil {
-		return "", fmt.Errorf("firebaseauth: Service account needed for create custom token")
+		return "", ErrRequireServiceAccount
 	}
 	now := time.Now()
 	payload := &Claims{
@@ -125,4 +125,52 @@ func (auth *FirebaseAuth) selectKey(kid string) *rsa.PublicKey {
 	}
 	defer auth.keysMutex.RUnlock()
 	return auth.keys[kid]
+}
+
+// GetAccountInfoByUID retrieves an account info by user id
+func (auth *FirebaseAuth) GetAccountInfoByUID(uid string) (*User, error) {
+	users, err := auth.GetAccountInfoByUIDs([]string{uid})
+	if err != nil {
+		return nil, err
+	}
+	if len(users) == 0 {
+		return nil, nil
+	}
+	return users[0], nil
+}
+
+// GetAccountInfoByUIDs retrieves account info by user ids
+func (auth *FirebaseAuth) GetAccountInfoByUIDs(uids []string) ([]*User, error) {
+	resp, err := auth.app.invokePostRequest("getAccountInfo", &getAccountInfoRequest{LocalID: uids})
+	if err != nil {
+		return nil, err
+	}
+	if len(resp.Users) == 0 {
+		return nil, nil
+	}
+	return resp.Users, nil
+}
+
+// GetAccountInfoByEmail retrieves account info by emails
+func (auth *FirebaseAuth) GetAccountInfoByEmail(email string) (*User, error) {
+	users, err := auth.GetAccountInfoByEmails([]string{email})
+	if err != nil {
+		return nil, err
+	}
+	if len(users) == 0 {
+		return nil, nil
+	}
+	return users[0], nil
+}
+
+// GetAccountInfoByEmails retrieves account info by emails
+func (auth *FirebaseAuth) GetAccountInfoByEmails(emails []string) ([]*User, error) {
+	resp, err := auth.app.invokePostRequest("getAccountInfo", &getAccountInfoRequest{Email: emails})
+	if err != nil {
+		return nil, err
+	}
+	if len(resp.Users) == 0 {
+		return nil, nil
+	}
+	return resp.Users, nil
 }

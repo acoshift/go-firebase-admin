@@ -1,7 +1,11 @@
 package admin
 
 import (
+	"bytes"
 	"crypto/rsa"
+	"encoding/json"
+
+	"errors"
 
 	jwtgo "github.com/dgrijalva/jwt-go"
 	"golang.org/x/oauth2/google"
@@ -40,7 +44,7 @@ func InitializeApp(opts ...OptionFunc) (*FirebaseApp, error) {
 	}
 
 	if opt.ServiceAccount != nil {
-		app.jwtConfig, err = google.JWTConfigFromJSON(opt.ServiceAccount)
+		app.jwtConfig, err = google.JWTConfigFromJSON(opt.ServiceAccount, scopes...)
 		if err != nil {
 			return nil, err
 		}
@@ -77,4 +81,30 @@ func DatabaseURL(url string) OptionFunc {
 // Auth creates new FirebaseAuth instance
 func (app *FirebaseApp) Auth() *FirebaseAuth {
 	return newFirebaseAuth(app)
+}
+
+func (app *FirebaseApp) invokePostRequest(endpoint string, requestData interface{}) (*apiResponse, error) {
+	if app.jwtConfig == nil {
+		return nil, ErrRequireServiceAccount
+	}
+	ctx, cancel := getContext()
+	defer cancel()
+	client := app.jwtConfig.Client(ctx)
+	requestBytes, err := json.Marshal(requestData)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := client.Post(baseURL+endpoint, "application/json", bytes.NewReader(requestBytes))
+	if err != nil {
+		return nil, err
+	}
+	var r apiResponse
+	err = json.NewDecoder(resp.Body).Decode(&r)
+	if err != nil {
+		return nil, err
+	}
+	if r.Error != nil {
+		return nil, errors.New(r.Error.Message)
+	}
+	return &r, nil
 }
