@@ -1,0 +1,3 @@
+# go-firebase-admin
+
+## VerifyIDToken
