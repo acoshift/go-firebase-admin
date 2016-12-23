@@ -30,7 +30,7 @@ func newFirebaseAuth(app *FirebaseApp) *FirebaseAuth {
 
 // CreateCustomToken creates custom token
 func (auth *FirebaseAuth) CreateCustomToken(userID string, claims interface{}) (string, error) {
-	if auth.app.jwtConfig == nil {
+	if auth.app.jwtConfig == nil || auth.app.privateKey == nil {
 		return "", fmt.Errorf("firebaseauth: Service account needed for create custom token")
 	}
 	now := time.Now()
@@ -44,7 +44,7 @@ func (auth *FirebaseAuth) CreateCustomToken(userID string, claims interface{}) (
 		Claims:    claims,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, payload)
-	return token.SignedString(auth.app.jwtConfig.PrivateKey)
+	return token.SignedString(auth.app.privateKey)
 }
 
 // VerifyIDToken verifies idToken

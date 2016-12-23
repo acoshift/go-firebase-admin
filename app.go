@@ -1,6 +1,9 @@
 package admin
 
 import (
+	"crypto/rsa"
+
+	jwtgo "github.com/dgrijalva/jwt-go"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
 )
@@ -10,6 +13,7 @@ type FirebaseApp struct {
 	projectID      string
 	serviceAccount string
 	jwtConfig      *jwt.Config
+	privateKey     *rsa.PrivateKey
 	databaseURL    string
 }
 
@@ -24,6 +28,7 @@ type OptionFunc func(*options)
 
 // InitializeApp initializes firebase app
 func InitializeApp(opts ...OptionFunc) (*FirebaseApp, error) {
+	var err error
 	opt := &options{}
 	for _, setter := range opts {
 		setter(opt)
@@ -35,11 +40,14 @@ func InitializeApp(opts ...OptionFunc) (*FirebaseApp, error) {
 	}
 
 	if opt.ServiceAccount != nil {
-		cfg, err := google.JWTConfigFromJSON(opt.ServiceAccount)
+		app.jwtConfig, err = google.JWTConfigFromJSON(opt.ServiceAccount)
 		if err != nil {
 			return nil, err
 		}
-		app.jwtConfig = cfg
+		app.privateKey, err = jwtgo.ParseRSAPrivateKeyFromPEM(app.jwtConfig.PrivateKey)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &app, nil
