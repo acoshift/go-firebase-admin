@@ -13,16 +13,20 @@ import (
 
 // FirebaseAuth type
 type FirebaseAuth struct {
-	app *FirebaseApp
+	app       *FirebaseApp
+	keysMutex *sync.RWMutex
+	keys      map[string]*rsa.PublicKey
+	keysExp   time.Time
 }
 
-var (
-	mutex = &sync.RWMutex{}
-	keys  map[string]*rsa.PublicKey
-	exp   time.Time
-)
+const keysEndpoint = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
 
-const endpoint = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+func newFirebaseAuth(app *FirebaseApp) *FirebaseAuth {
+	return &FirebaseAuth{
+		app:       app,
+		keysMutex: &sync.RWMutex{},
+	}
+}
 
 // VerifyIDToken verifies idToken
 func (auth *FirebaseAuth) VerifyIDToken(idToken string) (*jwt.StandardClaims, error) {
@@ -34,7 +38,7 @@ func (auth *FirebaseAuth) VerifyIDToken(idToken string) (*jwt.StandardClaims, er
 		if kid == "" {
 			return nil, fmt.Errorf("firebaseauth: Firebase ID token has no \"kid\" claim")
 		}
-		key := selectKey(kid)
+		key := auth.selectKey(kid)
 		if key == nil {
 			return nil, fmt.Errorf("firebaseauth: Firebase ID token has \"kid\" claim which does not correspond to a known public key. Most likely the ID token is expired, so get a fresh token from your client app and try again")
 		}
@@ -63,16 +67,16 @@ func (auth *FirebaseAuth) VerifyIDToken(idToken string) (*jwt.StandardClaims, er
 	return nil, fmt.Errorf("firebaseauth: invalid token")
 }
 
-func fetchKeys() error {
-	mutex.Lock()
-	defer mutex.Unlock()
-	resp, err := http.Get(endpoint)
+func (auth *FirebaseAuth) fetchKeys() error {
+	auth.keysMutex.Lock()
+	defer auth.keysMutex.Unlock()
+	resp, err := http.Get(keysEndpoint)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	exp, _ = time.Parse(time.RFC1123, resp.Header.Get("Expires"))
+	auth.keysExp, _ = time.Parse(time.RFC1123, resp.Header.Get("Expires"))
 
 	m := map[string]string{}
 	if err = json.NewDecoder(resp.Body).Decode(&m); err != nil {
@@ -85,19 +89,19 @@ func fetchKeys() error {
 			ks[k] = p
 		}
 	}
-	keys = ks
+	auth.keys = ks
 	return nil
 }
 
-func selectKey(kid string) *rsa.PublicKey {
-	mutex.RLock()
-	if exp.IsZero() || exp.Before(time.Now()) || len(keys) == 0 {
-		mutex.RUnlock()
-		if err := fetchKeys(); err != nil {
+func (auth *FirebaseAuth) selectKey(kid string) *rsa.PublicKey {
+	auth.keysMutex.RLock()
+	if auth.keysExp.IsZero() || auth.keysExp.Before(time.Now()) || len(auth.keys) == 0 {
+		auth.keysMutex.RUnlock()
+		if err := auth.fetchKeys(); err != nil {
 			return nil
 		}
-		mutex.RLock()
+		auth.keysMutex.RLock()
 	}
-	defer mutex.RUnlock()
-	return keys[kid]
+	defer auth.keysMutex.RUnlock()
+	return auth.keys[kid]
 }

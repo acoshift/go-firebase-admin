@@ -35,5 +35,5 @@ func ProjectID(projectID string) Option {
 
 // Auth creates new FirebaseAuth instance
 func (app *FirebaseApp) Auth() *FirebaseAuth {
-	return &FirebaseAuth{app: app}
+	return newFirebaseAuth(app)
 }
