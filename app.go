@@ -6,14 +6,16 @@ type FirebaseApp struct {
 }
 
 type options struct {
-	ProjectID string
+	ProjectID      string
+	ServiceAccount []byte
+	DatabaseURL    string
 }
 
-// Option func
-type Option func(*options)
+// OptionFunc type
+type OptionFunc func(*options)
 
 // InitializeApp initializes firebase app
-func InitializeApp(opts ...Option) (*FirebaseApp, error) {
+func InitializeApp(opts ...OptionFunc) (*FirebaseApp, error) {
 	opt := &options{}
 	for _, setter := range opts {
 		setter(opt)
@@ -27,9 +29,23 @@ func InitializeApp(opts ...Option) (*FirebaseApp, error) {
 }
 
 // ProjectID sets project id to options
-func ProjectID(projectID string) Option {
+func ProjectID(projectID string) OptionFunc {
 	return func(arg *options) {
 		arg.ProjectID = projectID
+	}
+}
+
+// ServiceAccount sets service account to options
+func ServiceAccount(serviceAccount []byte) OptionFunc {
+	return func(arg *options) {
+		arg.ServiceAccount = serviceAccount
+	}
+}
+
+// DatabaseURL sets database url to options
+func DatabaseURL(url string) OptionFunc {
+	return func(arg *options) {
+		arg.DatabaseURL = url
 	}
 }
 
