@@ -50,8 +50,8 @@ type deleteAccountRequest struct {
 type deleteAccountResponse struct {
 }
 
-// CreateAccount type
-type CreateAccount struct {
+// Account type
+type Account struct {
 	LocalID       string `json:"localId,omitempty"`
 	Email         string `json:"email,omitempty"`
 	EmailVerified bool   `json:"emailVerified,omitempty"`
@@ -64,9 +64,9 @@ type CreateAccount struct {
 }
 
 type uploadAccountRequest struct {
-	Users          []*CreateAccount `json:"users"`
-	AllowOverwrite bool             `json:"allowOverwrite"`
-	SanityCheck    bool             `json:"sanityCheck"`
+	Users          []*Account `json:"users"`
+	AllowOverwrite bool       `json:"allowOverwrite"`
+	SanityCheck    bool       `json:"sanityCheck"`
 }
 
 type uploadAccountResponse struct {

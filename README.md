@@ -75,3 +75,20 @@ user, err := firAuth.GetAccountInfoByEmail("abc@gmail.com")
 ```go
 users, err := firAuth.GetAccountInfoByEmails([]string{"abc@gmail.com", "qqq@hotmail.com", "aaaqaq@aaa.com"})
 ```
+
+### DeleteAccount
+
+```go
+err := firAuth.DeleteAccount("USER_ID")
+```
+
+### CreateAccount
+
+```go
+userID, err := firApp.CreateAccount(&admin.Account{
+  Email:         "aaa@bbb.com",
+  EmailVerified: true,
+  Password:      "12345678",
+  DisplayName:   "AAA BBB",
+})
+```

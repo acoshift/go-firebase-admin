@@ -189,7 +189,7 @@ func (auth *FirebaseAuth) DeleteAccount(uid string) error {
 }
 
 // CreateAccount creates an account
-func (auth *FirebaseAuth) CreateAccount(user *CreateAccount) (string, error) {
+func (auth *FirebaseAuth) CreateAccount(user *Account) (string, error) {
 	var err error
 	if user.LocalID == "" {
 		var resp signupNewUserResponse
@@ -204,7 +204,7 @@ func (auth *FirebaseAuth) CreateAccount(user *CreateAccount) (string, error) {
 	}
 	var resp uploadAccountResponse
 	err = auth.app.invokeRequest(httpPost, uploadAccount, &uploadAccountRequest{
-		Users:          []*CreateAccount{user},
+		Users:          []*Account{user},
 		AllowOverwrite: true,
 		SanityCheck:    true,
 	}, &resp)
