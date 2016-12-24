@@ -30,8 +30,17 @@ type UserInfo struct {
 	ScreenName  string `json:"screenName,omitempty"`
 }
 
-type apiError struct {
-	Message string `json:"message"`
+// Account type
+type Account struct {
+	LocalID       string `json:"localId,omitempty"`
+	Email         string `json:"email,omitempty"`
+	EmailVerified bool   `json:"emailVerified,omitempty"`
+	Password      string `json:"password,omitempty"`
+	RawPassword   string `json:"rawPassword,omitempty"`
+	DisplayName   string `json:"displayName,omitempty"`
+	PhotoURL      string `json:"photoUrl,omitempty"`
+	Disabled      bool   `json:"disabled,omitempty"`
+	DisableUser   bool   `json:"disableUser,omitempty"`
 }
 
 type getAccountInfoRequest struct {
@@ -50,19 +59,6 @@ type deleteAccountRequest struct {
 type deleteAccountResponse struct {
 }
 
-// Account type
-type Account struct {
-	LocalID       string `json:"localId,omitempty"`
-	Email         string `json:"email,omitempty"`
-	EmailVerified bool   `json:"emailVerified,omitempty"`
-	Password      string `json:"password,omitempty"`
-	RawPassword   string `json:"rawPassword,omitempty"`
-	DisplayName   string `json:"displayName,omitempty"`
-	PhotoURL      string `json:"photoUrl,omitempty"`
-	Disabled      bool   `json:"disabled,omitempty"`
-	DisableUser   bool   `json:"disableUser,omitempty"`
-}
-
 type uploadAccountRequest struct {
 	Users          []*Account `json:"users"`
 	AllowOverwrite bool       `json:"allowOverwrite"`
@@ -74,6 +70,10 @@ type uploadAccountResponse struct {
 		Index   int    `json:"index,omitempty"`
 		Message string `json:"message,omitempty"`
 	} `json:"error,omitempty"`
+}
+
+type signupNewUserRequest struct {
+	*Account
 }
 
 type signupNewUserResponse struct {

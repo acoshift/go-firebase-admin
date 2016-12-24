@@ -193,7 +193,7 @@ func (auth *FirebaseAuth) CreateAccount(user *Account) (string, error) {
 	var err error
 	if user.LocalID == "" {
 		var resp signupNewUserResponse
-		err = auth.app.invokeRequest(httpPost, signupNewUser, user, &resp)
+		err = auth.app.invokeRequest(httpPost, signupNewUser, &signupNewUserRequest{user}, &resp)
 		if err != nil {
 			return "", err
 		}
