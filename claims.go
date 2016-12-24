@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Claims for firebase auth token
+// Claims is the firebase authentication token claims
 type Claims struct {
 	Issuer    string      `json:"iss,omitempty"`
 	Subject   string      `json:"sub,omitempty"`
@@ -16,7 +16,9 @@ type Claims struct {
 	Claims    interface{} `json:"claims,omitempty"`
 }
 
-// Valid verifies expiresAt and issuedAt
+// Valid implements jwt-go Claims interface
+// for validates time based claims, such as IssuedAt, and ExpiresAt
+// But not verify token signature and header
 func (c *Claims) Valid() error {
 	now := time.Now().Unix()
 

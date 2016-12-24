@@ -29,7 +29,9 @@ func newFirebaseAuth(app *FirebaseApp) *FirebaseAuth {
 	}
 }
 
-// CreateCustomToken creates custom token
+// CreateCustomToken creates a custom token used for client to authenticate
+// with firebase server using signInWithCustomToken
+// https://firebase.google.com/docs/auth/admin/create-custom-tokens
 func (auth *FirebaseAuth) CreateCustomToken(userID string, claims interface{}) (string, error) {
 	if auth.app.jwtConfig == nil || auth.app.privateKey == nil {
 		return "", ErrRequireServiceAccount
@@ -48,7 +50,8 @@ func (auth *FirebaseAuth) CreateCustomToken(userID string, claims interface{}) (
 	return token.SignedString(auth.app.privateKey)
 }
 
-// VerifyIDToken verifies idToken
+// VerifyIDToken validates given idToken
+// return Claims for that token only valid token
 func (auth *FirebaseAuth) VerifyIDToken(idToken string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(idToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
@@ -140,7 +143,7 @@ func (auth *FirebaseAuth) GetAccountInfoByUID(uid string) (*User, error) {
 	return users[0], nil
 }
 
-// GetAccountInfoByUIDs retrieves account info by user ids
+// GetAccountInfoByUIDs retrieves account infos by user ids
 func (auth *FirebaseAuth) GetAccountInfoByUIDs(uids []string) ([]*User, error) {
 	var resp getAccountInfoResponse
 	err := auth.app.invokeRequest(httpPost, getAccountInfo, &getAccountInfoRequest{LocalIDs: uids}, &resp)
@@ -153,7 +156,7 @@ func (auth *FirebaseAuth) GetAccountInfoByUIDs(uids []string) ([]*User, error) {
 	return resp.Users, nil
 }
 
-// GetAccountInfoByEmail retrieves account info by emails
+// GetAccountInfoByEmail retrieves account info by email
 func (auth *FirebaseAuth) GetAccountInfoByEmail(email string) (*User, error) {
 	users, err := auth.GetAccountInfoByEmails([]string{email})
 	if err != nil {
@@ -165,7 +168,7 @@ func (auth *FirebaseAuth) GetAccountInfoByEmail(email string) (*User, error) {
 	return users[0], nil
 }
 
-// GetAccountInfoByEmails retrieves account info by emails
+// GetAccountInfoByEmails retrieves account infos by emails
 func (auth *FirebaseAuth) GetAccountInfoByEmails(emails []string) ([]*User, error) {
 	var resp getAccountInfoResponse
 	err := auth.app.invokeRequest(httpPost, getAccountInfo, &getAccountInfoRequest{Emails: emails}, &resp)
@@ -189,6 +192,8 @@ func (auth *FirebaseAuth) DeleteAccount(uid string) error {
 }
 
 // CreateAccount creates an account
+// if not provides LocalID, firebase server will auto generate
+// created user id can get from first param of result
 func (auth *FirebaseAuth) CreateAccount(user *Account) (string, error) {
 	var err error
 	if user.LocalID == "" {
@@ -232,12 +237,14 @@ type ListAccountCursor struct {
 	MaxResults    int
 }
 
-// ListAccount creates list account cursor
+// ListAccount creates list account cursor for retrieves accounts
+// MaxResults can change later after create cursor
 func (auth *FirebaseAuth) ListAccount(maxResults int) *ListAccountCursor {
 	return &ListAccountCursor{MaxResults: maxResults, auth: auth}
 }
 
-// Next retrieves next users from cursor
+// Next retrieves next users from cursor which limit to MaxResults
+// then move cursor to the next users
 func (cursor *ListAccountCursor) Next() ([]*User, error) {
 	var resp downloadAccountResponse
 	err := cursor.auth.app.invokeRequest(httpPost, downloadAccount, &downloadAccountRequest{MaxResults: cursor.MaxResults, NextPageToken: cursor.nextPageToken}, &resp)
@@ -248,7 +255,7 @@ func (cursor *ListAccountCursor) Next() ([]*User, error) {
 	return resp.Users, nil
 }
 
-// UpdateAccount updates existing account
+// UpdateAccount updates an existing account
 func (auth *FirebaseAuth) UpdateAccount(account *UpdateAccount) (string, error) {
 	var resp setAccountInfoResponse
 	err := auth.app.invokeRequest(httpPost, setAccountInfo, &setAccountInfoRequest{account}, &resp)

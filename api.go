@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// User is the firebase auth user
+// User is the firebase authentication user
 type User struct {
 	LocalID           string      `json:"localId,omitempty"`
 	Email             string      `json:"email,omitempty"`
@@ -19,7 +19,7 @@ type User struct {
 	CreatedAt         string      `json:"createdAt,omitempty"`
 }
 
-// UserInfo type
+// UserInfo is the user provider information
 type UserInfo struct {
 	ProviderID  string `json:"providerId,omitempty"`
 	DisplayName string `json:"displayName,omitempty"`
@@ -30,7 +30,7 @@ type UserInfo struct {
 	ScreenName  string `json:"screenName,omitempty"`
 }
 
-// Account type
+// Account use for create account
 type Account struct {
 	LocalID       string `json:"localId,omitempty"`
 	Email         string `json:"email,omitempty"`
@@ -42,8 +42,9 @@ type Account struct {
 	Disabled      bool   `json:"disabled,omitempty"`
 }
 
-// UpdateAccount type
+// UpdateAccount use for update existing account
 type UpdateAccount struct {
+	// LocalID is the existing user id to update
 	LocalID       string `json:"localId,omitempty"`
 	Email         string `json:"email,omitempty"`
 	EmailVerified bool   `json:"emailVerified,omitempty"`

@@ -12,7 +12,7 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-// FirebaseApp type
+// FirebaseApp holds infomation about application configuration
 type FirebaseApp struct {
 	projectID      string
 	serviceAccount string
@@ -27,10 +27,10 @@ type options struct {
 	DatabaseURL    string
 }
 
-// OptionFunc type
+// OptionFunc is the setter functions for set options used when InitializeApp
 type OptionFunc func(*options)
 
-// InitializeApp initializes firebase app
+// InitializeApp initializes firebase application with options
 func InitializeApp(opts ...OptionFunc) (*FirebaseApp, error) {
 	var err error
 	opt := &options{}
@@ -65,6 +65,7 @@ func ProjectID(projectID string) OptionFunc {
 }
 
 // ServiceAccount sets service account to options
+// https://firebase.google.com/docs/admin/setup
 func ServiceAccount(serviceAccount []byte) OptionFunc {
 	return func(arg *options) {
 		arg.ServiceAccount = serviceAccount
@@ -79,6 +80,9 @@ func DatabaseURL(url string) OptionFunc {
 }
 
 // Auth creates new FirebaseAuth instance
+// each instance has the save firebase app instance
+// but difference public keys instance
+// better create only one instance
 func (app *FirebaseApp) Auth() *FirebaseAuth {
 	return newFirebaseAuth(app)
 }
