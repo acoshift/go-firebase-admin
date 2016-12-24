@@ -40,7 +40,17 @@ type Account struct {
 	DisplayName   string `json:"displayName,omitempty"`
 	PhotoURL      string `json:"photoUrl,omitempty"`
 	Disabled      bool   `json:"disabled,omitempty"`
-	DisableUser   bool   `json:"disableUser,omitempty"`
+}
+
+// UpdateAccount type
+type UpdateAccount struct {
+	LocalID       string `json:"localId,omitempty"`
+	Email         string `json:"email,omitempty"`
+	EmailVerified bool   `json:"emailVerified,omitempty"`
+	Password      string `json:"password,omitempty"`
+	DisplayName   string `json:"displayName,omitempty"`
+	PhotoURL      string `json:"photoUrl,omitempty"`
+	Disabled      bool   `json:"disableUser,omitempty"`
 }
 
 type getAccountInfoRequest struct {
@@ -88,6 +98,14 @@ type downloadAccountRequest struct {
 type downloadAccountResponse struct {
 	Users         []*User `json:"users,omitempty"`
 	NextPageToken string  `json:"nextPageToken,omitempty"`
+}
+
+type setAccountInfoRequest struct {
+	*UpdateAccount
+}
+
+type setAccountInfoResponse struct {
+	LocalID string `json:"localId,omitempty"`
 }
 
 var scopes = []string{

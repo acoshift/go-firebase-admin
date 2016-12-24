@@ -105,3 +105,13 @@ for {
   log.Println(len(users))
 }
 ```
+
+### UpdateAccount
+
+```go
+err := firApp.UpdateAccount(&UpdateAccount{
+  LocalID: "12121212",
+  Email: "new_email@email.com",
+  Password: "new_password",
+  DisplayName: "new name",
+})

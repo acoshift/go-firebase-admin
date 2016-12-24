@@ -247,3 +247,13 @@ func (cursor *ListAccountCursor) Next() ([]*User, error) {
 	cursor.nextPageToken = resp.NextPageToken
 	return resp.Users, nil
 }
+
+// UpdateAccount updates existing account
+func (auth *FirebaseAuth) UpdateAccount(account *UpdateAccount) (string, error) {
+	var resp setAccountInfoResponse
+	err := auth.app.invokeRequest(httpPost, setAccountInfo, &setAccountInfoRequest{account}, &resp)
+	if err != nil {
+		return "", err
+	}
+	return resp.LocalID, nil
+}
