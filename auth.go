@@ -193,6 +193,10 @@ func (auth *FirebaseAuth) CreateAccount(user *Account) (string, error) {
 	var err error
 	if user.LocalID == "" {
 		var resp signupNewUserResponse
+		if user.RawPassword != "" && user.Password == "" {
+			user.Password = user.RawPassword
+			user.RawPassword = ""
+		}
 		err = auth.app.invokeRequest(httpPost, signupNewUser, &signupNewUserRequest{user}, &resp)
 		if err != nil {
 			return "", err
@@ -203,9 +207,13 @@ func (auth *FirebaseAuth) CreateAccount(user *Account) (string, error) {
 		return resp.LocalID, nil
 	}
 	var resp uploadAccountResponse
+	if user.RawPassword == "" && user.Password != "" {
+		user.RawPassword = user.Password
+		user.Password = ""
+	}
 	err = auth.app.invokeRequest(httpPost, uploadAccount, &uploadAccountRequest{
 		Users:          []*Account{user},
-		AllowOverwrite: true,
+		AllowOverwrite: false,
 		SanityCheck:    true,
 	}, &resp)
 	if err != nil {
