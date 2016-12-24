@@ -1,5 +1,7 @@
 # go-firebase-admin
 
+[![GoDoc](https://godoc.org/github.com/acoshift/go-firebase-admin?status.svg)](https://godoc.org/github.com/acoshift/go-firebase-admin)
+
 > Work in Progress
 
 Firebase Admin SDK for Golang
