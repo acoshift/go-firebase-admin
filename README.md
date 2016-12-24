@@ -92,3 +92,16 @@ userID, err := firApp.CreateAccount(&admin.Account{
   DisplayName:   "AAA BBB",
 })
 ```
+
+### ListAccount
+
+```go
+cursor := firApp.ListAccount(100)
+for {
+  users, err := cursor.Next()
+  if users == nil || err != nil {
+    break
+  }
+  log.Println(len(users))
+}
+```

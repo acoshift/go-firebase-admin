@@ -80,6 +80,16 @@ type signupNewUserResponse struct {
 	LocalID string `json:"localId,omitempty"`
 }
 
+type downloadAccountRequest struct {
+	MaxResults    int    `json:"maxResults,omitempty"`
+	NextPageToken string `json:"nextPageToken,omitempty"`
+}
+
+type downloadAccountResponse struct {
+	Users         []*User `json:"users,omitempty"`
+	NextPageToken string  `json:"nextPageToken,omitempty"`
+}
+
 var scopes = []string{
 	"https://www.googleapis.com/auth/userinfo.email",
 	"https://www.googleapis.com/auth/firebase.database",

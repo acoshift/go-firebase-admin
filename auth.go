@@ -216,3 +216,26 @@ func (auth *FirebaseAuth) CreateAccount(user *Account) (string, error) {
 	}
 	return user.LocalID, nil
 }
+
+// ListAccountCursor type
+type ListAccountCursor struct {
+	nextPageToken string
+	auth          *FirebaseAuth
+	MaxResults    int
+}
+
+// ListAccount creates list account cursor
+func (auth *FirebaseAuth) ListAccount(maxResults int) *ListAccountCursor {
+	return &ListAccountCursor{MaxResults: maxResults, auth: auth}
+}
+
+// Next retrieves next users from cursor
+func (cursor *ListAccountCursor) Next() ([]*User, error) {
+	var resp downloadAccountResponse
+	err := cursor.auth.app.invokeRequest(httpPost, downloadAccount, &downloadAccountRequest{MaxResults: cursor.MaxResults, NextPageToken: cursor.nextPageToken}, &resp)
+	if err != nil {
+		return nil, err
+	}
+	cursor.nextPageToken = resp.NextPageToken
+	return resp.Users, nil
+}
