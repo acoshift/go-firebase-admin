@@ -12,7 +12,7 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-// FirebaseApp holds infomation about application configuration
+// FirebaseApp holds information about application configuration
 type FirebaseApp struct {
 	projectID      string
 	serviceAccount string
