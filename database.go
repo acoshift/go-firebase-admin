@@ -1,8 +1,16 @@
 package admin
 
+import (
+	"net"
+	"net/http"
+	"time"
+)
+
 // Database type
 type Database struct {
-	app *FirebaseApp
+	app       *FirebaseApp
+	transport *http.Transport
+	client    *http.Client
 }
 
 // ServerValue
@@ -11,8 +19,18 @@ var (
 )
 
 func newDatabase(app *FirebaseApp) *Database {
+	tr := &http.Transport{
+		IdleConnTimeout: time.Minute * 5,
+		MaxIdleConns:    20,
+		Dial: func(network, address string) (net.Conn, error) {
+			c, err := net.Dial(network, address)
+			return c, err
+		},
+	}
 	return &Database{
-		app: app,
+		app:       app,
+		transport: tr,
+		client:    &http.Client{Transport: tr},
 	}
 }
 

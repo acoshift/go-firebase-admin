@@ -37,8 +37,12 @@ func (ref *Reference) Set(value interface{}) error {
 	}
 	req, _ := http.NewRequest(http.MethodPut, url, bytes.NewReader(v))
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	_, err = ref.database.app.jwtConfig.Client(ctx).Do(req)
-	return err
+	resp, err := ref.database.client.Do(req)
+	if err != nil {
+		return err
+	}
+	resp.Body.Close()
+	return nil
 }
 
 // Push pushs data to current location
@@ -55,7 +59,11 @@ func (ref *Reference) Push(value interface{}) error {
 	}
 	req, _ := http.NewRequest(http.MethodPost, url, bytes.NewReader(v))
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	_, err = ref.database.app.jwtConfig.Client(ctx).Do(req)
+	resp, err := ref.database.client.Do(req)
+	if err != nil {
+		return err
+	}
+	resp.Body.Close()
 	return err
 }
 
@@ -68,6 +76,10 @@ func (ref *Reference) Remove() error {
 		return err
 	}
 	req, _ := http.NewRequest(http.MethodDelete, url, nil)
-	_, err = ref.database.app.jwtConfig.Client(ctx).Do(req)
+	resp, err := ref.database.client.Do(req)
+	if err != nil {
+		return err
+	}
+	resp.Body.Close()
 	return err
 }
