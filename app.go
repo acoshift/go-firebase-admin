@@ -88,8 +88,8 @@ func (app *FirebaseApp) Auth() *FirebaseAuth {
 }
 
 // Database creates new FirebaseDatabase instance
-func (app *FirebaseApp) Database() *FirebaseDatabase {
-	return newFirebaseDatabase(app)
+func (app *FirebaseApp) Database() *Database {
+	return newDatabase(app)
 }
 
 func (app *FirebaseApp) invokeRequest(method httpMethod, api apiMethod, requestData interface{}, response interface{}) error {

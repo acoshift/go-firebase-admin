@@ -10,7 +10,7 @@ import (
 
 // Reference represents a specific location in Database
 type Reference struct {
-	database *FirebaseDatabase
+	database *Database
 	path     string
 }
 

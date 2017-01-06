@@ -1,7 +1,7 @@
 package admin
 
-// FirebaseDatabase type
-type FirebaseDatabase struct {
+// Database type
+type Database struct {
 	app *FirebaseApp
 }
 
@@ -10,13 +10,13 @@ var (
 	ServerValueTimestamp interface{} = map[string]string{".sv": "timestamp"}
 )
 
-func newFirebaseDatabase(app *FirebaseApp) *FirebaseDatabase {
-	return &FirebaseDatabase{
+func newDatabase(app *FirebaseApp) *Database {
+	return &Database{
 		app: app,
 	}
 }
 
 // Ref returns a Reference for a path
-func (database *FirebaseDatabase) Ref(path string) *Reference {
+func (database *Database) Ref(path string) *Reference {
 	return &Reference{database: database, path: path}
 }
