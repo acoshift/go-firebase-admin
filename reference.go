@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -15,12 +17,15 @@ type Reference struct {
 }
 
 func (ref *Reference) url(ctx context.Context) (string, error) {
+	if ref.database.app.jwtConfig == nil {
+		return ref.database.app.databaseURL + "/" + ref.path + ".json", nil
+	}
 	tk, err := ref.database.app.jwtConfig.TokenSource(ctx).Token()
 	if err != nil {
 		return "", err
 	}
 	token := tk.AccessToken
-	return ref.database.app.databaseURL + ref.path + ".json?access_token=" + token, nil
+	return ref.database.app.databaseURL + "/" + ref.path + ".json?access_token=" + token, nil
 }
 
 // Set writes data to current location
@@ -41,6 +46,7 @@ func (ref *Reference) Set(value interface{}) error {
 	if err != nil {
 		return err
 	}
+	io.Copy(ioutil.Discard, resp.Body)
 	resp.Body.Close()
 	return nil
 }
@@ -63,6 +69,7 @@ func (ref *Reference) Push(value interface{}) error {
 	if err != nil {
 		return err
 	}
+	io.Copy(ioutil.Discard, resp.Body)
 	resp.Body.Close()
 	return err
 }
@@ -80,6 +87,7 @@ func (ref *Reference) Remove() error {
 	if err != nil {
 		return err
 	}
+	io.Copy(ioutil.Discard, resp.Body)
 	resp.Body.Close()
 	return err
 }
