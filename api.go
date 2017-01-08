@@ -134,13 +134,6 @@ const (
 	getProjectConfig apiMethod = "getProjectConfig"
 )
 
-type httpMethod string
-
-const (
-	httpGet  httpMethod = "GET"
-	httpPost httpMethod = "POST"
-)
-
 func getContext() (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), timeout)
 }

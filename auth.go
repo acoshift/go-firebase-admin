@@ -12,9 +12,9 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-// FirebaseAuth type
-type FirebaseAuth struct {
-	app       *FirebaseApp
+// Auth type
+type Auth struct {
+	app       *App
 	keysMutex *sync.RWMutex
 	keys      map[string]*rsa.PublicKey
 	keysExp   time.Time
@@ -22,8 +22,8 @@ type FirebaseAuth struct {
 
 const keysEndpoint = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
 
-func newFirebaseAuth(app *FirebaseApp) *FirebaseAuth {
-	return &FirebaseAuth{
+func newAuth(app *App) *Auth {
+	return &Auth{
 		app:       app,
 		keysMutex: &sync.RWMutex{},
 	}
@@ -32,7 +32,7 @@ func newFirebaseAuth(app *FirebaseApp) *FirebaseAuth {
 // CreateCustomToken creates a custom token used for client to authenticate
 // with firebase server using signInWithCustomToken
 // https://firebase.google.com/docs/auth/admin/create-custom-tokens
-func (auth *FirebaseAuth) CreateCustomToken(userID string, claims interface{}) (string, error) {
+func (auth *Auth) CreateCustomToken(userID string, claims interface{}) (string, error) {
 	if auth.app.jwtConfig == nil || auth.app.privateKey == nil {
 		return "", ErrRequireServiceAccount
 	}
@@ -52,18 +52,18 @@ func (auth *FirebaseAuth) CreateCustomToken(userID string, claims interface{}) (
 
 // VerifyIDToken validates given idToken
 // return Claims for that token only valid token
-func (auth *FirebaseAuth) VerifyIDToken(idToken string) (*Claims, error) {
+func (auth *Auth) VerifyIDToken(idToken string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(idToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("firebaseauth: Firebase ID token has incorrect algorithm. Expected \"RSA\" but got \"%#v\"", token.Header["alg"])
+			return nil, fmt.Errorf("Auth: Firebase ID token has incorrect algorithm. Expected \"RSA\" but got \"%#v\"", token.Header["alg"])
 		}
 		kid := token.Header["kid"].(string)
 		if kid == "" {
-			return nil, fmt.Errorf("firebaseauth: Firebase ID token has no \"kid\" claim")
+			return nil, fmt.Errorf("Auth: Firebase ID token has no \"kid\" claim")
 		}
 		key := auth.selectKey(kid)
 		if key == nil {
-			return nil, fmt.Errorf("firebaseauth: Firebase ID token has \"kid\" claim which does not correspond to a known public key. Most likely the ID token is expired, so get a fresh token from your client app and try again")
+			return nil, fmt.Errorf("Auth: Firebase ID token has \"kid\" claim which does not correspond to a known public key. Most likely the ID token is expired, so get a fresh token from your client app and try again")
 		}
 		return key, nil
 	})
@@ -73,26 +73,26 @@ func (auth *FirebaseAuth) VerifyIDToken(idToken string) (*Claims, error) {
 
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
 		if !claims.verifyAudience(auth.app.projectID) {
-			return nil, fmt.Errorf("firebaseauth: Firebase ID token has incorrect \"aud\" (audience) claim. Expected \"%s\" but got \"%s\"", auth.app.projectID, claims.Audience)
+			return nil, fmt.Errorf("Auth: Firebase ID token has incorrect \"aud\" (audience) claim. Expected \"%s\" but got \"%s\"", auth.app.projectID, claims.Audience)
 		}
 		if !claims.verifyIssuer("https://securetoken.google.com/" + auth.app.projectID) {
-			return nil, fmt.Errorf("firebaseauth: Firebase ID token has incorrect \"iss\" (issuer) claim. Expected \"https://securetoken.google.com/%s\" but got \"%s\"", auth.app.projectID, claims.Issuer)
+			return nil, fmt.Errorf("Auth: Firebase ID token has incorrect \"iss\" (issuer) claim. Expected \"https://securetoken.google.com/%s\" but got \"%s\"", auth.app.projectID, claims.Issuer)
 		}
 		if claims.Subject == "" {
-			return nil, fmt.Errorf("firebaseauth: Firebase ID token has an empty string \"sub\" (subject) claim")
+			return nil, fmt.Errorf("Auth: Firebase ID token has an empty string \"sub\" (subject) claim")
 		}
 		if len(claims.Subject) > 128 {
-			return nil, fmt.Errorf("firebaseauth: Firebase ID token has \"sub\" (subject) claim longer than 128 characters")
+			return nil, fmt.Errorf("Auth: Firebase ID token has \"sub\" (subject) claim longer than 128 characters")
 		}
 
 		claims.UserID = claims.Subject
 
 		return claims, nil
 	}
-	return nil, fmt.Errorf("firebaseauth: invalid token")
+	return nil, fmt.Errorf("Auth: invalid token")
 }
 
-func (auth *FirebaseAuth) fetchKeys() error {
+func (auth *Auth) fetchKeys() error {
 	auth.keysMutex.Lock()
 	defer auth.keysMutex.Unlock()
 	resp, err := http.Get(keysEndpoint)
@@ -118,7 +118,7 @@ func (auth *FirebaseAuth) fetchKeys() error {
 	return nil
 }
 
-func (auth *FirebaseAuth) selectKey(kid string) *rsa.PublicKey {
+func (auth *Auth) selectKey(kid string) *rsa.PublicKey {
 	auth.keysMutex.RLock()
 	if auth.keysExp.IsZero() || auth.keysExp.Before(time.Now()) || len(auth.keys) == 0 {
 		auth.keysMutex.RUnlock()
@@ -132,7 +132,7 @@ func (auth *FirebaseAuth) selectKey(kid string) *rsa.PublicKey {
 }
 
 // GetAccountInfoByUID retrieves an account info by user id
-func (auth *FirebaseAuth) GetAccountInfoByUID(uid string) (*User, error) {
+func (auth *Auth) GetAccountInfoByUID(uid string) (*User, error) {
 	users, err := auth.GetAccountInfoByUIDs([]string{uid})
 	if err != nil {
 		return nil, err
@@ -144,9 +144,9 @@ func (auth *FirebaseAuth) GetAccountInfoByUID(uid string) (*User, error) {
 }
 
 // GetAccountInfoByUIDs retrieves account infos by user ids
-func (auth *FirebaseAuth) GetAccountInfoByUIDs(uids []string) ([]*User, error) {
+func (auth *Auth) GetAccountInfoByUIDs(uids []string) ([]*User, error) {
 	var resp getAccountInfoResponse
-	err := auth.app.invokeRequest(httpPost, getAccountInfo, &getAccountInfoRequest{LocalIDs: uids}, &resp)
+	err := auth.app.invokeRequest(http.MethodPost, getAccountInfo, &getAccountInfoRequest{LocalIDs: uids}, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +157,7 @@ func (auth *FirebaseAuth) GetAccountInfoByUIDs(uids []string) ([]*User, error) {
 }
 
 // GetAccountInfoByEmail retrieves account info by email
-func (auth *FirebaseAuth) GetAccountInfoByEmail(email string) (*User, error) {
+func (auth *Auth) GetAccountInfoByEmail(email string) (*User, error) {
 	users, err := auth.GetAccountInfoByEmails([]string{email})
 	if err != nil {
 		return nil, err
@@ -169,9 +169,9 @@ func (auth *FirebaseAuth) GetAccountInfoByEmail(email string) (*User, error) {
 }
 
 // GetAccountInfoByEmails retrieves account infos by emails
-func (auth *FirebaseAuth) GetAccountInfoByEmails(emails []string) ([]*User, error) {
+func (auth *Auth) GetAccountInfoByEmails(emails []string) ([]*User, error) {
 	var resp getAccountInfoResponse
-	err := auth.app.invokeRequest(httpPost, getAccountInfo, &getAccountInfoRequest{Emails: emails}, &resp)
+	err := auth.app.invokeRequest(http.MethodPost, getAccountInfo, &getAccountInfoRequest{Emails: emails}, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -182,19 +182,19 @@ func (auth *FirebaseAuth) GetAccountInfoByEmails(emails []string) ([]*User, erro
 }
 
 // DeleteAccount deletes an account by user id
-func (auth *FirebaseAuth) DeleteAccount(uid string) error {
+func (auth *Auth) DeleteAccount(uid string) error {
 	if uid == "" {
 		return ErrRequireUID
 	}
 
 	var resp deleteAccountResponse
-	return auth.app.invokeRequest(httpPost, deleteAccount, &deleteAccountRequest{LocalID: uid}, &resp)
+	return auth.app.invokeRequest(http.MethodPost, deleteAccount, &deleteAccountRequest{LocalID: uid}, &resp)
 }
 
 // CreateAccount creates an account
 // if not provides LocalID, firebase server will auto generate
 // created user id can get from first param of result
-func (auth *FirebaseAuth) CreateAccount(user *Account) (string, error) {
+func (auth *Auth) CreateAccount(user *Account) (string, error) {
 	var err error
 	if user.LocalID == "" {
 		var resp signupNewUserResponse
@@ -202,12 +202,12 @@ func (auth *FirebaseAuth) CreateAccount(user *Account) (string, error) {
 			user.Password = user.RawPassword
 			user.RawPassword = ""
 		}
-		err = auth.app.invokeRequest(httpPost, signupNewUser, &signupNewUserRequest{user}, &resp)
+		err = auth.app.invokeRequest(http.MethodPost, signupNewUser, &signupNewUserRequest{user}, &resp)
 		if err != nil {
 			return "", err
 		}
 		if resp.LocalID == "" {
-			return "", errors.New("firebaseauth: create account error")
+			return "", errors.New("Auth: create account error")
 		}
 		return resp.LocalID, nil
 	}
@@ -216,7 +216,7 @@ func (auth *FirebaseAuth) CreateAccount(user *Account) (string, error) {
 		user.RawPassword = user.Password
 		user.Password = ""
 	}
-	err = auth.app.invokeRequest(httpPost, uploadAccount, &uploadAccountRequest{
+	err = auth.app.invokeRequest(http.MethodPost, uploadAccount, &uploadAccountRequest{
 		Users:          []*Account{user},
 		AllowOverwrite: false,
 		SanityCheck:    true,
@@ -225,7 +225,7 @@ func (auth *FirebaseAuth) CreateAccount(user *Account) (string, error) {
 		return "", err
 	}
 	if resp.Error != nil {
-		return "", errors.New("firebaseauth: upload account error")
+		return "", errors.New("Auth: upload account error")
 	}
 	return user.LocalID, nil
 }
@@ -233,13 +233,13 @@ func (auth *FirebaseAuth) CreateAccount(user *Account) (string, error) {
 // ListAccountCursor type
 type ListAccountCursor struct {
 	nextPageToken string
-	auth          *FirebaseAuth
+	auth          *Auth
 	MaxResults    int
 }
 
 // ListAccount creates list account cursor for retrieves accounts
 // MaxResults can change later after create cursor
-func (auth *FirebaseAuth) ListAccount(maxResults int) *ListAccountCursor {
+func (auth *Auth) ListAccount(maxResults int) *ListAccountCursor {
 	return &ListAccountCursor{MaxResults: maxResults, auth: auth}
 }
 
@@ -247,7 +247,7 @@ func (auth *FirebaseAuth) ListAccount(maxResults int) *ListAccountCursor {
 // then move cursor to the next users
 func (cursor *ListAccountCursor) Next() ([]*User, error) {
 	var resp downloadAccountResponse
-	err := cursor.auth.app.invokeRequest(httpPost, downloadAccount, &downloadAccountRequest{MaxResults: cursor.MaxResults, NextPageToken: cursor.nextPageToken}, &resp)
+	err := cursor.auth.app.invokeRequest(http.MethodPost, downloadAccount, &downloadAccountRequest{MaxResults: cursor.MaxResults, NextPageToken: cursor.nextPageToken}, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -256,9 +256,9 @@ func (cursor *ListAccountCursor) Next() ([]*User, error) {
 }
 
 // UpdateAccount updates an existing account
-func (auth *FirebaseAuth) UpdateAccount(account *UpdateAccount) (string, error) {
+func (auth *Auth) UpdateAccount(account *UpdateAccount) (string, error) {
 	var resp setAccountInfoResponse
-	err := auth.app.invokeRequest(httpPost, setAccountInfo, &setAccountInfoRequest{account}, &resp)
+	err := auth.app.invokeRequest(http.MethodPost, setAccountInfo, &setAccountInfoRequest{account}, &resp)
 	if err != nil {
 		return "", err
 	}

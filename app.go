@@ -12,8 +12,8 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-// FirebaseApp holds information about application configuration
-type FirebaseApp struct {
+// App holds information about application configuration
+type App struct {
 	projectID      string
 	serviceAccount string
 	jwtConfig      *jwt.Config
@@ -21,30 +21,24 @@ type FirebaseApp struct {
 	databaseURL    string
 }
 
-type options struct {
+// AppOptions is the firebase app options for initialize app
+type AppOptions struct {
 	ProjectID      string
 	ServiceAccount []byte
 	DatabaseURL    string
 }
 
-// OptionFunc is the setter functions for set options used when InitializeApp
-type OptionFunc func(*options)
-
 // InitializeApp initializes firebase application with options
-func InitializeApp(opts ...OptionFunc) (*FirebaseApp, error) {
+func InitializeApp(options AppOptions) (*App, error) {
 	var err error
-	opt := &options{}
-	for _, setter := range opts {
-		setter(opt)
+
+	app := App{
+		projectID:   options.ProjectID,
+		databaseURL: options.DatabaseURL,
 	}
 
-	app := FirebaseApp{
-		projectID:   opt.ProjectID,
-		databaseURL: opt.DatabaseURL,
-	}
-
-	if opt.ServiceAccount != nil {
-		app.jwtConfig, err = google.JWTConfigFromJSON(opt.ServiceAccount, scopes...)
+	if options.ServiceAccount != nil {
+		app.jwtConfig, err = google.JWTConfigFromJSON(options.ServiceAccount, scopes...)
 		if err != nil {
 			return nil, err
 		}
@@ -57,42 +51,20 @@ func InitializeApp(opts ...OptionFunc) (*FirebaseApp, error) {
 	return &app, nil
 }
 
-// ProjectID sets project id to options
-func ProjectID(projectID string) OptionFunc {
-	return func(arg *options) {
-		arg.ProjectID = projectID
-	}
-}
-
-// ServiceAccount sets service account to options
-// https://firebase.google.com/docs/admin/setup
-func ServiceAccount(serviceAccount []byte) OptionFunc {
-	return func(arg *options) {
-		arg.ServiceAccount = serviceAccount
-	}
-}
-
-// DatabaseURL sets database url to options
-func DatabaseURL(url string) OptionFunc {
-	return func(arg *options) {
-		arg.DatabaseURL = url
-	}
-}
-
-// Auth creates new FirebaseAuth instance
+// Auth creates new Auth instance
 // each instance has the save firebase app instance
 // but difference public keys instance
 // better create only one instance
-func (app *FirebaseApp) Auth() *FirebaseAuth {
-	return newFirebaseAuth(app)
+func (app *App) Auth() *Auth {
+	return newAuth(app)
 }
 
-// Database creates new FirebaseDatabase instance
-func (app *FirebaseApp) Database() *Database {
+// Database creates new Database instance
+func (app *App) Database() *Database {
 	return newDatabase(app)
 }
 
-func (app *FirebaseApp) invokeRequest(method httpMethod, api apiMethod, requestData interface{}, response interface{}) error {
+func (app *App) invokeRequest(method string, api apiMethod, requestData interface{}, response interface{}) error {
 	if app.jwtConfig == nil {
 		return ErrRequireServiceAccount
 	}
@@ -103,7 +75,7 @@ func (app *FirebaseApp) invokeRequest(method httpMethod, api apiMethod, requestD
 	var resp *http.Response
 	var err error
 	path := baseURL + string(api)
-	if method == httpPost {
+	if method == http.MethodPost {
 		var requestBytes []byte
 		requestBytes, err = json.Marshal(requestData)
 		if err != nil {

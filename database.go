@@ -8,7 +8,7 @@ import (
 
 // Database type
 type Database struct {
-	app       *FirebaseApp
+	app       *App
 	transport *http.Transport
 	client    *http.Client
 }
@@ -18,7 +18,7 @@ var (
 	ServerValueTimestamp interface{} = map[string]string{".sv": "timestamp"}
 )
 
-func newDatabase(app *FirebaseApp) *Database {
+func newDatabase(app *App) *Database {
 	tr := &http.Transport{
 		IdleConnTimeout: time.Minute * 5,
 		MaxIdleConns:    20,
