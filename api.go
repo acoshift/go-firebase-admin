@@ -92,8 +92,9 @@ type signupNewUserResponse struct {
 }
 
 type downloadAccountRequest struct {
-	MaxResults    int    `json:"maxResults,omitempty"`
-	NextPageToken string `json:"nextPageToken,omitempty"`
+	MaxResults      int    `json:"maxResults,omitempty"`
+	NextPageToken   string `json:"nextPageToken,omitempty"`
+	TargetProjectID string `json:"targetProjectId,omitempty"`
 }
 
 type downloadAccountResponse struct {
@@ -113,7 +114,6 @@ var scopes = []string{
 	"https://www.googleapis.com/auth/userinfo.email",
 	"https://www.googleapis.com/auth/firebase.database",
 	"https://www.googleapis.com/auth/identitytoolkit",
-	"https://www.googleapis.com/auth/firebase.database",
 }
 
 const (

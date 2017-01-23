@@ -10,6 +10,7 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"google.golang.org/api/iterator"
 )
 
 // Auth type
@@ -247,9 +248,15 @@ func (auth *Auth) ListAccount(maxResults int) *ListAccountCursor {
 // then move cursor to the next users
 func (cursor *ListAccountCursor) Next() ([]*User, error) {
 	var resp downloadAccountResponse
-	err := cursor.auth.app.invokeRequest(http.MethodPost, downloadAccount, &downloadAccountRequest{MaxResults: cursor.MaxResults, NextPageToken: cursor.nextPageToken}, &resp)
+	err := cursor.auth.app.invokeRequest(http.MethodPost, downloadAccount, &downloadAccountRequest{
+		MaxResults:    cursor.MaxResults,
+		NextPageToken: cursor.nextPageToken,
+	}, &resp)
 	if err != nil {
 		return nil, err
+	}
+	if len(resp.Users) == 0 {
+		return nil, iterator.Done
 	}
 	cursor.nextPageToken = resp.NextPageToken
 	return resp.Users, nil

@@ -17,10 +17,10 @@ type Reference struct {
 }
 
 func (ref *Reference) url(ctx context.Context) (string, error) {
-	if ref.database.app.jwtConfig == nil {
+	if ref.database.app.tokenSource == nil {
 		return ref.database.app.databaseURL + "/" + ref.path + ".json", nil
 	}
-	tk, err := ref.database.app.jwtConfig.TokenSource(ctx).Token()
+	tk, err := ref.database.app.tokenSource.Token()
 	if err != nil {
 		return "", err
 	}
