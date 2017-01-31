@@ -77,23 +77,33 @@ func (app *App) invokeRequest(method string, api apiMethod, requestData interfac
 	if app.tokenSource == nil {
 		return ErrRequireServiceAccount
 	}
+
 	ctx, cancel := getContext()
 	defer cancel()
 	client := oauth2.NewClient(ctx, app.tokenSource)
 
-	var resp *http.Response
+	var req *http.Request
 	var err error
 	path := baseURL + string(api)
-	if method == http.MethodPost {
+	if requestData != nil {
 		var requestBytes []byte
 		requestBytes, err = json.Marshal(requestData)
 		if err != nil {
 			return err
 		}
-		resp, err = client.Post(path, "application/json", bytes.NewReader(requestBytes))
+		req, err = http.NewRequest(method, path, bytes.NewReader(requestBytes))
+		if err != nil {
+			return err
+		}
+		req.Header.Set("Content-Type", "application/json")
 	} else {
-		resp, err = client.Get(path)
+		req, err = http.NewRequest(method, path, nil)
+		if err != nil {
+			return err
+		}
 	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
