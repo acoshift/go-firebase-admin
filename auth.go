@@ -286,12 +286,17 @@ func (cursor *ListAccountCursor) Next() ([]*UserRecord, error) {
 	return resp.Users, nil
 }
 
-// UpdateAccount updates an existing account
-func (auth *Auth) UpdateAccount(account *UpdateAccount) (string, error) {
+// UpdateUser updates an existing user
+func (auth *Auth) UpdateUser(user *User) (*UserRecord, error) {
 	var resp setAccountInfoResponse
-	err := auth.app.invokeRequest(http.MethodPost, setAccountInfo, &setAccountInfoRequest{account}, &resp)
+	err := auth.app.invokeRequest(http.MethodPost, setAccountInfo, &setAccountInfoRequest{user}, &resp)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return resp.LocalID, nil
+
+	res, err := auth.GetUser(resp.LocalID)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }

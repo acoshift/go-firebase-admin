@@ -12,9 +12,7 @@ type UserRecord struct {
 	EmailVerified     bool        `json:"emailVerified,omitempty"`
 	ProviderData      []*UserInfo `json:"providerUserInfo,omitempty"`
 	PhotoURL          string      `json:"photoUrl,omitempty"`
-	PasswordHash      string      `json:"passwordHash,omitempty"`
 	PasswordUpdatedAt float64     `json:"passwordUpdatedAt,omitempty"`
-	ValidSince        string      `json:"validSince,omitempty"`
 	Disabled          bool        `json:"disabled,omitempty"`
 	LastLoginAt       string      `json:"lastLoginAt,omitempty"`
 	CreatedAt         string      `json:"createdAt,omitempty"`
@@ -47,8 +45,8 @@ type User struct {
 
 // UpdateAccount use for update existing account
 type UpdateAccount struct {
-	// LocalID is the existing user id to update
-	LocalID       string `json:"localId,omitempty"`
+	// UserID is the existing user id to update
+	UserID        string `json:"localId,omitempty"`
 	Email         string `json:"email,omitempty"`
 	EmailVerified bool   `json:"emailVerified,omitempty"`
 	Password      string `json:"password,omitempty"`
@@ -106,7 +104,7 @@ type downloadAccountResponse struct {
 }
 
 type setAccountInfoRequest struct {
-	*UpdateAccount
+	*User
 }
 
 type setAccountInfoResponse struct {
