@@ -5,12 +5,13 @@ import (
 	"time"
 )
 
-// User is the firebase authentication user
-type User struct {
-	LocalID           string      `json:"localId,omitempty"`
+// UserRecord is the firebase authentication user
+type UserRecord struct {
+	UserID            string      `json:"localId,omitempty"`
 	Email             string      `json:"email,omitempty"`
 	EmailVerified     bool        `json:"emailVerified,omitempty"`
-	ProviderUserInfo  []*UserInfo `json:"providerUserInfo,omitempty"`
+	ProviderData      []*UserInfo `json:"providerUserInfo,omitempty"`
+	PhotoURL          string      `json:"photoUrl,omitempty"`
 	PasswordHash      string      `json:"passwordHash,omitempty"`
 	PasswordUpdatedAt float64     `json:"passwordUpdatedAt,omitempty"`
 	ValidSince        string      `json:"validSince,omitempty"`
@@ -30,9 +31,11 @@ type UserInfo struct {
 	ScreenName  string `json:"screenName,omitempty"`
 }
 
-// Account use for create account
-type Account struct {
-	LocalID       string `json:"localId,omitempty"`
+// User use for create new user
+// use Password when create user (plain text)
+// use RawPassword when update user (hashed password)
+type User struct {
+	UserID        string `json:"localId,omitempty"`
 	Email         string `json:"email,omitempty"`
 	EmailVerified bool   `json:"emailVerified,omitempty"`
 	Password      string `json:"password,omitempty"`
@@ -60,7 +63,7 @@ type getAccountInfoRequest struct {
 }
 
 type getAccountInfoResponse struct {
-	Users []*User `json:"users,omitempty"`
+	Users []*UserRecord `json:"users,omitempty"`
 }
 
 type deleteAccountRequest struct {
@@ -71,9 +74,9 @@ type deleteAccountResponse struct {
 }
 
 type uploadAccountRequest struct {
-	Users          []*Account `json:"users"`
-	AllowOverwrite bool       `json:"allowOverwrite"`
-	SanityCheck    bool       `json:"sanityCheck"`
+	Users          []*User `json:"users"`
+	AllowOverwrite bool    `json:"allowOverwrite"`
+	SanityCheck    bool    `json:"sanityCheck"`
 }
 
 type uploadAccountResponse struct {
@@ -84,7 +87,7 @@ type uploadAccountResponse struct {
 }
 
 type signupNewUserRequest struct {
-	*Account
+	*User
 }
 
 type signupNewUserResponse struct {
@@ -98,8 +101,8 @@ type downloadAccountRequest struct {
 }
 
 type downloadAccountResponse struct {
-	Users         []*User `json:"users,omitempty"`
-	NextPageToken string  `json:"nextPageToken,omitempty"`
+	Users         []*UserRecord `json:"users,omitempty"`
+	NextPageToken string        `json:"nextPageToken,omitempty"`
 }
 
 type setAccountInfoRequest struct {

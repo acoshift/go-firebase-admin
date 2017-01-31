@@ -136,7 +136,7 @@ func (auth *Auth) selectKey(kid string) *rsa.PublicKey {
 }
 
 // GetUser retrieves an user by user id
-func (auth *Auth) GetUser(uid string) (*User, error) {
+func (auth *Auth) GetUser(uid string) (*UserRecord, error) {
 	users, err := auth.GetUsers([]string{uid})
 	if err != nil {
 		return nil, err
@@ -148,7 +148,7 @@ func (auth *Auth) GetUser(uid string) (*User, error) {
 }
 
 // GetUsers retrieves users by user ids
-func (auth *Auth) GetUsers(uids []string) ([]*User, error) {
+func (auth *Auth) GetUsers(uids []string) ([]*UserRecord, error) {
 	var resp getAccountInfoResponse
 	err := auth.app.invokeRequest(http.MethodPost, getAccountInfo, &getAccountInfoRequest{LocalIDs: uids}, &resp)
 	if err != nil {
@@ -161,7 +161,7 @@ func (auth *Auth) GetUsers(uids []string) ([]*User, error) {
 }
 
 // GetUserByEmail retrieves user by email
-func (auth *Auth) GetUserByEmail(email string) (*User, error) {
+func (auth *Auth) GetUserByEmail(email string) (*UserRecord, error) {
 	users, err := auth.GetUsersByEmail([]string{email})
 	if err != nil {
 		return nil, err
@@ -173,7 +173,7 @@ func (auth *Auth) GetUserByEmail(email string) (*User, error) {
 }
 
 // GetUsersByEmail retrieves users by emails
-func (auth *Auth) GetUsersByEmail(emails []string) ([]*User, error) {
+func (auth *Auth) GetUsersByEmail(emails []string) ([]*UserRecord, error) {
 	var resp getAccountInfoResponse
 	err := auth.app.invokeRequest(http.MethodPost, getAccountInfo, &getAccountInfoRequest{Emails: emails}, &resp)
 	if err != nil {
@@ -194,43 +194,65 @@ func (auth *Auth) DeleteUser(uid string) error {
 	return auth.app.invokeRequest(http.MethodPost, deleteAccount, &deleteAccountRequest{LocalID: uid}, &deleteAccountResponse{})
 }
 
-// CreateAccount creates an account
-// if not provides LocalID, firebase server will auto generate
-// created user id can get from first param of result
-func (auth *Auth) CreateAccount(user *Account) (string, error) {
-	var err error
-	if user.LocalID == "" {
-		var resp signupNewUserResponse
-		if user.RawPassword != "" && user.Password == "" {
-			user.Password = user.RawPassword
-			user.RawPassword = ""
-		}
-		err = auth.app.invokeRequest(http.MethodPost, signupNewUser, &signupNewUserRequest{user}, &resp)
-		if err != nil {
-			return "", err
-		}
-		if resp.LocalID == "" {
-			return "", errors.New("firebaseauth: create account error")
-		}
-		return resp.LocalID, nil
+func (auth *Auth) createUserAutoID(user *User) (string, error) {
+	var resp signupNewUserResponse
+	if len(user.RawPassword) > 0 && len(user.Password) == 0 {
+		// signup new user need password
+		user.Password = user.RawPassword
+		user.RawPassword = ""
 	}
+	err := auth.app.invokeRequest(http.MethodPost, signupNewUser, &signupNewUserRequest{user}, &resp)
+	if err != nil {
+		return "", err
+	}
+	if len(resp.LocalID) == 0 {
+		return "", errors.New("firebaseauth: create account error")
+	}
+	return resp.LocalID, nil
+}
+
+func (auth *Auth) createUserCustomID(user *User) error {
 	var resp uploadAccountResponse
-	if user.RawPassword == "" && user.Password != "" {
+	if len(user.RawPassword) == 0 && len(user.Password) > 0 {
+		// upload account use raw password
 		user.RawPassword = user.Password
 		user.Password = ""
 	}
-	err = auth.app.invokeRequest(http.MethodPost, uploadAccount, &uploadAccountRequest{
-		Users:          []*Account{user},
+	err := auth.app.invokeRequest(http.MethodPost, uploadAccount, &uploadAccountRequest{
+		Users:          []*User{user},
 		AllowOverwrite: false,
 		SanityCheck:    true,
 	}, &resp)
 	if err != nil {
-		return "", err
+		return err
 	}
 	if resp.Error != nil {
-		return "", errors.New("firebaseauth: upload account error")
+		return errors.New("firebaseauth: upload account error")
 	}
-	return user.LocalID, nil
+	return nil
+}
+
+// CreateUser creates an user
+// if not provides UserID, firebase server will auto generate
+func (auth *Auth) CreateUser(user *User) (*UserRecord, error) {
+	var err error
+	var userID string
+
+	if len(user.UserID) == 0 {
+		userID, err = auth.createUserAutoID(user)
+	} else {
+		userID = user.UserID
+		err = auth.createUserCustomID(user)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := auth.GetUser(userID)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 // ListAccountCursor type
@@ -248,7 +270,7 @@ func (auth *Auth) ListAccount(maxResults int) *ListAccountCursor {
 
 // Next retrieves next users from cursor which limit to MaxResults
 // then move cursor to the next users
-func (cursor *ListAccountCursor) Next() ([]*User, error) {
+func (cursor *ListAccountCursor) Next() ([]*UserRecord, error) {
 	var resp downloadAccountResponse
 	err := cursor.auth.app.invokeRequest(http.MethodPost, downloadAccount, &downloadAccountRequest{
 		MaxResults:    cursor.MaxResults,
