@@ -28,7 +28,7 @@ func (c *Claims) Valid() error {
 	}
 
 	if !c.verifyIssuedAt(now) {
-		return fmt.Errorf("Token used before issued")
+		return fmt.Errorf("token used before issued")
 	}
 
 	return nil
