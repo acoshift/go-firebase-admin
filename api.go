@@ -3,44 +3,96 @@ package admin
 import (
 	"context"
 	"time"
+
+	"google.golang.org/api/identitytoolkit/v3"
 )
 
 // UserRecord is the firebase authentication user
 type UserRecord struct {
-	UserID            string      `json:"localId,omitempty"`
-	Email             string      `json:"email,omitempty"`
-	EmailVerified     bool        `json:"emailVerified,omitempty"`
-	ProviderData      []*UserInfo `json:"providerUserInfo,omitempty"`
-	PhotoURL          string      `json:"photoUrl,omitempty"`
-	PasswordUpdatedAt float64     `json:"passwordUpdatedAt,omitempty"`
-	Disabled          bool        `json:"disabled,omitempty"`
-	LastLoginAt       string      `json:"lastLoginAt,omitempty"`
-	CreatedAt         string      `json:"createdAt,omitempty"`
+	UserID        string
+	Email         string
+	EmailVerified bool
+	DisplayName   string
+	PhotoURL      string
+	Disabled      bool
+	Metadata      UserMetadata
+	ProviderData  []*UserInfo
+}
+
+type UserMetadata struct {
+	CreatedAt      time.Time
+	LastSignedInAt time.Time
 }
 
 // UserInfo is the user provider information
 type UserInfo struct {
-	ProviderID  string `json:"providerId,omitempty"`
-	DisplayName string `json:"displayName,omitempty"`
-	PhotoURL    string `json:"photoUrl,omitempty"`
-	FederatedID string `json:"federatedId,omitempty"`
-	Email       string `json:"email,omitempty"`
-	RawID       string `json:"rawId,omitempty"`
-	ScreenName  string `json:"screenName,omitempty"`
+	UserID      string
+	Email       string
+	DisplayName string
+	PhotoURL    string
+	ProviderID  string
+}
+
+func parseDate(t int64) time.Time {
+	if t == 0 {
+		return time.Time{}
+	}
+	return time.Unix(t/1000, 0)
+}
+
+func toUserRecord(user *identitytoolkit.UserInfo) *UserRecord {
+	return &UserRecord{
+		UserID:        user.LocalId,
+		Email:         user.Email,
+		EmailVerified: user.EmailVerified,
+		DisplayName:   user.DisplayName,
+		PhotoURL:      user.PhotoUrl,
+		Disabled:      user.Disabled,
+		Metadata: UserMetadata{
+			CreatedAt:      parseDate(user.CreatedAt),
+			LastSignedInAt: parseDate(user.LastLoginAt),
+		},
+		ProviderData: toUserInfos(user.ProviderUserInfo),
+	}
+}
+
+func toUserRecords(users []*identitytoolkit.UserInfo) []*UserRecord {
+	result := make([]*UserRecord, len(users))
+	for i, user := range users {
+		result[i] = toUserRecord(user)
+	}
+	return result
+}
+
+func toUserInfo(info *identitytoolkit.UserInfoProviderUserInfo) *UserInfo {
+	return &UserInfo{
+		UserID:      info.RawId,
+		Email:       info.Email,
+		DisplayName: info.DisplayName,
+		PhotoURL:    info.PhotoUrl,
+		ProviderID:  info.ProviderId,
+	}
+}
+
+func toUserInfos(infos []*identitytoolkit.UserInfoProviderUserInfo) []*UserInfo {
+	result := make([]*UserInfo, len(infos))
+	for i, info := range infos {
+		result[i] = toUserInfo(info)
+	}
+	return result
 }
 
 // User use for create new user
 // use Password when create user (plain text)
 // use RawPassword when update user (hashed password)
 type User struct {
-	UserID        string `json:"localId,omitempty"`
-	Email         string `json:"email,omitempty"`
-	EmailVerified bool   `json:"emailVerified,omitempty"`
-	Password      string `json:"password,omitempty"`
-	RawPassword   string `json:"rawPassword,omitempty"`
-	DisplayName   string `json:"displayName,omitempty"`
-	PhotoURL      string `json:"photoUrl,omitempty"`
-	Disabled      bool   `json:"disabled,omitempty"`
+	UserID        string
+	Email         string
+	EmailVerified bool
+	Password      string
+	DisplayName   string
+	PhotoURL      string
+	Disabled      bool
 }
 
 // UpdateAccount use for update existing account
@@ -55,62 +107,6 @@ type UpdateAccount struct {
 	Disabled      bool   `json:"disableUser,omitempty"`
 }
 
-type getAccountInfoRequest struct {
-	LocalIDs []string `json:"localId,omitempty"`
-	Emails   []string `json:"email,omitempty"`
-}
-
-type getAccountInfoResponse struct {
-	Users []*UserRecord `json:"users,omitempty"`
-}
-
-type deleteAccountRequest struct {
-	LocalID string `json:"localId,omitempty"`
-}
-
-type deleteAccountResponse struct {
-}
-
-type uploadAccountRequest struct {
-	Users          []*User `json:"users"`
-	AllowOverwrite bool    `json:"allowOverwrite"`
-	SanityCheck    bool    `json:"sanityCheck"`
-}
-
-type uploadAccountResponse struct {
-	Error []*struct {
-		Index   int    `json:"index,omitempty"`
-		Message string `json:"message,omitempty"`
-	} `json:"error,omitempty"`
-}
-
-type signupNewUserRequest struct {
-	*User
-}
-
-type signupNewUserResponse struct {
-	LocalID string `json:"localId,omitempty"`
-}
-
-type downloadAccountRequest struct {
-	MaxResults      int    `json:"maxResults,omitempty"`
-	NextPageToken   string `json:"nextPageToken,omitempty"`
-	TargetProjectID string `json:"targetProjectId,omitempty"`
-}
-
-type downloadAccountResponse struct {
-	Users         []*UserRecord `json:"users,omitempty"`
-	NextPageToken string        `json:"nextPageToken,omitempty"`
-}
-
-type setAccountInfoRequest struct {
-	*User
-}
-
-type setAccountInfoResponse struct {
-	LocalID string `json:"localId,omitempty"`
-}
-
 var scopes = []string{
 	"https://www.googleapis.com/auth/userinfo.email",
 	"https://www.googleapis.com/auth/firebase.database",
@@ -120,19 +116,6 @@ var scopes = []string{
 const (
 	baseURL = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/"
 	timeout = time.Second * 10000
-)
-
-type apiMethod string
-
-const (
-	getAccountInfo   apiMethod = "getAccountInfo"
-	setAccountInfo   apiMethod = "setAccountInfo"
-	deleteAccount    apiMethod = "deleteAccount"
-	uploadAccount    apiMethod = "uploadAccount"
-	signupNewUser    apiMethod = "signupNewUser"
-	downloadAccount  apiMethod = "downloadAccount"
-	getOOBCode       apiMethod = "getOobConfirmationCode"
-	getProjectConfig apiMethod = "getProjectConfig"
 )
 
 func getContext() (context.Context, context.CancelFunc) {

@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"context"
 	"crypto/rsa"
 	"encoding/json"
 	"errors"
@@ -10,12 +11,15 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"golang.org/x/oauth2"
+	"google.golang.org/api/identitytoolkit/v3"
 	"google.golang.org/api/iterator"
 )
 
 // Auth type
 type Auth struct {
 	app       *App
+	client    *identitytoolkit.Service
 	keysMutex *sync.RWMutex
 	keys      map[string]*rsa.PublicKey
 	keysExp   time.Time
@@ -26,11 +30,16 @@ const (
 	customTokenAudience = "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit"
 )
 
-func newAuth(app *App) *Auth {
+func newAuth(app *App) (*Auth, error) {
+	client, err := identitytoolkit.New(oauth2.NewClient(context.Background(), app.tokenSource))
+	if err != nil {
+		return nil, err
+	}
 	return &Auth{
 		app:       app,
+		client:    client,
 		keysMutex: &sync.RWMutex{},
-	}
+	}, nil
 }
 
 // CreateCustomToken creates a custom token used for client to authenticate
@@ -148,16 +157,18 @@ func (auth *Auth) GetUser(uid string) (*UserRecord, error) {
 }
 
 // GetUsers retrieves users by user ids
-func (auth *Auth) GetUsers(uids []string) ([]*UserRecord, error) {
-	var resp getAccountInfoResponse
-	err := auth.app.invokeRequest(http.MethodPost, getAccountInfo, &getAccountInfoRequest{LocalIDs: uids}, &resp)
+func (auth *Auth) GetUsers(userIDs []string) ([]*UserRecord, error) {
+	r := auth.client.Relyingparty.GetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartyGetAccountInfoRequest{
+		LocalId: userIDs,
+	})
+	resp, err := r.Do()
 	if err != nil {
 		return nil, err
 	}
 	if len(resp.Users) == 0 {
 		return nil, nil
 	}
-	return resp.Users, nil
+	return toUserRecords(resp.Users), nil
 }
 
 // GetUserByEmail retrieves user by email
@@ -174,60 +185,79 @@ func (auth *Auth) GetUserByEmail(email string) (*UserRecord, error) {
 
 // GetUsersByEmail retrieves users by emails
 func (auth *Auth) GetUsersByEmail(emails []string) ([]*UserRecord, error) {
-	var resp getAccountInfoResponse
-	err := auth.app.invokeRequest(http.MethodPost, getAccountInfo, &getAccountInfoRequest{Emails: emails}, &resp)
+	r := auth.client.Relyingparty.GetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartyGetAccountInfoRequest{
+		Email: emails,
+	})
+	resp, err := r.Do()
 	if err != nil {
 		return nil, err
 	}
 	if len(resp.Users) == 0 {
 		return nil, nil
 	}
-	return resp.Users, nil
+	return toUserRecords(resp.Users), nil
 }
 
 // DeleteUser deletes an user by user id
-func (auth *Auth) DeleteUser(uid string) error {
-	if len(uid) == 0 {
+func (auth *Auth) DeleteUser(userID string) error {
+	if len(userID) == 0 {
 		return ErrRequireUID
 	}
 
-	return auth.app.invokeRequest(http.MethodPost, deleteAccount, &deleteAccountRequest{LocalID: uid}, &deleteAccountResponse{})
-}
-
-func (auth *Auth) createUserAutoID(user *User) (string, error) {
-	var resp signupNewUserResponse
-	if len(user.RawPassword) > 0 && len(user.Password) == 0 {
-		// signup new user need password
-		user.Password = user.RawPassword
-		user.RawPassword = ""
-	}
-	err := auth.app.invokeRequest(http.MethodPost, signupNewUser, &signupNewUserRequest{user}, &resp)
-	if err != nil {
-		return "", err
-	}
-	if len(resp.LocalID) == 0 {
-		return "", errors.New("firebaseauth: create account error")
-	}
-	return resp.LocalID, nil
-}
-
-func (auth *Auth) createUserCustomID(user *User) error {
-	var resp uploadAccountResponse
-	if len(user.RawPassword) == 0 && len(user.Password) > 0 {
-		// upload account use raw password
-		user.RawPassword = user.Password
-		user.Password = ""
-	}
-	err := auth.app.invokeRequest(http.MethodPost, uploadAccount, &uploadAccountRequest{
-		Users:          []*User{user},
-		AllowOverwrite: false,
-		SanityCheck:    true,
-	}, &resp)
+	r := auth.client.Relyingparty.DeleteAccount(&identitytoolkit.IdentitytoolkitRelyingpartyDeleteAccountRequest{
+		LocalId: userID,
+	})
+	_, err := r.Do()
 	if err != nil {
 		return err
 	}
-	if resp.Error != nil {
-		return errors.New("firebaseauth: upload account error")
+	return nil
+}
+
+func (auth *Auth) createUserAutoID(user *User) (string, error) {
+	r := auth.client.Relyingparty.SignupNewUser(&identitytoolkit.IdentitytoolkitRelyingpartySignupNewUserRequest{
+		Disabled:      user.Disabled,
+		DisplayName:   user.DisplayName,
+		Email:         user.Email,
+		EmailVerified: user.EmailVerified,
+		Password:      user.Password,
+		PhotoUrl:      user.PhotoURL,
+	})
+	resp, err := r.Do()
+	if err != nil {
+		return "", err
+	}
+	if err != nil {
+		return "", err
+	}
+	if len(resp.LocalId) == 0 {
+		return "", errors.New("firebaseauth: create account error")
+	}
+	return resp.LocalId, nil
+}
+
+func (auth *Auth) createUserCustomID(user *User) error {
+	r := auth.client.Relyingparty.UploadAccount(&identitytoolkit.IdentitytoolkitRelyingpartyUploadAccountRequest{
+		AllowOverwrite: false,
+		SanityCheck:    true,
+		Users: []*identitytoolkit.UserInfo{
+			&identitytoolkit.UserInfo{
+				LocalId:       user.UserID,
+				Email:         user.Email,
+				EmailVerified: user.EmailVerified,
+				RawPassword:   user.Password,
+				DisplayName:   user.DisplayName,
+				Disabled:      user.Disabled,
+				PhotoUrl:      user.PhotoURL,
+			},
+		},
+	})
+	resp, err := r.Do()
+	if err != nil {
+		return err
+	}
+	if len(resp.Error) > 0 {
+		return errors.New("firebaseauth: create user error")
 	}
 	return nil
 }
@@ -259,23 +289,23 @@ func (auth *Auth) CreateUser(user *User) (*UserRecord, error) {
 type ListAccountCursor struct {
 	nextPageToken string
 	auth          *Auth
-	MaxResults    int
+	MaxResults    int64
 }
 
-// ListAccount creates list account cursor for retrieves accounts
+// ListUser creates list account cursor for retrieves accounts
 // MaxResults can change later after create cursor
-func (auth *Auth) ListAccount(maxResults int) *ListAccountCursor {
+func (auth *Auth) ListUsers(maxResults int64) *ListAccountCursor {
 	return &ListAccountCursor{MaxResults: maxResults, auth: auth}
 }
 
 // Next retrieves next users from cursor which limit to MaxResults
 // then move cursor to the next users
 func (cursor *ListAccountCursor) Next() ([]*UserRecord, error) {
-	var resp downloadAccountResponse
-	err := cursor.auth.app.invokeRequest(http.MethodPost, downloadAccount, &downloadAccountRequest{
+	r := cursor.auth.client.Relyingparty.DownloadAccount(&identitytoolkit.IdentitytoolkitRelyingpartyDownloadAccountRequest{
 		MaxResults:    cursor.MaxResults,
 		NextPageToken: cursor.nextPageToken,
-	}, &resp)
+	})
+	resp, err := r.Do()
 	if err != nil {
 		return nil, err
 	}
@@ -283,18 +313,26 @@ func (cursor *ListAccountCursor) Next() ([]*UserRecord, error) {
 		return nil, iterator.Done
 	}
 	cursor.nextPageToken = resp.NextPageToken
-	return resp.Users, nil
+	return toUserRecords(resp.Users), nil
 }
 
 // UpdateUser updates an existing user
 func (auth *Auth) UpdateUser(user *User) (*UserRecord, error) {
-	var resp setAccountInfoResponse
-	err := auth.app.invokeRequest(http.MethodPost, setAccountInfo, &setAccountInfoRequest{user}, &resp)
+	r := auth.client.Relyingparty.SetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartySetAccountInfoRequest{
+		LocalId:       user.UserID,
+		Email:         user.Email,
+		EmailVerified: user.EmailVerified,
+		Password:      user.Password,
+		DisplayName:   user.DisplayName,
+		DisableUser:   user.Disabled,
+		PhotoUrl:      user.PhotoURL,
+	})
+	resp, err := r.Do()
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := auth.GetUser(resp.LocalID)
+	res, err := auth.GetUser(resp.LocalId)
 	if err != nil {
 		return nil, err
 	}
