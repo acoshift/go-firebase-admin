@@ -135,9 +135,9 @@ func (auth *Auth) selectKey(kid string) *rsa.PublicKey {
 	return auth.keys[kid]
 }
 
-// GetAccountInfoByUID retrieves an account info by user id
-func (auth *Auth) GetAccountInfoByUID(uid string) (*User, error) {
-	users, err := auth.GetAccountInfoByUIDs([]string{uid})
+// GetUser retrieves an user by user id
+func (auth *Auth) GetUser(uid string) (*User, error) {
+	users, err := auth.GetUsers([]string{uid})
 	if err != nil {
 		return nil, err
 	}
@@ -147,8 +147,8 @@ func (auth *Auth) GetAccountInfoByUID(uid string) (*User, error) {
 	return users[0], nil
 }
 
-// GetAccountInfoByUIDs retrieves account infos by user ids
-func (auth *Auth) GetAccountInfoByUIDs(uids []string) ([]*User, error) {
+// GetUsers retrieves users by user ids
+func (auth *Auth) GetUsers(uids []string) ([]*User, error) {
 	var resp getAccountInfoResponse
 	err := auth.app.invokeRequest(http.MethodPost, getAccountInfo, &getAccountInfoRequest{LocalIDs: uids}, &resp)
 	if err != nil {
@@ -160,9 +160,9 @@ func (auth *Auth) GetAccountInfoByUIDs(uids []string) ([]*User, error) {
 	return resp.Users, nil
 }
 
-// GetAccountInfoByEmail retrieves account info by email
-func (auth *Auth) GetAccountInfoByEmail(email string) (*User, error) {
-	users, err := auth.GetAccountInfoByEmails([]string{email})
+// GetUserByEmail retrieves user by email
+func (auth *Auth) GetUserByEmail(email string) (*User, error) {
+	users, err := auth.GetUsersByEmail([]string{email})
 	if err != nil {
 		return nil, err
 	}
@@ -172,8 +172,8 @@ func (auth *Auth) GetAccountInfoByEmail(email string) (*User, error) {
 	return users[0], nil
 }
 
-// GetAccountInfoByEmails retrieves account infos by emails
-func (auth *Auth) GetAccountInfoByEmails(emails []string) ([]*User, error) {
+// GetUsersByEmail retrieves users by emails
+func (auth *Auth) GetUsersByEmail(emails []string) ([]*User, error) {
 	var resp getAccountInfoResponse
 	err := auth.app.invokeRequest(http.MethodPost, getAccountInfo, &getAccountInfoRequest{Emails: emails}, &resp)
 	if err != nil {
@@ -185,14 +185,13 @@ func (auth *Auth) GetAccountInfoByEmails(emails []string) ([]*User, error) {
 	return resp.Users, nil
 }
 
-// DeleteAccount deletes an account by user id
-func (auth *Auth) DeleteAccount(uid string) error {
-	if uid == "" {
+// DeleteUser deletes an user by user id
+func (auth *Auth) DeleteUser(uid string) error {
+	if len(uid) == 0 {
 		return ErrRequireUID
 	}
 
-	var resp deleteAccountResponse
-	return auth.app.invokeRequest(http.MethodPost, deleteAccount, &deleteAccountRequest{LocalID: uid}, &resp)
+	return auth.app.invokeRequest(http.MethodPost, deleteAccount, &deleteAccountRequest{LocalID: uid}, &deleteAccountResponse{})
 }
 
 // CreateAccount creates an account
