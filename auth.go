@@ -21,7 +21,10 @@ type Auth struct {
 	keysExp   time.Time
 }
 
-const keysEndpoint = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+const (
+	keysEndpoint        = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+	customTokenAudience = "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit"
+)
 
 func newAuth(app *App) *Auth {
 	return &Auth{
@@ -41,7 +44,7 @@ func (auth *Auth) CreateCustomToken(userID string, claims interface{}) (string, 
 	payload := &Claims{
 		Issuer:    auth.app.jwtConfig.Email,
 		Subject:   auth.app.jwtConfig.Email,
-		Audience:  "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit",
+		Audience:  customTokenAudience,
 		IssuedAt:  now.Unix(),
 		ExpiresAt: now.Add(time.Hour).Unix(),
 		UserID:    userID,
@@ -56,15 +59,15 @@ func (auth *Auth) CreateCustomToken(userID string, claims interface{}) (string, 
 func (auth *Auth) VerifyIDToken(idToken string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(idToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("Auth: Firebase ID token has incorrect algorithm. Expected \"RSA\" but got \"%#v\"", token.Header["alg"])
+			return nil, fmt.Errorf("firebaseauth: Firebase ID token has incorrect algorithm. Expected \"RSA\" but got \"%#v\"", token.Header["alg"])
 		}
 		kid := token.Header["kid"].(string)
 		if kid == "" {
-			return nil, fmt.Errorf("Auth: Firebase ID token has no \"kid\" claim")
+			return nil, fmt.Errorf("firebaseauth: Firebase ID token has no \"kid\" claim")
 		}
 		key := auth.selectKey(kid)
 		if key == nil {
-			return nil, fmt.Errorf("Auth: Firebase ID token has \"kid\" claim which does not correspond to a known public key. Most likely the ID token is expired, so get a fresh token from your client app and try again")
+			return nil, fmt.Errorf("firebaseauth: Firebase ID token has \"kid\" claim which does not correspond to a known public key. Most likely the ID token is expired, so get a fresh token from your client app and try again")
 		}
 		return key, nil
 	})
@@ -74,23 +77,23 @@ func (auth *Auth) VerifyIDToken(idToken string) (*Claims, error) {
 
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
 		if !claims.verifyAudience(auth.app.projectID) {
-			return nil, fmt.Errorf("Auth: Firebase ID token has incorrect \"aud\" (audience) claim. Expected \"%s\" but got \"%s\"", auth.app.projectID, claims.Audience)
+			return nil, fmt.Errorf("firebaseauth: Firebase ID token has incorrect \"aud\" (audience) claim. Expected \"%s\" but got \"%s\"", auth.app.projectID, claims.Audience)
 		}
 		if !claims.verifyIssuer("https://securetoken.google.com/" + auth.app.projectID) {
-			return nil, fmt.Errorf("Auth: Firebase ID token has incorrect \"iss\" (issuer) claim. Expected \"https://securetoken.google.com/%s\" but got \"%s\"", auth.app.projectID, claims.Issuer)
+			return nil, fmt.Errorf("firebaseauth: Firebase ID token has incorrect \"iss\" (issuer) claim. Expected \"https://securetoken.google.com/%s\" but got \"%s\"", auth.app.projectID, claims.Issuer)
 		}
 		if claims.Subject == "" {
-			return nil, fmt.Errorf("Auth: Firebase ID token has an empty string \"sub\" (subject) claim")
+			return nil, fmt.Errorf("firebaseauth: Firebase ID token has an empty string \"sub\" (subject) claim")
 		}
 		if len(claims.Subject) > 128 {
-			return nil, fmt.Errorf("Auth: Firebase ID token has \"sub\" (subject) claim longer than 128 characters")
+			return nil, fmt.Errorf("firebaseauth: Firebase ID token has \"sub\" (subject) claim longer than 128 characters")
 		}
 
 		claims.UserID = claims.Subject
 
 		return claims, nil
 	}
-	return nil, fmt.Errorf("Auth: invalid token")
+	return nil, fmt.Errorf("firebaseauth: invalid token")
 }
 
 func (auth *Auth) fetchKeys() error {
@@ -208,7 +211,7 @@ func (auth *Auth) CreateAccount(user *Account) (string, error) {
 			return "", err
 		}
 		if resp.LocalID == "" {
-			return "", errors.New("Auth: create account error")
+			return "", errors.New("firebaseauth: create account error")
 		}
 		return resp.LocalID, nil
 	}
@@ -226,7 +229,7 @@ func (auth *Auth) CreateAccount(user *Account) (string, error) {
 		return "", err
 	}
 	if resp.Error != nil {
-		return "", errors.New("Auth: upload account error")
+		return "", errors.New("firebaseauth: upload account error")
 	}
 	return user.LocalID, nil
 }
