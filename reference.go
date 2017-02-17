@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -26,6 +27,36 @@ func (ref *Reference) url(ctx context.Context) (string, error) {
 	}
 	token := tk.AccessToken
 	return ref.database.app.databaseURL + "/" + ref.path + ".json?access_token=" + token, nil
+}
+
+// IsNull checks if the value of the current location is null (does not exist)
+func (ref *Reference) IsNull() (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+	url, err := ref.url(ctx)
+	if err != nil {
+		return false, err
+	}
+	url = url + "&shallow=true" // return minimum response
+	req, _ := http.NewRequest(http.MethodGet, url, nil)
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	resp, err := ref.database.client.Do(req)
+	if err != nil {
+		return false, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return false, fmt.Errorf("invalid response %s", resp.Status)
+	}
+	var buffer []byte
+	buffer, err = ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		return false, err
+	}
+	if string(buffer) == "null" {
+		return true, nil
+	}
+	return false, nil
 }
 
 // Set writes data to current location
