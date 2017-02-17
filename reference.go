@@ -2,12 +2,11 @@ package admin
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"time"
 )
 
 // Reference represents a specific location in Database
@@ -16,7 +15,7 @@ type Reference struct {
 	path     string
 }
 
-func (ref *Reference) url(ctx context.Context) (string, error) {
+func (ref *Reference) url() (string, error) {
 	if ref.database.app.tokenSource == nil {
 		return ref.database.app.databaseURL + "/" + ref.path + ".json", nil
 	}
@@ -28,66 +27,68 @@ func (ref *Reference) url(ctx context.Context) (string, error) {
 	return ref.database.app.databaseURL + "/" + ref.path + ".json?access_token=" + token, nil
 }
 
-// Set writes data to current location
-func (ref *Reference) Set(value interface{}) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-	v, err := json.Marshal(value)
+func (ref *Reference) invokeRequest(method string, body io.Reader, v interface{}) error {
+	url, err := ref.url()
 	if err != nil {
 		return err
 	}
-	url, err := ref.url(ctx)
+	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return err
 	}
-	req, _ := http.NewRequest(http.MethodPut, url, bytes.NewReader(v))
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	resp, err := ref.database.client.Do(req)
 	if err != nil {
 		return err
 	}
-	io.Copy(ioutil.Discard, resp.Body)
-	resp.Body.Close()
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("firebasedatabase: %s", resp.Status)
+	}
+	if v == nil {
+		io.Copy(ioutil.Discard, resp.Body)
+		return nil
+	}
+	err = json.NewDecoder(resp.Body).Decode(v)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Set writes data to current location
+func (ref *Reference) Set(value interface{}) error {
+	buf := bytes.NewBuffer([]byte{})
+	err := json.NewEncoder(buf).Encode(value)
+	if err != nil {
+		return err
+	}
+	err = ref.invokeRequest(http.MethodPut, buf, nil)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 // Push pushs data to current location
 func (ref *Reference) Push(value interface{}) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-	v, err := json.Marshal(value)
+	buf := bytes.NewBuffer([]byte{})
+	err := json.NewEncoder(buf).Encode(value)
 	if err != nil {
 		return err
 	}
-	url, err := ref.url(ctx)
+	err = ref.invokeRequest(http.MethodPost, buf, nil)
 	if err != nil {
 		return err
 	}
-	req, _ := http.NewRequest(http.MethodPost, url, bytes.NewReader(v))
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	resp, err := ref.database.client.Do(req)
-	if err != nil {
-		return err
-	}
-	io.Copy(ioutil.Discard, resp.Body)
-	resp.Body.Close()
-	return err
+	return nil
 }
 
 // Remove removes data from current location
 func (ref *Reference) Remove() error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-	url, err := ref.url(ctx)
+	err := ref.invokeRequest(http.MethodDelete, nil, nil)
 	if err != nil {
 		return err
 	}
-	req, _ := http.NewRequest(http.MethodDelete, url, nil)
-	resp, err := ref.database.client.Do(req)
-	if err != nil {
-		return err
-	}
-	io.Copy(ioutil.Discard, resp.Body)
-	resp.Body.Close()
-	return err
+	return nil
 }
