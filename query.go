@@ -18,7 +18,7 @@ type Query interface {
 	OnChildRemoved(event chan *OldChildSnapshot) CancelFunc
 	OnChildChanged(event chan *ChildSnapshot) CancelFunc
 	OnChildMoved(event chan *ChildSnapshot) CancelFunc
-	OnceValue() *DataSnapshot
+	OnceValue() (*DataSnapshot, error)
 	OnceChildAdded() *ChildSnapshot
 	OnceChildRemove() *OldChildSnapshot
 	OnceChildChanged() *ChildSnapshot

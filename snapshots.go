@@ -1,7 +1,34 @@
 package admin
 
+import (
+	"bytes"
+	"encoding/json"
+)
+
 // DataSnapshot type
 type DataSnapshot struct {
+	ref *Reference
+	raw []byte
+}
+
+// Key returns the location of this DataSnapshot
+func (snapshot *DataSnapshot) Key() string {
+	panic(ErrNotImplement)
+}
+
+// Ref returns the Reference for the location generated this DataSnapshot
+func (snapshot *DataSnapshot) Ref() *Reference {
+	return snapshot.ref
+}
+
+// Exists returns true if this DataSnapshot contains any data
+func (snapshot *DataSnapshot) Exists() bool {
+	return bytes.Compare(snapshot.raw, []byte("null")) != 0
+}
+
+// Val extracts a value from a DataSnapshot
+func (snapshot *DataSnapshot) Val(v interface{}) error {
+	return json.NewDecoder(bytes.NewReader(snapshot.raw)).Decode(v)
 }
 
 // ChildSnapshot type
