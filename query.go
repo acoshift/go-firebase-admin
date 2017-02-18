@@ -8,7 +8,7 @@ type Query interface {
 	IsEqual(other interface{}) Query
 	LimitToFirst(limit int) Query
 	LimitToLast(limit int) Query
-	OrderByChild(path string) Query
+	OrderByChild(path interface{}) Query
 	OrderByKey() Query
 	OrderByPriority() Query
 	OrderByValue() Query
