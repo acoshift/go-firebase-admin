@@ -315,6 +315,14 @@ func (ref *Reference) OnceChildMoved() *ChildSnapshot {
 	panic(ErrNotImplement)
 }
 
+// String returns absolute URL for this location
 func (ref *Reference) String() string {
-	panic(ErrNotImplement)
+	u, err := ref.url()
+	if err != nil {
+		return ""
+	}
+	q := u.Query()
+	q.Del("access_token")
+	u.RawQuery = q.Encode()
+	return u.String()
 }
