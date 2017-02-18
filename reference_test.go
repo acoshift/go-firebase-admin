@@ -101,7 +101,7 @@ func TestOrderBy(t *testing.T) {
 		t.Fatalf("expected dinosours have 6 len; got %d", len(d))
 	}
 
-	snapshot, err = r.OrderByChild("height").EqualTo(0.6, "").OnceValue()
+	snapshot, err = r.OrderByChild("height").EqualTo(0.6).OnceValue()
 	if err != nil {
 		t.Fatal(err)
 	}

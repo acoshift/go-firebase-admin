@@ -199,19 +199,19 @@ func (ref Reference) Parent() *Reference {
 }
 
 // EndAt implements Query interface
-func (ref Reference) EndAt(value interface{}, key string) Query {
+func (ref Reference) EndAt(value interface{}) Query {
 	ref.endAt = value
 	return &ref
 }
 
 // StartAt implements Query interface
-func (ref Reference) StartAt(value interface{}, key string) Query {
+func (ref Reference) StartAt(value interface{}) Query {
 	ref.startAt = value
 	return &ref
 }
 
 // EqualTo implements Query interface
-func (ref Reference) EqualTo(value interface{}, key string) Query {
+func (ref Reference) EqualTo(value interface{}) Query {
 	ref.equalTo = value
 	return &ref
 }

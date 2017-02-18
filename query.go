@@ -3,8 +3,8 @@ package admin
 // Query is the query interface
 type Query interface {
 	Ref() *Reference
-	EndAt(value interface{}, key string) Query
-	EqualTo(value interface{}, key string) Query
+	EndAt(value interface{}) Query
+	EqualTo(value interface{}) Query
 	IsEqual(other interface{}) Query
 	LimitToFirst(limit int) Query
 	LimitToLast(limit int) Query
@@ -12,7 +12,7 @@ type Query interface {
 	OrderByKey() Query
 	OrderByPriority() Query
 	OrderByValue() Query
-	StartAt(value interface{}, key string) Query
+	StartAt(value interface{}) Query
 	OnValue(event chan *DataSnapshot) CancelFunc
 	OnChildAdded(event chan *ChildSnapshot) CancelFunc
 	OnChildRemoved(event chan *OldChildSnapshot) CancelFunc
