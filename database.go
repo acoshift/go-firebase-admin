@@ -3,6 +3,7 @@ package admin
 import (
 	"net"
 	"net/http"
+	_path "path"
 	"time"
 )
 
@@ -38,5 +39,6 @@ func newDatabase(app *App) *Database {
 
 // Ref returns a Reference for a path
 func (database *Database) Ref(path string) *Reference {
+	path = _path.Clean(path)
 	return &Reference{database: database, path: path}
 }

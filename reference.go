@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	_path "path"
 )
 
 // Reference represents a specific location in Database
@@ -89,9 +90,28 @@ func (ref *Reference) Remove() error {
 	return nil
 }
 
-// Ref implements Query interface by return self
-func (ref *Reference) Ref() *Reference {
-	return ref
+// Key returns the last path of Reference
+func (ref *Reference) Key() string {
+	_, p := _path.Split(ref.path)
+	return p
+}
+
+// Ref returns a copy
+func (ref Reference) Ref() *Reference {
+	return &ref
+}
+
+// Root returns the root location of database
+func (ref *Reference) Root() *Reference {
+	return &Reference{
+		database: ref.database,
+	}
+}
+
+// Child returns a Reference for relative path
+func (ref Reference) Child(path string) *Reference {
+	ref.path = _path.Join(ref.path, path)
+	return &ref
 }
 
 // EndAt implements Query interface
