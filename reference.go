@@ -114,6 +114,12 @@ func (ref Reference) Child(path string) *Reference {
 	return &ref
 }
 
+// Parent returns the parent location of Reference
+func (ref Reference) Parent() *Reference {
+	ref.path, _ = _path.Split(ref.path)
+	return &ref
+}
+
 // EndAt implements Query interface
 func (ref *Reference) EndAt(value interface{}, key string) Query {
 	panic(ErrNotImplement)
