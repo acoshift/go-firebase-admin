@@ -15,7 +15,9 @@ type Database struct {
 
 // ServerValue
 var (
-	ServerValueTimestamp interface{} = map[string]string{".sv": "timestamp"}
+	ServerValueTimestamp interface{} = struct {
+		SV string `json:".sv"`
+	}{"timestamp"}
 )
 
 func newDatabase(app *App) *Database {
