@@ -217,7 +217,7 @@ func (ref Reference) EqualTo(value interface{}) Query {
 }
 
 // IsEqual implements Query interface
-func (ref Reference) IsEqual(other interface{}) Query {
+func (ref Reference) IsEqual(other interface{}) bool {
 	panic(ErrNotImplement)
 }
 
