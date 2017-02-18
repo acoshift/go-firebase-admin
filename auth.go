@@ -292,7 +292,7 @@ type ListAccountCursor struct {
 	MaxResults    int64
 }
 
-// ListUser creates list account cursor for retrieves accounts
+// ListUsers creates list account cursor for retrieves accounts
 // MaxResults can change later after create cursor
 func (auth *Auth) ListUsers(maxResults int64) *ListAccountCursor {
 	return &ListAccountCursor{MaxResults: maxResults, auth: auth}

@@ -7,24 +7,96 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	_path "path"
+	"strconv"
 )
 
 // Reference represents a specific location in Database
 type Reference struct {
 	database *Database
 	path     string
+
+	// queries
+	startAt      interface{}
+	endAt        interface{}
+	orderBy      interface{}
+	equalTo      interface{}
+	limitToFirst int
+	limitToLast  int
 }
 
-func (ref *Reference) url() (string, error) {
-	if ref.database.app.tokenSource == nil {
-		return ref.database.app.databaseURL + "/" + ref.path + ".json", nil
-	}
-	tk, err := ref.database.app.tokenSource.Token()
+func marshalJSON(v interface{}) (string, error) {
+	b, err := json.Marshal(v)
 	if err != nil {
 		return "", err
 	}
+	return string(b), nil
+}
+
+func addQueryJSON(q url.Values, name string, value interface{}) error {
+	s, err := marshalJSON(value)
+	if err != nil {
+		return err
+	}
+	q.Add(name, s)
+	return nil
+}
+
+func addQueryInt(q url.Values, name string, value int) {
+	s := strconv.Itoa(value)
+	q.Add(name, s)
+}
+
+func (ref *Reference) url() (*url.URL, error) {
+	u, err := url.Parse(ref.database.app.databaseURL + "/" + ref.path + ".json")
+	if err != nil {
+		return nil, err
+	}
+	if ref.database.app.tokenSource == nil {
+		return u, nil
+	}
+	tk, err := ref.database.app.tokenSource.Token()
+	if err != nil {
+		return nil, err
+	}
 	token := tk.AccessToken
-	return ref.database.app.databaseURL + "/" + ref.path + ".json?access_token=" + token, nil
+	q := u.Query()
+	q.Add("access_token", token)
+
+	if ref.startAt != nil {
+		err = addQueryJSON(q, "startAt", ref.startAt)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if ref.endAt != nil {
+		err = addQueryJSON(q, "endAt", ref.endAt)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if ref.orderBy != nil {
+		err = addQueryJSON(q, "orderBy", ref.orderBy)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if ref.equalTo != nil {
+		err = addQueryJSON(q, "equalTo", ref.equalTo)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if ref.limitToFirst != 0 {
+		addQueryInt(q, "limitToFirst", ref.limitToFirst)
+	}
+	if ref.limitToLast != 0 {
+		addQueryInt(q, "limitToLast", ref.limitToLast)
+	}
+
+	u.RawQuery = q.Encode()
+	return u, nil
 }
 
 func (ref *Reference) invokeRequest(method string, body io.Reader) ([]byte, error) {
@@ -32,7 +104,7 @@ func (ref *Reference) invokeRequest(method string, body io.Reader) ([]byte, erro
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(method, url, body)
+	req, err := http.NewRequest(method, url.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -42,12 +114,19 @@ func (ref *Reference) invokeRequest(method string, body io.Reader) ([]byte, erro
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("firebasedatabase: %s", resp.Status)
-	}
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		var e struct {
+			Error string `json:"error"`
+		}
+		err = json.Unmarshal(b, &e)
+		if err != nil {
+			e.Error = resp.Status
+		}
+		return nil, fmt.Errorf("firebasedatabase: %s", e.Error)
 	}
 	return bytes.TrimSpace(b), nil
 }
@@ -89,59 +168,93 @@ func (ref *Reference) Remove() error {
 	return nil
 }
 
-// Ref implements Query interface by return self
-func (ref *Reference) Ref() *Reference {
-	return ref
+// Key returns the last path of Reference
+func (ref *Reference) Key() string {
+	_, p := _path.Split(ref.path)
+	return p
+}
+
+// Ref returns a copy
+func (ref Reference) Ref() *Reference {
+	return &ref
+}
+
+// Root returns the root location of database
+func (ref *Reference) Root() *Reference {
+	return &Reference{
+		database: ref.database,
+	}
+}
+
+// Child returns a Reference for relative path
+func (ref Reference) Child(path string) *Reference {
+	ref.path = _path.Join(ref.path, path)
+	return &ref
+}
+
+// Parent returns the parent location of Reference
+func (ref Reference) Parent() *Reference {
+	ref.path, _ = _path.Split(ref.path)
+	return &ref
 }
 
 // EndAt implements Query interface
-func (ref *Reference) EndAt(value interface{}, key string) Query {
-	panic(ErrNotImplement)
+func (ref Reference) EndAt(value interface{}) Query {
+	ref.endAt = value
+	return &ref
 }
 
 // StartAt implements Query interface
-func (ref *Reference) StartAt(value interface{}, key string) Query {
-	panic(ErrNotImplement)
+func (ref Reference) StartAt(value interface{}) Query {
+	ref.startAt = value
+	return &ref
 }
 
 // EqualTo implements Query interface
-func (ref *Reference) EqualTo(value interface{}, key string) Query {
-	panic(ErrNotImplement)
+func (ref Reference) EqualTo(value interface{}) Query {
+	ref.equalTo = value
+	return &ref
 }
 
 // IsEqual implements Query interface
-func (ref *Reference) IsEqual(other interface{}) Query {
+func (ref Reference) IsEqual(other interface{}) bool {
 	panic(ErrNotImplement)
 }
 
 // LimitToFirst implements Query interface
-func (ref *Reference) LimitToFirst(limit int) Query {
-	panic(ErrNotImplement)
+func (ref Reference) LimitToFirst(limit int) Query {
+	ref.limitToFirst = limit
+	return &ref
 }
 
 // LimitToLast implements Query interface
-func (ref *Reference) LimitToLast(limit int) Query {
-	panic(ErrNotImplement)
+func (ref Reference) LimitToLast(limit int) Query {
+	ref.limitToLast = limit
+	return &ref
 }
 
 // OrderByChild implements Query interface
-func (ref *Reference) OrderByChild(path string) Query {
-	panic(ErrNotImplement)
+func (ref Reference) OrderByChild(path interface{}) Query {
+	ref.orderBy = path
+	return &ref
 }
 
 // OrderByKey implements Query interface
-func (ref *Reference) OrderByKey() Query {
-	panic(ErrNotImplement)
+func (ref Reference) OrderByKey() Query {
+	ref.orderBy = "$key"
+	return &ref
 }
 
 // OrderByPriority implements Query interface
-func (ref *Reference) OrderByPriority() Query {
-	panic(ErrNotImplement)
+func (ref Reference) OrderByPriority() Query {
+	ref.orderBy = "$priority"
+	return &ref
 }
 
 // OrderByValue implements Query interface
-func (ref *Reference) OrderByValue() Query {
-	panic(ErrNotImplement)
+func (ref Reference) OrderByValue() Query {
+	ref.orderBy = "$value"
+	return &ref
 }
 
 // OnValue implements Query interface
@@ -192,16 +305,24 @@ func (ref *Reference) OnceChildRemove() *OldChildSnapshot {
 	panic(ErrNotImplement)
 }
 
-// OnceChanged implements Query interface
-func (ref *Reference) OnceChanged() *ChildSnapshot {
+// OnceChildChanged implements Query interface
+func (ref *Reference) OnceChildChanged() *ChildSnapshot {
 	panic(ErrNotImplement)
 }
 
-// OnceMoved implements Query interface
-func (ref *Reference) OnceMoved() *ChildSnapshot {
+// OnceChildMoved implements Query interface
+func (ref *Reference) OnceChildMoved() *ChildSnapshot {
 	panic(ErrNotImplement)
 }
 
+// String returns absolute URL for this location
 func (ref *Reference) String() string {
-	panic(ErrNotImplement)
+	u, err := ref.url()
+	if err != nil {
+		return ""
+	}
+	q := u.Query()
+	q.Del("access_token")
+	u.RawQuery = q.Encode()
+	return u.String()
 }

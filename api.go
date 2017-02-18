@@ -19,6 +19,7 @@ type UserRecord struct {
 	ProviderData  []*UserInfo
 }
 
+// UserMetadata is the metadata for user
 type UserMetadata struct {
 	CreatedAt      time.Time
 	LastSignedInAt time.Time
