@@ -48,6 +48,48 @@ func addQueryInt(q url.Values, name string, value int) {
 	q.Add(name, s)
 }
 
+func (ref *Reference) buildQuery(q url.Values) error {
+	var err error
+
+	if ref.startAt != nil {
+		err = addQueryJSON(q, "startAt", ref.startAt)
+		if err != nil {
+			return err
+		}
+	}
+
+	if ref.endAt != nil {
+		err = addQueryJSON(q, "endAt", ref.endAt)
+		if err != nil {
+			return err
+		}
+	}
+
+	if ref.orderBy != nil {
+		err = addQueryJSON(q, "orderBy", ref.orderBy)
+		if err != nil {
+			return err
+		}
+	}
+
+	if ref.equalTo != nil {
+		err = addQueryJSON(q, "equalTo", ref.equalTo)
+		if err != nil {
+			return err
+		}
+	}
+
+	if ref.limitToFirst != 0 {
+		addQueryInt(q, "limitToFirst", ref.limitToFirst)
+	}
+
+	if ref.limitToLast != 0 {
+		addQueryInt(q, "limitToLast", ref.limitToLast)
+	}
+
+	return nil
+}
+
 func (ref *Reference) url() (*url.URL, error) {
 	u, err := url.Parse(ref.database.app.databaseURL + "/" + ref.path + ".json")
 	if err != nil {
@@ -63,36 +105,9 @@ func (ref *Reference) url() (*url.URL, error) {
 	token := tk.AccessToken
 	q := u.Query()
 	q.Add("access_token", token)
-
-	if ref.startAt != nil {
-		err = addQueryJSON(q, "startAt", ref.startAt)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if ref.endAt != nil {
-		err = addQueryJSON(q, "endAt", ref.endAt)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if ref.orderBy != nil {
-		err = addQueryJSON(q, "orderBy", ref.orderBy)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if ref.equalTo != nil {
-		err = addQueryJSON(q, "equalTo", ref.equalTo)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if ref.limitToFirst != 0 {
-		addQueryInt(q, "limitToFirst", ref.limitToFirst)
-	}
-	if ref.limitToLast != 0 {
-		addQueryInt(q, "limitToLast", ref.limitToLast)
+	err = ref.buildQuery(q)
+	if err != nil {
+		return nil, err
 	}
 
 	u.RawQuery = q.Encode()
@@ -216,9 +231,30 @@ func (ref Reference) EqualTo(value interface{}) Query {
 	return &ref
 }
 
-// IsEqual implements Query interface
-func (ref Reference) IsEqual(other interface{}) bool {
-	panic(ErrNotImplement)
+// IsEqual returns true if current and provided query is the same location,
+// save query params, and same App instance
+func (ref *Reference) IsEqual(other Query) bool {
+	r := other.Ref()
+
+	// check app instance
+	if ref.database.app != r.database.app {
+		return false
+	}
+
+	// check location
+	if ref.path != r.path {
+		return false
+	}
+
+	// check queries
+	q1, q2 := url.Values{}, url.Values{}
+	ref.buildQuery(q1)
+	r.buildQuery(q2)
+	if len(q1) != len(q2) || q1.Encode() != q2.Encode() {
+		return false
+	}
+
+	return true
 }
 
 // LimitToFirst implements Query interface

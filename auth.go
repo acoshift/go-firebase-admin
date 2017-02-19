@@ -70,7 +70,7 @@ func (auth *Auth) VerifyIDToken(idToken string) (*Claims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, &ErrTokenInvalid{fmt.Sprintf("firebaseauth: Firebase ID token has incorrect algorithm. Expected \"RSA\" but got \"%#v\"", token.Header["alg"])}
 		}
-		kid := token.Header["kid"].(string)
+		kid, _ := token.Header["kid"].(string)
 		if kid == "" {
 			return nil, &ErrTokenInvalid{"firebaseauth: Firebase ID token has no \"kid\" claim"}
 		}
