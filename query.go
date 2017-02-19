@@ -5,7 +5,7 @@ type Query interface {
 	Ref() *Reference
 	EndAt(value interface{}) Query
 	EqualTo(value interface{}) Query
-	IsEqual(other interface{}) bool
+	IsEqual(other Query) bool
 	LimitToFirst(limit int) Query
 	LimitToLast(limit int) Query
 	OrderByChild(path interface{}) Query
