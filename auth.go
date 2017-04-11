@@ -338,3 +338,17 @@ func (auth *Auth) UpdateUser(user *User) (*UserRecord, error) {
 	}
 	return res, nil
 }
+
+// SendPasswordResetEmail sends password reset for the given user
+// Only useful for the Email/Password provider
+func (auth *Auth) SendPasswordResetEmail(email string) error {
+	r := auth.client.Relyingparty.GetOobConfirmationCode(&identitytoolkit.Relyingparty{
+		Email:       email,
+		RequestType: "PASSWORD_RESET",
+	})
+	_, err := r.Do()
+	if err != nil {
+		return err
+	}
+	return nil
+}
