@@ -31,6 +31,11 @@ func (snapshot *DataSnapshot) Val(v interface{}) error {
 	return json.NewDecoder(bytes.NewReader(snapshot.raw)).Decode(v)
 }
 
+// Bytes returns snapshot raw data
+func (snapshot *DataSnapshot) Bytes() []byte {
+	return snapshot.raw
+}
+
 // ChildSnapshot type
 type ChildSnapshot struct {
 	PrevChildKey string
