@@ -3,9 +3,13 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/acoshift/go-firebase-admin)](https://goreportcard.com/report/github.com/acoshift/go-firebase-admin)
 [![GoDoc](https://godoc.org/github.com/acoshift/go-firebase-admin?status.svg)](https://godoc.org/github.com/acoshift/go-firebase-admin)
 
-> Work in Progress
-
 Firebase Admin SDK for Golang
+
+---
+
+## This library still in development, it will be a lot of breaking change, please use any package manager to fix version.
+
+---
 
 ## Usage
 
