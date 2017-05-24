@@ -227,9 +227,6 @@ func (auth *Auth) createUserAutoID(user *User) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err != nil {
-		return "", err
-	}
 	if len(resp.LocalId) == 0 {
 		return "", errors.New("firebaseauth: create account error")
 	}
