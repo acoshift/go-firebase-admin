@@ -145,8 +145,8 @@ func (auth *Auth) selectKey(kid string) *rsa.PublicKey {
 }
 
 // GetUser retrieves an user by user id
-func (auth *Auth) GetUser(uid string) (*UserRecord, error) {
-	users, err := auth.GetUsers([]string{uid})
+func (auth *Auth) GetUser(ctx context.Context, uid string) (*UserRecord, error) {
+	users, err := auth.GetUsers(ctx, []string{uid})
 	if err != nil {
 		return nil, err
 	}
@@ -157,11 +157,10 @@ func (auth *Auth) GetUser(uid string) (*UserRecord, error) {
 }
 
 // GetUsers retrieves users by user ids
-func (auth *Auth) GetUsers(userIDs []string) ([]*UserRecord, error) {
-	r := auth.client.Relyingparty.GetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartyGetAccountInfoRequest{
+func (auth *Auth) GetUsers(ctx context.Context, userIDs []string) ([]*UserRecord, error) {
+	resp, err := auth.client.Relyingparty.GetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartyGetAccountInfoRequest{
 		LocalId: userIDs,
-	})
-	resp, err := r.Do()
+	}).Context(ctx).Do()
 	if err != nil {
 		return nil, err
 	}
@@ -172,8 +171,8 @@ func (auth *Auth) GetUsers(userIDs []string) ([]*UserRecord, error) {
 }
 
 // GetUserByEmail retrieves user by email
-func (auth *Auth) GetUserByEmail(email string) (*UserRecord, error) {
-	users, err := auth.GetUsersByEmail([]string{email})
+func (auth *Auth) GetUserByEmail(ctx context.Context, email string) (*UserRecord, error) {
+	users, err := auth.GetUsersByEmail(ctx, []string{email})
 	if err != nil {
 		return nil, err
 	}
@@ -184,11 +183,10 @@ func (auth *Auth) GetUserByEmail(email string) (*UserRecord, error) {
 }
 
 // GetUsersByEmail retrieves users by emails
-func (auth *Auth) GetUsersByEmail(emails []string) ([]*UserRecord, error) {
-	r := auth.client.Relyingparty.GetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartyGetAccountInfoRequest{
+func (auth *Auth) GetUsersByEmail(ctx context.Context, emails []string) ([]*UserRecord, error) {
+	resp, err := auth.client.Relyingparty.GetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartyGetAccountInfoRequest{
 		Email: emails,
-	})
-	resp, err := r.Do()
+	}).Context(ctx).Do()
 	if err != nil {
 		return nil, err
 	}
@@ -199,31 +197,29 @@ func (auth *Auth) GetUsersByEmail(emails []string) ([]*UserRecord, error) {
 }
 
 // DeleteUser deletes an user by user id
-func (auth *Auth) DeleteUser(userID string) error {
+func (auth *Auth) DeleteUser(ctx context.Context, userID string) error {
 	if len(userID) == 0 {
 		return ErrRequireUID
 	}
 
-	r := auth.client.Relyingparty.DeleteAccount(&identitytoolkit.IdentitytoolkitRelyingpartyDeleteAccountRequest{
+	_, err := auth.client.Relyingparty.DeleteAccount(&identitytoolkit.IdentitytoolkitRelyingpartyDeleteAccountRequest{
 		LocalId: userID,
-	})
-	_, err := r.Do()
+	}).Context(ctx).Do()
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (auth *Auth) createUserAutoID(user *User) (string, error) {
-	r := auth.client.Relyingparty.SignupNewUser(&identitytoolkit.IdentitytoolkitRelyingpartySignupNewUserRequest{
+func (auth *Auth) createUserAutoID(ctx context.Context, user *User) (string, error) {
+	resp, err := auth.client.Relyingparty.SignupNewUser(&identitytoolkit.IdentitytoolkitRelyingpartySignupNewUserRequest{
 		Disabled:      user.Disabled,
 		DisplayName:   user.DisplayName,
 		Email:         user.Email,
 		EmailVerified: user.EmailVerified,
 		Password:      user.Password,
 		PhotoUrl:      user.PhotoURL,
-	})
-	resp, err := r.Do()
+	}).Context(ctx).Do()
 	if err != nil {
 		return "", err
 	}
@@ -233,8 +229,8 @@ func (auth *Auth) createUserAutoID(user *User) (string, error) {
 	return resp.LocalId, nil
 }
 
-func (auth *Auth) createUserCustomID(user *User) error {
-	r := auth.client.Relyingparty.UploadAccount(&identitytoolkit.IdentitytoolkitRelyingpartyUploadAccountRequest{
+func (auth *Auth) createUserCustomID(ctx context.Context, user *User) error {
+	resp, err := auth.client.Relyingparty.UploadAccount(&identitytoolkit.IdentitytoolkitRelyingpartyUploadAccountRequest{
 		AllowOverwrite: false,
 		SanityCheck:    true,
 		Users: []*identitytoolkit.UserInfo{
@@ -248,8 +244,7 @@ func (auth *Auth) createUserCustomID(user *User) error {
 				PhotoUrl:      user.PhotoURL,
 			},
 		},
-	})
-	resp, err := r.Do()
+	}).Context(ctx).Do()
 	if err != nil {
 		return err
 	}
@@ -261,21 +256,21 @@ func (auth *Auth) createUserCustomID(user *User) error {
 
 // CreateUser creates an user
 // if not provides UserID, firebase server will auto generate
-func (auth *Auth) CreateUser(user *User) (*UserRecord, error) {
+func (auth *Auth) CreateUser(ctx context.Context, user *User) (*UserRecord, error) {
 	var err error
 	var userID string
 
 	if len(user.UserID) == 0 {
-		userID, err = auth.createUserAutoID(user)
+		userID, err = auth.createUserAutoID(ctx, user)
 	} else {
 		userID = user.UserID
-		err = auth.createUserCustomID(user)
+		err = auth.createUserCustomID(ctx, user)
 	}
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := auth.GetUser(userID)
+	res, err := auth.GetUser(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -297,12 +292,11 @@ func (auth *Auth) ListUsers(maxResults int64) *ListAccountCursor {
 
 // Next retrieves next users from cursor which limit to MaxResults
 // then move cursor to the next users
-func (cursor *ListAccountCursor) Next() ([]*UserRecord, error) {
-	r := cursor.auth.client.Relyingparty.DownloadAccount(&identitytoolkit.IdentitytoolkitRelyingpartyDownloadAccountRequest{
+func (cursor *ListAccountCursor) Next(ctx context.Context) ([]*UserRecord, error) {
+	resp, err := cursor.auth.client.Relyingparty.DownloadAccount(&identitytoolkit.IdentitytoolkitRelyingpartyDownloadAccountRequest{
 		MaxResults:    cursor.MaxResults,
 		NextPageToken: cursor.nextPageToken,
-	})
-	resp, err := r.Do()
+	}).Context(ctx).Do()
 	if err != nil {
 		return nil, err
 	}
@@ -314,8 +308,8 @@ func (cursor *ListAccountCursor) Next() ([]*UserRecord, error) {
 }
 
 // UpdateUser updates an existing user
-func (auth *Auth) UpdateUser(user *User) (*UserRecord, error) {
-	r := auth.client.Relyingparty.SetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartySetAccountInfoRequest{
+func (auth *Auth) UpdateUser(ctx context.Context, user *User) (*UserRecord, error) {
+	resp, err := auth.client.Relyingparty.SetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartySetAccountInfoRequest{
 		LocalId:       user.UserID,
 		Email:         user.Email,
 		EmailVerified: user.EmailVerified,
@@ -323,13 +317,12 @@ func (auth *Auth) UpdateUser(user *User) (*UserRecord, error) {
 		DisplayName:   user.DisplayName,
 		DisableUser:   user.Disabled,
 		PhotoUrl:      user.PhotoURL,
-	})
-	resp, err := r.Do()
+	}).Context(ctx).Do()
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := auth.GetUser(resp.LocalId)
+	res, err := auth.GetUser(ctx, resp.LocalId)
 	if err != nil {
 		return nil, err
 	}
@@ -338,12 +331,11 @@ func (auth *Auth) UpdateUser(user *User) (*UserRecord, error) {
 
 // SendPasswordResetEmail sends password reset for the given user
 // Only useful for the Email/Password provider
-func (auth *Auth) SendPasswordResetEmail(email string) error {
-	r := auth.client.Relyingparty.GetOobConfirmationCode(&identitytoolkit.Relyingparty{
+func (auth *Auth) SendPasswordResetEmail(ctx context.Context, email string) error {
+	_, err := auth.client.Relyingparty.GetOobConfirmationCode(&identitytoolkit.Relyingparty{
 		Email:       email,
 		RequestType: "PASSWORD_RESET",
-	})
-	_, err := r.Do()
+	}).Context(ctx).Do()
 	if err != nil {
 		return err
 	}
