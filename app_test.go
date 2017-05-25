@@ -1,6 +1,7 @@
 package admin_test
 
 import (
+	"context"
 	"io/ioutil"
 
 	admin "github.com/acoshift/go-firebase-admin"
@@ -19,6 +20,6 @@ func initApp() *admin.App {
 	var c config
 	yaml.Unmarshal(bs, &c)
 
-	app, _ := admin.InitializeApp(admin.AppOptions(c))
+	app, _ := admin.InitializeApp(context.Background(), admin.AppOptions(c))
 	return app
 }

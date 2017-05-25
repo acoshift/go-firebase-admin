@@ -11,7 +11,6 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"golang.org/x/oauth2"
 	"google.golang.org/api/identitytoolkit/v3"
 	"google.golang.org/api/iterator"
 )
@@ -31,7 +30,7 @@ const (
 )
 
 func newAuth(app *App) *Auth {
-	gitClient, _ := identitytoolkit.New(oauth2.NewClient(context.Background(), app.tokenSource))
+	gitClient, _ := identitytoolkit.New(app.client)
 	return &Auth{
 		app:       app,
 		client:    gitClient.Relyingparty,
