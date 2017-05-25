@@ -353,10 +353,10 @@ func (auth *Auth) VerifyPassword(ctx context.Context, email, password string) (s
 
 // CreateAuthURI creates auth uri for provider sign in
 // returns auth uri for redirect
-func (auth *Auth) CreateAuthURI(ctx context.Context, providerID string, ContinueURI string, sessionID string) (string, error) {
+func (auth *Auth) CreateAuthURI(ctx context.Context, providerID string, continueURI string, sessionID string) (string, error) {
 	resp, err := auth.client.CreateAuthUri(&identitytoolkit.IdentitytoolkitRelyingpartyCreateAuthUriRequest{
 		ProviderId:   providerID,
-		ContinueUri:  ContinueURI,
+		ContinueUri:  continueURI,
 		AuthFlowType: "CODE_FLOW",
 		SessionId:    sessionID,
 	}).Context(ctx).Do()
