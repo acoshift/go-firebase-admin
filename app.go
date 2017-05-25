@@ -60,7 +60,7 @@ func InitializeApp(options AppOptions) (*App, error) {
 // each instance has the same firebase app instance
 // but difference public keys instance
 // better create only one instance
-func (app *App) Auth() (*Auth, error) {
+func (app *App) Auth() *Auth {
 	return newAuth(app)
 }
 

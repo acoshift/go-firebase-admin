@@ -19,7 +19,7 @@ import (
 // Auth type
 type Auth struct {
 	app       *App
-	client    *identitytoolkit.Service
+	client    *identitytoolkit.RelyingpartyService
 	keysMutex *sync.RWMutex
 	keys      map[string]*rsa.PublicKey
 	keysExp   time.Time
@@ -30,16 +30,13 @@ const (
 	customTokenAudience = "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit"
 )
 
-func newAuth(app *App) (*Auth, error) {
-	client, err := identitytoolkit.New(oauth2.NewClient(context.Background(), app.tokenSource))
-	if err != nil {
-		return nil, err
-	}
+func newAuth(app *App) *Auth {
+	gitClient, _ := identitytoolkit.New(oauth2.NewClient(context.Background(), app.tokenSource))
 	return &Auth{
 		app:       app,
-		client:    client,
+		client:    gitClient.Relyingparty,
 		keysMutex: &sync.RWMutex{},
-	}, nil
+	}
 }
 
 // CreateCustomToken creates a custom token used for client to authenticate
@@ -116,11 +113,11 @@ func (auth *Auth) fetchKeys() error {
 
 	auth.keysExp, _ = time.Parse(time.RFC1123, resp.Header.Get("Expires"))
 
-	m := map[string]string{}
+	m := make(map[string]string)
 	if err = json.NewDecoder(resp.Body).Decode(&m); err != nil {
 		return err
 	}
-	ks := map[string]*rsa.PublicKey{}
+	ks := make(map[string]*rsa.PublicKey)
 	for k, v := range m {
 		p, _ := jwt.ParseRSAPublicKeyFromPEM([]byte(v))
 		if p != nil {
@@ -158,7 +155,7 @@ func (auth *Auth) GetUser(ctx context.Context, uid string) (*UserRecord, error) 
 
 // GetUsers retrieves users by user ids
 func (auth *Auth) GetUsers(ctx context.Context, userIDs []string) ([]*UserRecord, error) {
-	resp, err := auth.client.Relyingparty.GetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartyGetAccountInfoRequest{
+	resp, err := auth.client.GetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartyGetAccountInfoRequest{
 		LocalId: userIDs,
 	}).Context(ctx).Do()
 	if err != nil {
@@ -184,7 +181,7 @@ func (auth *Auth) GetUserByEmail(ctx context.Context, email string) (*UserRecord
 
 // GetUsersByEmail retrieves users by emails
 func (auth *Auth) GetUsersByEmail(ctx context.Context, emails []string) ([]*UserRecord, error) {
-	resp, err := auth.client.Relyingparty.GetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartyGetAccountInfoRequest{
+	resp, err := auth.client.GetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartyGetAccountInfoRequest{
 		Email: emails,
 	}).Context(ctx).Do()
 	if err != nil {
@@ -202,7 +199,7 @@ func (auth *Auth) DeleteUser(ctx context.Context, userID string) error {
 		return ErrRequireUID
 	}
 
-	_, err := auth.client.Relyingparty.DeleteAccount(&identitytoolkit.IdentitytoolkitRelyingpartyDeleteAccountRequest{
+	_, err := auth.client.DeleteAccount(&identitytoolkit.IdentitytoolkitRelyingpartyDeleteAccountRequest{
 		LocalId: userID,
 	}).Context(ctx).Do()
 	if err != nil {
@@ -212,7 +209,7 @@ func (auth *Auth) DeleteUser(ctx context.Context, userID string) error {
 }
 
 func (auth *Auth) createUserAutoID(ctx context.Context, user *User) (string, error) {
-	resp, err := auth.client.Relyingparty.SignupNewUser(&identitytoolkit.IdentitytoolkitRelyingpartySignupNewUserRequest{
+	resp, err := auth.client.SignupNewUser(&identitytoolkit.IdentitytoolkitRelyingpartySignupNewUserRequest{
 		Disabled:      user.Disabled,
 		DisplayName:   user.DisplayName,
 		Email:         user.Email,
@@ -230,7 +227,7 @@ func (auth *Auth) createUserAutoID(ctx context.Context, user *User) (string, err
 }
 
 func (auth *Auth) createUserCustomID(ctx context.Context, user *User) error {
-	resp, err := auth.client.Relyingparty.UploadAccount(&identitytoolkit.IdentitytoolkitRelyingpartyUploadAccountRequest{
+	resp, err := auth.client.UploadAccount(&identitytoolkit.IdentitytoolkitRelyingpartyUploadAccountRequest{
 		AllowOverwrite: false,
 		SanityCheck:    true,
 		Users: []*identitytoolkit.UserInfo{
@@ -293,7 +290,7 @@ func (auth *Auth) ListUsers(maxResults int64) *ListAccountCursor {
 // Next retrieves next users from cursor which limit to MaxResults
 // then move cursor to the next users
 func (cursor *ListAccountCursor) Next(ctx context.Context) ([]*UserRecord, error) {
-	resp, err := cursor.auth.client.Relyingparty.DownloadAccount(&identitytoolkit.IdentitytoolkitRelyingpartyDownloadAccountRequest{
+	resp, err := cursor.auth.client.DownloadAccount(&identitytoolkit.IdentitytoolkitRelyingpartyDownloadAccountRequest{
 		MaxResults:    cursor.MaxResults,
 		NextPageToken: cursor.nextPageToken,
 	}).Context(ctx).Do()
@@ -309,7 +306,7 @@ func (cursor *ListAccountCursor) Next(ctx context.Context) ([]*UserRecord, error
 
 // UpdateUser updates an existing user
 func (auth *Auth) UpdateUser(ctx context.Context, user *User) (*UserRecord, error) {
-	resp, err := auth.client.Relyingparty.SetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartySetAccountInfoRequest{
+	resp, err := auth.client.SetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartySetAccountInfoRequest{
 		LocalId:       user.UserID,
 		Email:         user.Email,
 		EmailVerified: user.EmailVerified,
@@ -332,7 +329,7 @@ func (auth *Auth) UpdateUser(ctx context.Context, user *User) (*UserRecord, erro
 // SendPasswordResetEmail sends password reset for the given user
 // Only useful for the Email/Password provider
 func (auth *Auth) SendPasswordResetEmail(ctx context.Context, email string) error {
-	_, err := auth.client.Relyingparty.GetOobConfirmationCode(&identitytoolkit.Relyingparty{
+	_, err := auth.client.GetOobConfirmationCode(&identitytoolkit.Relyingparty{
 		Email:       email,
 		RequestType: "PASSWORD_RESET",
 	}).Context(ctx).Do()
