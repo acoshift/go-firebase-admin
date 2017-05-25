@@ -95,16 +95,7 @@ func (ref *Reference) url() (*url.URL, error) {
 	if err != nil {
 		return nil, err
 	}
-	if ref.database.app.tokenSource == nil {
-		return u, nil
-	}
-	tk, err := ref.database.app.tokenSource.Token()
-	if err != nil {
-		return nil, err
-	}
-	token := tk.AccessToken
 	q := u.Query()
-	q.Add("access_token", token)
 	err = ref.buildQuery(q)
 	if err != nil {
 		return nil, err
@@ -124,7 +115,7 @@ func (ref *Reference) invokeRequest(method string, body io.Reader) ([]byte, erro
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	resp, err := ref.database.client.Do(req)
+	resp, err := ref.database.app.client.Do(req)
 	if err != nil {
 		return nil, err
 	}

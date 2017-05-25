@@ -3,21 +3,20 @@ package admin
 import (
 	"context"
 	"crypto/rsa"
+	"net/http"
 
 	jwtgo "github.com/dgrijalva/jwt-go"
-	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
 )
 
 // App holds information about application configuration
 type App struct {
-	projectID      string
-	serviceAccount string
-	jwtConfig      *jwt.Config
-	privateKey     *rsa.PrivateKey
-	databaseURL    string
-	tokenSource    oauth2.TokenSource
+	projectID   string
+	jwtConfig   *jwt.Config
+	privateKey  *rsa.PrivateKey
+	databaseURL string
+	client      *http.Client
 }
 
 // AppOptions is the firebase app options for initialize app
@@ -28,7 +27,7 @@ type AppOptions struct {
 }
 
 // InitializeApp initializes firebase application with options
-func InitializeApp(options AppOptions) (*App, error) {
+func InitializeApp(ctx context.Context, options AppOptions) (*App, error) {
 	var err error
 
 	app := App{
@@ -45,9 +44,9 @@ func InitializeApp(options AppOptions) (*App, error) {
 		if err != nil {
 			return nil, err
 		}
-		app.tokenSource = app.jwtConfig.TokenSource(context.Background())
+		app.client = app.jwtConfig.Client(ctx)
 	} else {
-		app.tokenSource, err = google.DefaultTokenSource(context.Background(), scopes...)
+		app.client, err = google.DefaultClient(ctx, scopes...)
 		if err != nil {
 			return nil, err
 		}
