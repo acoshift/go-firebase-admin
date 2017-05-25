@@ -338,3 +338,16 @@ func (auth *Auth) SendPasswordResetEmail(ctx context.Context, email string) erro
 	}
 	return nil
 }
+
+// VerifyPassword verifies given email and password,
+// return user id if success
+func (auth *Auth) VerifyPassword(ctx context.Context, email, password string) (string, error) {
+	resp, err := auth.client.VerifyPassword(&identitytoolkit.IdentitytoolkitRelyingpartyVerifyPasswordRequest{
+		Email:    email,
+		Password: password,
+	}).Context(ctx).Do()
+	if err != nil {
+		return "", err
+	}
+	return resp.LocalId, nil
+}
