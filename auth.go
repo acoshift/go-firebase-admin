@@ -351,3 +351,37 @@ func (auth *Auth) VerifyPassword(ctx context.Context, email, password string) (s
 	}
 	return resp.LocalId, nil
 }
+
+// CreateAuthURI creates auth uri for provider sign in
+// returns auth uri for redirect
+func (auth *Auth) CreateAuthURI(ctx context.Context, providerID string, ContinueURI string, sessionID string) (string, error) {
+	resp, err := auth.client.CreateAuthUri(&identitytoolkit.IdentitytoolkitRelyingpartyCreateAuthUriRequest{
+		ProviderId:   providerID,
+		ContinueUri:  ContinueURI,
+		AuthFlowType: "CODE_FLOW",
+		SessionId:    sessionID,
+	}).Context(ctx).Do()
+	if err != nil {
+		return "", err
+	}
+	return resp.AuthUri, nil
+}
+
+// VerifyAuthCallbackURI verifies callback uri after user redirect back from CreateAuthURI
+// returns UserInfo if success
+func (auth *Auth) VerifyAuthCallbackURI(ctx context.Context, callbackURI string, sessionID string) (*UserInfo, error) {
+	resp, err := auth.client.VerifyAssertion(&identitytoolkit.IdentitytoolkitRelyingpartyVerifyAssertionRequest{
+		RequestUri: callbackURI,
+		SessionId:  sessionID,
+	}).Context(ctx).Do()
+	if err != nil {
+		return nil, err
+	}
+	return &UserInfo{
+		UserID:      resp.LocalId,
+		DisplayName: resp.DisplayName,
+		Email:       resp.Email,
+		PhotoURL:    resp.PhotoUrl,
+		ProviderID:  resp.ProviderId,
+	}, nil
+}

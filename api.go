@@ -7,6 +7,14 @@ import (
 	"google.golang.org/api/identitytoolkit/v3"
 )
 
+// Providers
+const (
+	Google   string = "google.com"
+	Facebook string = "facebook.com"
+	Github   string = "github.com"
+	Twitter  string = "twitter.com"
+)
+
 // UserRecord is the firebase authentication user
 type UserRecord struct {
 	UserID        string
