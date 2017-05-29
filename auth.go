@@ -250,9 +250,9 @@ func (auth *Auth) createUserCustomID(ctx context.Context, user *User) error {
 	return nil
 }
 
-// CreateUser creates an user
-// if not provides UserID, firebase server will auto generate
-func (auth *Auth) CreateUser(ctx context.Context, user *User) (*UserRecord, error) {
+// CreateUser creates an user and return created user id
+// if not provides UserID, firebase server will auto generate it
+func (auth *Auth) CreateUser(ctx context.Context, user *User) (string, error) {
 	var err error
 	var userID string
 
@@ -263,14 +263,9 @@ func (auth *Auth) CreateUser(ctx context.Context, user *User) (*UserRecord, erro
 		err = auth.createUserCustomID(ctx, user)
 	}
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-
-	res, err := auth.GetUser(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+	return userID, nil
 }
 
 // ListAccountCursor type
