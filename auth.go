@@ -147,7 +147,7 @@ func (auth *Auth) GetUser(ctx context.Context, uid string) (*UserRecord, error) 
 		return nil, err
 	}
 	if len(users) == 0 {
-		return nil, nil
+		return nil, ErrUserNotFound
 	}
 	return users[0], nil
 }
@@ -160,9 +160,6 @@ func (auth *Auth) GetUsers(ctx context.Context, userIDs []string) ([]*UserRecord
 	if err != nil {
 		return nil, err
 	}
-	if len(resp.Users) == 0 {
-		return nil, nil
-	}
 	return toUserRecords(resp.Users), nil
 }
 
@@ -173,7 +170,7 @@ func (auth *Auth) GetUserByEmail(ctx context.Context, email string) (*UserRecord
 		return nil, err
 	}
 	if len(users) == 0 {
-		return nil, nil
+		return nil, ErrUserNotFound
 	}
 	return users[0], nil
 }
@@ -185,9 +182,6 @@ func (auth *Auth) GetUsersByEmail(ctx context.Context, emails []string) ([]*User
 	}).Context(ctx).Do()
 	if err != nil {
 		return nil, err
-	}
-	if len(resp.Users) == 0 {
-		return nil, nil
 	}
 	return toUserRecords(resp.Users), nil
 }

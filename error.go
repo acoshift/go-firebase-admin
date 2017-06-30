@@ -9,6 +9,7 @@ var (
 	ErrRequireServiceAccount = errors.New("firebase: requires service account")
 	ErrRequireUID            = errors.New("firebaseauth: require user id")
 	ErrNotImplement          = errors.New("firebase: feature not implement yet")
+	ErrUserNotFound          = errors.New("firebaseauth: user not found")
 )
 
 // ErrTokenInvalid is the invalid token error
