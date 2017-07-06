@@ -27,7 +27,7 @@ import (
 func main() {
   // Init App
   serviceAccount, _ := ioutil.ReadFile("service_account.json")
-  firApp, err := admin.InitializeApp(context.Background(), admin.AppOption{
+  firApp, err := admin.InitializeApp(context.Background(), admin.AppOptions{
     ServiceAccount: serviceAccount,
     ProjectID: "YOUR_PROJECT_ID",
     DatabaseURL: "YOUR_DATABASE_URL",
