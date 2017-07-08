@@ -15,32 +15,245 @@ const (
 	Twitter  string = "twitter.com"
 )
 
-// UserRecord is the firebase authentication user
-type UserRecord struct {
-	UserID        string
-	Email         string
-	EmailVerified bool
-	DisplayName   string
-	PhotoURL      string
-	Disabled      bool
-	Metadata      UserMetadata
-	ProviderData  []*UserInfo
-}
+type (
+	// UserRecord is the firebase authentication user
+	// See https://firebase.google.com/docs/reference/functions/functions.auth.UserRecord
+	UserRecord struct {
+		// The user's uid, unique to the Firebase project
+		UserID string
+		// The user's primary email, if set.
+		Email string
+		// Whether or not the user's primary email is verified.
+		EmailVerified bool
+		// The user's display name.
+		DisplayName string
+		// The user's photo URL.
+		PhotoURL string
+		// Whether or not the user is disabled: true for disabled; false for enabled.
+		Disabled bool
+		//Additional metadata about the user.
+		Metadata UserMetadata
+		// An array of providers (for example, Google, Facebook) linked to the user.
+		ProviderData []*UserInfo
+	}
 
-// UserMetadata is the metadata for user
-type UserMetadata struct {
-	CreatedAt      time.Time
-	LastSignedInAt time.Time
-}
+	// UserMetadata is the metadata for user
+	// See https://firebase.google.com/docs/reference/functions/functions.auth.UserMetadata
+	UserMetadata struct {
+		// The date the user was created.
+		CreatedAt time.Time
+		// The date the user last signed in.
+		LastSignedInAt time.Time
+	}
 
-// UserInfo is the user provider information
-type UserInfo struct {
-	UserID      string
-	Email       string
-	DisplayName string
-	PhotoURL    string
-	ProviderID  string
-}
+	// UserInfo is the user provider information
+	// See https://firebase.google.com/docs/reference/functions/functions.auth.UserInfo
+	UserInfo struct {
+		// The user identifier for the linked provider.
+		UserID string
+		// The email for the linked provider.
+		Email string
+		// The display name for the linked provider.
+		DisplayName string
+		// The photo URL for the linked provider.
+		PhotoURL string
+		// The linked provider ID (for example, "google.com" for the Google provider).
+		ProviderID string
+	}
+
+	// Message is the FCM message
+	// See https://firebase.google.com/docs/cloud-messaging/http-server-ref#notification-payload-support
+	Message struct {
+
+		// To this parameter specifies the recipient of a message.
+		//
+		// The value can be a device's registration token, a device group's notification key, or a single topic
+		// (prefixed with /topics/). To send to multiple topics, use the condition parameter.
+		To string `json:"to,omitempty"`
+
+		// This parameter specifies the recipient of a multicast message, a message sent to more than
+		// one registration token.
+		//
+		// The value should be an array of registration tokens to which to send the multicast message.
+		// The array must contain at least 1 and at most 1000 registration tokens. To send a message to a
+		// single device, use the to parameter.
+		//
+		// Multicast messages are only allowed using the HTTP JSON format.
+		RegistrationIDs []string `json:"registration_ids,omitempty"`
+
+		// This parameter specifies a logical expression of conditions that determine the message target.
+		//
+		// Supported condition: Topic, formatted as "'yourTopic' in topics". This value is case-insensitive.
+		//
+		// Supported operators: &&, ||. Maximum two operators per topic message supported.
+		Condition string `json:"condition,omitempty"`
+
+		// This parameter identifies a group of messages (e.g., with collapse_key: "Updates
+		// Available") that can be collapsed, so that only the last message gets sent when delivery can
+		// be resumed. This is intended to avoid sending too many of the same messages when the
+		// device comes back online or becomes active.
+		//
+		// Note that there is no guarantee of the order in which messages get sent.
+		//
+		// Note: A maximum of 4 different collapse keys is allowed at any given time. This means a FCM
+		// connection server can simultaneously store 4 different send-to-sync messages per client app. If
+		// you exceed this number, there is no guarantee which 4 collapse keys the FCM connection server
+		// will keep.
+		CollapseKey string `json:"collapse_key,omitempty"`
+
+		// Sets the priority of the message. Valid values are "normal" and "high." On iOS, these correspond
+		// to APNs priorities 5 and 10.
+		//
+		// By default, notification messages are sent with high priority, and data messages are sent with
+		// normal priority. Normal priority optimizes the client app's battery consumption and should be
+		// used unless immediate delivery is required. For messages with normal priority, the app may
+		// receive the message with unspecified delay.
+		//
+		// When a message is sent with high priority, it is sent immediately, and the app can wake a
+		// sleeping device and open a network connection to your server.
+		//
+		// For more information, see Setting the priority of a message.
+		// See https://firebase.google.com/docs/cloud-messaging/concept-options#setting-the-priority-of-a-message
+		Priority string `json:"priority,omitempty"`
+
+		// On iOS, use this field to represent content-available in the APNs payload. When a
+		// notification or message is sent and this is set to true, an inactive client app is awoken. On
+		// Android, data messages wake the app by default. On Chrome, currently not supported.
+		ContentAvailable bool `json:"content_available,omitempty"`
+
+		// Currently for iOS 10+ devices only. On iOS, use this field to represent mutable-content in the
+		// APNS payload. When a notification is sent and this is set to true, the content of the notification
+		// can be modified before it is displayed, using a Notification Service app extension. This
+		// parameter will be ignored for Android and web.
+		// See https://developer.apple.com/documentation/usernotifications/unnotificationserviceextension
+		MutableContent bool `json:"mutable_content,omitempty"`
+
+		// This parameter specifies how long (in seconds) the message should be kept in FCM storage if
+		// the device is offline. The maximum time to live supported is 4 weeks, and the default value is 4
+		// weeks. For more information, see Setting the lifespan of a message.
+		// See https://firebase.google.com/docs/cloud-messaging/concept-options#ttl
+		TimeToLive int `json:"time_to_live,omitempty"`
+
+		// This parameter specifies the package name of the application where the registration tokens
+		// must match in order to receive the message.
+		RestrictedPackageName string `json:"restricted_package_name,omitempty"`
+
+		// This parameter, when set to true, allows developers to test a request without actually sending
+		// a message.
+		//
+		// The default value is false.
+		DryRun bool `json:"dry_run,omitempty"`
+
+		// Data parameter specifies the custom key-value pairs of the message's payload.
+		//
+		// For example, with data:{"score":"3x1"}:
+		//
+		// On iOS, if the message is sent via APNS, it represents the custom data fields.
+		// If it is sent via FCM connection server, it would be represented as key value dictionary
+		// in AppDelegate application:didReceiveRemoteNotification:.
+		//
+		// On Android, this would result in an intent extra named score with the string value 3x1.
+		//
+		// The key should not be a reserved word ("from" or any word starting with "google" or "gcm").
+		// Do not use any of the words defined in this table (such as collapse_key).
+		//
+		// Values in string types are recommended. You have to convert values in objects
+		// or other non-string data types (e.g., integers or booleans) to string.
+		//
+		Data interface{} `json:"data,omitempty"`
+
+		// This parameter specifies the predefined, user-visible key-value pairs of the notification payload.
+		// See Notification payload support for detail. For more information about notification message
+		// and data message options, see Message types.
+		Notification Notification `json:"notification,omitempty"`
+	}
+
+	// Notification notification message payload
+	Notification struct {
+
+		// The notification's title.
+		//
+		// This field is not visible on iOS phones and tablets.
+		Title string `json:"title,omitempty"`
+
+		// The notification's body text.
+		Body string `json:"body,omitempty"`
+
+		// The notification's channel id (new in Android O).
+		// See https://developer.android.com/preview/features/notification-channels.html
+		//
+		// The app must create a channel with this ID before any notification with this key is received.
+		//
+		// If you don't send this key in the request, or if the channel id provided has not yet been
+		// created by your app, FCM uses the channel id specified in your app manifest.
+		AndroidChannelID string `json:"android_channel_id,omitempty"`
+
+		// The notification's icon.
+		//
+		// Sets the notification icon to myicon for drawable resource myicon. If you don't send this
+		// key in the request, FCM displays the launcher icon specified in your app manifest.
+		Icon string `json:"icon,omitempty"`
+
+		// The sound to play when the device receives the notification.
+		//
+		// Sound files can be in the main bundle of the client app or in the Library/Sounds folder of the
+		// app's data container. See the iOS Developer Library for more information.
+		// See https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/SupportingNotificationsinYourApp.html#//apple_ref/doc/uid/TP40008194-CH4-SW10
+		Sound string `json:"sound,omitempty"`
+
+		// The value of the badge on the home screen app icon.
+		//
+		// If not specified, the badge is not changed.
+		//
+		// If set to 0, the badge is removed.
+		Badge string `json:"badge,omitempty"`
+
+		// Identifier used to replace existing notifications in the notification drawer.
+		//
+		// If not specified, each request creates a new notification.
+		//
+		// If specified and a notification with the same tag is already being shown, the new
+		// notification replaces the existing one in the notification drawer.
+		Tag string `json:"tag,omitempty"`
+
+		// The notification's icon color, expressed in #rrggbb format.
+		Color string `json:"color,omitempty"`
+
+		// The action associated with a user click on the notification.
+		//
+		// If specified, an activity with a matching intent filter is launched when a user clicks on the
+		// notification.
+		ClickAction string `json:"click_action,omitempty"`
+
+		// The key to the body string in the app's string resources to use to localize the body text to
+		// the user's current localization.
+		//
+		// See String Resources for more information.
+		// https://developer.android.com/guide/topics/resources/string-resource.html
+		BodyLocKey string `json:"body_loc_key,omitempty"`
+
+		// Variable string values to be used in place of the format specifiers in body_loc_key to use
+		// to localize the body text to the user's current localization.
+		//
+		// See Formatting and Styling for more information.
+		// https://developer.android.com/guide/topics/resources/string-resource.html#FormattingAndStyling
+		BodyLocArgs string `json:"body_loc_args,omitempty"`
+
+		// The key to the title string in the app's string resources to use to localize the title text to
+		// the user's current localization.
+		//
+		// See String Resources for more information.
+		// https://developer.android.com/guide/topics/resources/string-resource.html
+		TitleLocKey string `json:"title_loc_key,omitempty"`
+
+		// Variable string values to be used in place of the format specifiers in title_loc_key to use
+		// to localize the title text to the user's current localization.
+		//
+		// See Formatting and Styling for more information.
+		// https://developer.android.com/guide/topics/resources/string-resource.html#FormattingAndStyling
+		TitleLocArgs string `json:"title_loc_args,omitempty"`
+	}
+)
 
 func parseDate(t int64) time.Time {
 	if t == 0 {
