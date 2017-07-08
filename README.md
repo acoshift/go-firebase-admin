@@ -3,13 +3,42 @@ go-firebase-admin
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/acoshift/go-firebase-admin)](https://goreportcard.com/report/github.com/acoshift/go-firebase-admin)
 [![GoDoc](https://godoc.org/github.com/acoshift/go-firebase-admin?status.svg)](https://godoc.org/github.com/acoshift/go-firebase-admin)
+[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
 
+Table of Contents
+==============================
+
+ * [Overview](#overview)
+ * [Installation](#installation)
+ * [Features](#features)
+ * [To-Do List](#to-do-list)
+ * [Documentation](#documentation)
+ * [Initialize Firebase Admin SDK](#initialize-firebase-admin-sdk)
+ * [License](#license)
+
+Overview
+==============================
 Firebase Admin SDK for Golang
 
 On Wednesday, May 17, 2017 [Google announced at Google IO][1] : Open sourcing the Firebase SDKs.
-But for now, there is no official Admin SDK for Golang, only Java, Node and Python official SDKs.
+But for now, there is no official Admin SDK for Golang, only Java, Node and Python Admin SDKs.
 
-If you decide to use this still in development unofficial SDK, it will be a lot of breaking change, please use any package manager to fix version. 
+So welcome go-firebase-admin SDK :)
+
+> Note
+```
+If you decide to use this unofficial SDK still in development, please use any package manager to fix version, there will be a lot of breaking changes.
+```
+
+Installation
+------------
+
+Install the package with go:
+
+    go get github.com/acoshift/go-firebase-admin
+
+Features
+--------
 
 This go-firebase-admin SDK supports the following functions :
 
@@ -29,17 +58,10 @@ This go-firebase-admin SDK supports the following functions :
   * VerifyPassword : verifies given email and password
 
 - Realtime Database
-  * 
+  * not documented
   
 - Cloud Messaging (FCM)
   * TODO
-
-Installation
-------------
-
-Install the package with go:
-
-    go get github.com/acoshift/go-firebase-admin
 
 To-Do List
 ----------
@@ -51,7 +73,14 @@ To-Do List
 Documentation
 -------------
 
-You can find documentation for more details on [godoc.org][2].
+You can find more details about go-firebase-admin on [godoc.org][2].
+
+
+* [Firebase Setup Guide](https://firebase.google.com/docs/admin/setup/)
+* [Firebase Database Guide](https://firebase.google.com/docs/database/admin/start/)
+* [Firebase Authentication Guide](https://firebase.google.com/docs/auth/admin/)
+* [Firebase Cloud Messaging Guide](https://firebase.google.com/docs/cloud-messaging/admin/)
+* [Firebase Release Notes](https://firebase.google.com/support/releases)
 
 
 Initialize Firebase Admin SDK
@@ -82,6 +111,31 @@ func main() {
   // ...
 }
 ```
+
+Licence
+-------
+
+MIT License
+
+Copyright (c) 2016 Thanatat Tamtan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 [1]: https://opensource.googleblog.com/2017/05/open-sourcing-firebase-sdks.html
 [2]: https://godoc.org/github.com/acoshift/go-firebase-admin
