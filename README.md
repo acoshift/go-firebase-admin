@@ -13,7 +13,7 @@ Table of Contents
  * [Features](#features)
  * [To-Do List](#to-do-list)
  * [Documentation](#documentation)
- * [Initialize Firebase Admin SDK](#initialize-firebase-admin-sdk)
+ * [Examples](#examples)
  * [License](#license)
 
 Overview
@@ -27,7 +27,8 @@ So welcome go-firebase-admin SDK :)
 
 > Note
 ```
-If you decide to use this unofficial SDK still in development, please use any package manager to fix version, there will be a lot of breaking changes.
+If you decide to use this unofficial SDK still in development, 
+please use any package manager to fix version, there will be a lot of breaking changes.
 ```
 
 Installation
@@ -45,7 +46,7 @@ This go-firebase-admin SDK supports the following functions :
 - Authentication
   * CreateCustomToken : [Generate JSON Web Tokens (JWTs) on your server][3], pass them back to a client device, and then use them to authenticate via the signInWithCustomToken() method.
   * VerifyIDToken : [verify the integrity and authenticity of the ID token][4] and retrieve the uid from it.
-- Manage Users
+- User Management API
   * GetUser : fetching the profile information of users by their uid
   * GetUsers : fetching list of profile information of users by their uid
   * GetUserByEmail : fetching the profile information of users by their email
@@ -57,10 +58,10 @@ This go-firebase-admin SDK supports the following functions :
   * SendPasswordResetEmail : send password reset for the given user
   * VerifyPassword : verifies given email and password
 
-- Realtime Database
+- Realtime Database API
   * not documented
   
-- Cloud Messaging (FCM)
+- Cloud Messaging API
   * TODO
 
 To-Do List
@@ -83,8 +84,10 @@ You can find more details about go-firebase-admin on [godoc.org][2].
 * [Firebase Release Notes](https://firebase.google.com/support/releases)
 
 
+Examples
+--------
+
 Initialize Firebase Admin SDK
------------------------------
 
 ```go
 package main
