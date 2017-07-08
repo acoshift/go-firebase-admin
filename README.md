@@ -87,6 +87,9 @@ You can find more details about go-firebase-admin on [godoc.org][2].
 Examples
 --------
 
+You need a service_account.json file, if you don't have an admin SDK service_account.json, please [check this guide]
+(https://firebase.google.com/docs/admin/setup#add_firebase_to_your_app)  
+
 Initialize Firebase Admin SDK
 
 ```go
@@ -99,18 +102,22 @@ import (
 )
 
 func main() {
-  // Init App
+  // Init App with service_account
   serviceAccount, _ := ioutil.ReadFile("service_account.json")
   firApp, err := admin.InitializeApp(context.Background(), admin.AppOptions{
     ServiceAccount: serviceAccount,
     ProjectID: "YOUR_PROJECT_ID",
     DatabaseURL: "YOUR_DATABASE_URL",
   })
+
   if err != nil {
     panic(err)
   }
+
   firAuth := firApp.Auth()
   firDatabase := firApp.Database()
+  // Soon fcm functions
+  firFCM := firApp.FCM()
   // ...
 }
 ```

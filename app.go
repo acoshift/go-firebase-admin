@@ -67,3 +67,8 @@ func (app *App) Auth() *Auth {
 func (app *App) Database() *Database {
 	return newDatabase(app)
 }
+
+// FCM creates new FCM instance
+func (app *App) FCM() *FCM {
+	return newFCM(app)
+}
