@@ -37,7 +37,7 @@ func (fcm *FCM) SendToDevice(registrationToken string, payload Message) (*Respon
 	return fcm.sendFirebaseRequest(payload)
 }
 
-// SendToDevices Send multicast Message to devices
+// SendToDevices Send multicast Message to a list of devices
 // see https://firebase.google.com/docs/cloud-messaging/admin/send-messages#send_to_individual_devices
 func (fcm *FCM) SendToDevices(registrationTokens []string, payload Message) (*Response, error) {
 
@@ -58,7 +58,7 @@ func (fcm *FCM) SendToDeviceGroup(notificationKey string, payload Message) (*Res
 	return fcm.SendToDevice(notificationKey, payload)
 }
 
-// SendToTopic TODO NOT IMPLEMENTED
+// SendToTopic Send Message to a topic
 // see https://firebase.google.com/docs/cloud-messaging/admin/send-messages#send_to_a_topic
 func (fcm *FCM) SendToTopic(notificationKey string, payload Message) (*Response, error) {
 	return fcm.SendToDevice(fmt.Sprint("/topic/", notificationKey), payload)

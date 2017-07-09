@@ -62,7 +62,15 @@ This go-firebase-admin SDK supports the following functions :
   * not documented
   
 - Cloud Messaging API
-  * TODO
+  * SendToDevice : Send Message to individual device
+  * SendToDevices : Send multicast Message to a list of devices
+  * SendToDeviceGroup : Send Message to a device group
+  * SendToTopic : Send Message to a topic
+  * SendToCondition : Send a message to devices subscribed to the combination of topics
+  * SubscribeDeviceToTopic : TODO
+  * SubscribeDevicesToTopic : TODO
+  * UnSubscribeDeviceFromTopic : TODO
+  * UnSubscribeDevicesFromTopic : TODO
 
 To-Do List
 ----------
