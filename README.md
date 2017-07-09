@@ -81,6 +81,7 @@ You can find more details about go-firebase-admin on [godoc.org][2].
 * [Firebase Database Guide](https://firebase.google.com/docs/database/admin/start/)
 * [Firebase Authentication Guide](https://firebase.google.com/docs/auth/admin/)
 * [Firebase Cloud Messaging Guide](https://firebase.google.com/docs/cloud-messaging/admin/)
+* [Firebase Cloud Messaging Server](https://firebase.google.com/docs/cloud-messaging/server)
 * [Firebase Release Notes](https://firebase.google.com/support/releases)
 
 
@@ -106,8 +107,9 @@ func main() {
   serviceAccount, _ := ioutil.ReadFile("service_account.json")
   firApp, err := admin.InitializeApp(context.Background(), admin.AppOptions{
     ServiceAccount: serviceAccount,
-    ProjectID: "YOUR_PROJECT_ID",
-    DatabaseURL: "YOUR_DATABASE_URL",
+    ProjectID:      "YOUR_PROJECT_ID",
+    DatabaseURL:    "YOUR_DATABASE_URL",
+    APIKey:         "YOUR_API_KEY",
   })
 
   if err != nil {
@@ -116,9 +118,15 @@ func main() {
 
   firAuth := firApp.Auth()
   firDatabase := firApp.Database()
-  // Soon fcm functions
+
+  // FCM
   firFCM := firApp.FCM()
-  // ...
+
+  resp, err := firFCM.SendToDevice("registrationToken", admin.Message{To: "toto"})
+	if err != nil {
+    panic(err)
+	}
+  
 }
 ```
 

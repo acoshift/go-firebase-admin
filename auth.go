@@ -40,7 +40,7 @@ func newAuth(app *App) *Auth {
 
 // CreateCustomToken creates a custom token used for client to authenticate
 // with firebase server using signInWithCustomToken
-// https://firebase.google.com/docs/auth/admin/create-custom-tokens
+// see https://firebase.google.com/docs/auth/admin/create-custom-tokens
 func (auth *Auth) CreateCustomToken(userID string, claims interface{}) (string, error) {
 	if auth.app.jwtConfig == nil || auth.app.privateKey == nil {
 		return "", ErrRequireServiceAccount

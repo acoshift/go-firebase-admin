@@ -2,6 +2,8 @@ package admin
 
 import (
 	"context"
+	"encoding/json"
+	"strings"
 	"time"
 
 	"google.golang.org/api/identitytoolkit/v3"
@@ -253,7 +255,129 @@ type (
 		// https://developer.android.com/guide/topics/resources/string-resource.html#FormattingAndStyling
 		TitleLocArgs string `json:"title_loc_args,omitempty"`
 	}
+
+	// Response is the FCM server's response
+	// See https://firebase.google.com/docs/cloud-messaging/http-server-ref#interpret-downstream
+	Response struct {
+		// Unique ID (number) identifying the multicast message.
+		MulticastID int64 `json:"multicast_id"`
+
+		// Number of messages that were processed without an error.
+		Success int `json:"success"`
+
+		// Number of messages that could not be processed.
+		Failure int `json:"failure"`
+
+		// Number of results that contain a canonical registration token. A canonical registration ID is the
+		// registration token of the last registration requested by the client app. This is the ID that the server
+		// should use when sending messages to the device.
+		CanonicalIDs int `json:"canonical_ids"`
+
+		// Array of objects representing the status of the messages processed. The objects are listed in the same
+		// order as the request (i.e., for each registration ID in the request, its result is listed in the same index in
+		// the response).
+		//
+		// message_id: String specifying a unique ID for each successfully processed message.
+		//
+		// registration_id: Optional string specifying the canonical registration token for the client app
+		// that the message was processed and sent to. Sender should use this value as the registration token
+		// for future requests. Otherwise, the messages might be rejected.
+		//
+		// error: String specifying the error that occurred when processing the message for the recipient. The
+		// possible values can be found in table 9.
+		// See https://firebase.google.com/docs/cloud-messaging/http-server-ref#table9
+		Results []Result `json:"results"`
+	}
+
+	// Result representing the status of the messages processed.
+	// See https://firebase.google.com/docs/cloud-messaging/http-server-ref#interpret-downstream
+	Result struct {
+		// The topic message ID when FCM has successfully received the request and will attempt to deliver to
+		// all subscribed devices.
+		MessageID string `json:"message_id"`
+
+		// This parameter specifies the canonical registration token for the client app that the message was
+		// processed and sent to. Sender should replace the registration token with this value on future
+		// requests; otherwise, the messages might be rejected.
+		RegistrationID string `json:"registration_id"`
+
+		// Error that occurred when processing the message. The possible values can be found in table 9.
+		Error error `json:"error"`
+	}
 )
+
+// toFirebaseErr map an error string returned by firebase to error
+// TODO find a best way to use directly error
+func toFirebaseErr(firebaseErr string) error {
+
+	var mapping = map[string]error{
+		"MissingRegistration":       ErrMissingRegistration,
+		"InvalidRegistration":       ErrInvalidRegistration,
+		"NotRegistered":             ErrNotRegistered,
+		"InvalidPackageName":        ErrInvalidPackageName,
+		"MismatchSenderId":          ErrMismatchSenderID,
+		"InvalidParameters":         ErrInvalidParameters,
+		"MessageTooBig":             ErrMessageTooBig,
+		"InvalidDataKey":            ErrInvalidDataKey,
+		"InvalidTtl":                ErrInvalidTTL,
+		"Unavailable":               ErrUnavailable,
+		"InternalServerError":       ErrInternalServerError,
+		"DeviceMessageRateExceeded": ErrDeviceMessageRateExceeded,
+		"TopicsMessageRateExceeded": ErrTopicsMessageRateExceeded,
+		"InvalidApnsCredential":     ErrInvalidApnsCredential,
+	}
+
+	return mapping[firebaseErr]
+}
+
+// UnmarshalJSON implements json.Unmarshaler interface.
+func (r *Result) UnmarshalJSON(data []byte) error {
+	var result struct {
+		MessageID      string `json:"message_id"`
+		RegistrationID string `json:"registration_id"`
+		Error          string `json:"error"`
+	}
+
+	if err := json.Unmarshal(data, &result); err != nil {
+		return err
+	}
+
+	r.MessageID = result.MessageID
+	r.RegistrationID = result.RegistrationID
+	r.Error = toFirebaseErr(result.Error)
+
+	return nil
+}
+
+// Validate returns an error if the payload message is not valid.
+func (payload *Message) Validate() error {
+
+	// validate number of Condition operators
+	opCnt := strings.Count(payload.Condition, "&&") + strings.Count(payload.Condition, "||")
+	if opCnt > 2 {
+		return &ErrInvalidMessage{"firebaseFCM: Too many operators for conditions only support up to two operators per expression"}
+	}
+
+	// validate recipient is not empty
+	if payload.To == "" && payload.Condition == "" && len(payload.RegistrationIDs) == 0 {
+		return &ErrInvalidMessage{"firebaseFCM: A recipient is missing"}
+	}
+
+	// validate max RegistrationIDs
+	if len(payload.RegistrationIDs) > 1000 {
+		return &ErrInvalidMessage{"firebaseFCM: Too many registrations ids max size is 1000"}
+	}
+
+	// validate TTL
+	if payload.TimeToLive > 2419200 {
+		return &ErrInvalidMessage{"firebaseFCM: TTL is greater than 2419200"}
+	}
+
+	// TODO validate size
+	// 4096 bytes for messages or 2048 bytes for topics
+
+	return nil
+}
 
 func parseDate(t int64) time.Time {
 	if t == 0 {

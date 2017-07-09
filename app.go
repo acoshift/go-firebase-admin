@@ -17,6 +17,7 @@ type App struct {
 	privateKey  *rsa.PrivateKey
 	databaseURL string
 	client      *http.Client
+	apiKey      string
 }
 
 // AppOptions is the firebase app options for initialize app
@@ -24,6 +25,7 @@ type AppOptions struct {
 	ProjectID      string
 	ServiceAccount []byte
 	DatabaseURL    string
+	APIKey         string
 }
 
 // InitializeApp initializes firebase application with options
@@ -33,6 +35,7 @@ func InitializeApp(ctx context.Context, options AppOptions) (*App, error) {
 	app := App{
 		projectID:   options.ProjectID,
 		databaseURL: options.DatabaseURL,
+		apiKey:      options.APIKey,
 	}
 
 	if options.ServiceAccount != nil {
