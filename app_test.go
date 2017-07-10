@@ -12,6 +12,7 @@ type config struct {
 	ProjectID      string `yaml:"projectId"`
 	ServiceAccount []byte `yaml:"serviceAccount"`
 	DatabaseURL    string `yaml:"databaseURL"`
+	APIKey         string `yaml:"apiKey"`
 }
 
 func initApp() *admin.App {

@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"context"
 	"encoding/json"
 	"strings"
 	"time"
@@ -457,13 +456,4 @@ var scopes = []string{
 	"https://www.googleapis.com/auth/userinfo.email",
 	"https://www.googleapis.com/auth/firebase.database",
 	"https://www.googleapis.com/auth/identitytoolkit",
-}
-
-const (
-	baseURL = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/"
-	timeout = time.Second * 10000
-)
-
-func getContext() (context.Context, context.CancelFunc) {
-	return context.WithTimeout(context.Background(), timeout)
 }
