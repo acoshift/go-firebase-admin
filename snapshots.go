@@ -13,7 +13,7 @@ type DataSnapshot struct {
 
 // Key returns the location of this DataSnapshot
 func (snapshot *DataSnapshot) Key() string {
-	panic(ErrNotImplement)
+	panic(ErrNotImplemented)
 }
 
 // Ref returns the Reference for the location generated this DataSnapshot

@@ -286,27 +286,27 @@ func (ref Reference) OrderByValue() Query {
 
 // OnValue implements Query interface
 func (ref *Reference) OnValue(event chan *DataSnapshot) CancelFunc {
-	panic(ErrNotImplement)
+	panic(ErrNotImplemented)
 }
 
 // OnChildAdded implements Query interface
 func (ref *Reference) OnChildAdded(event chan *ChildSnapshot) CancelFunc {
-	panic(ErrNotImplement)
+	panic(ErrNotImplemented)
 }
 
 // OnChildRemoved implements Query interface
 func (ref *Reference) OnChildRemoved(event chan *OldChildSnapshot) CancelFunc {
-	panic(ErrNotImplement)
+	panic(ErrNotImplemented)
 }
 
 // OnChildChanged implements Query interface
 func (ref *Reference) OnChildChanged(event chan *ChildSnapshot) CancelFunc {
-	panic(ErrNotImplement)
+	panic(ErrNotImplemented)
 }
 
 // OnChildMoved implements Query interface
 func (ref *Reference) OnChildMoved(event chan *ChildSnapshot) CancelFunc {
-	panic(ErrNotImplement)
+	panic(ErrNotImplemented)
 }
 
 // OnceValue implements Query interface
@@ -324,22 +324,22 @@ func (ref *Reference) OnceValue() (*DataSnapshot, error) {
 
 // OnceChildAdded implements Query interface
 func (ref *Reference) OnceChildAdded() *ChildSnapshot {
-	panic(ErrNotImplement)
+	panic(ErrNotImplemented)
 }
 
 // OnceChildRemove implements Query interface
 func (ref *Reference) OnceChildRemove() *OldChildSnapshot {
-	panic(ErrNotImplement)
+	panic(ErrNotImplemented)
 }
 
 // OnceChildChanged implements Query interface
 func (ref *Reference) OnceChildChanged() *ChildSnapshot {
-	panic(ErrNotImplement)
+	panic(ErrNotImplemented)
 }
 
 // OnceChildMoved implements Query interface
 func (ref *Reference) OnceChildMoved() *ChildSnapshot {
-	panic(ErrNotImplement)
+	panic(ErrNotImplemented)
 }
 
 // String returns absolute URL for this location
