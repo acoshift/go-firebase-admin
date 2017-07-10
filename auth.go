@@ -290,8 +290,8 @@ func (cursor *ListAccountCursor) Next(ctx context.Context) ([]*UserRecord, error
 }
 
 // UpdateUser updates an existing user
-func (auth *Auth) UpdateUser(ctx context.Context, user *User) (*UserRecord, error) {
-	resp, err := auth.client.SetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartySetAccountInfoRequest{
+func (auth *Auth) UpdateUser(ctx context.Context, user *User) error {
+	_, err := auth.client.SetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartySetAccountInfoRequest{
 		LocalId:       user.UserID,
 		Email:         user.Email,
 		EmailVerified: user.EmailVerified,
@@ -301,14 +301,9 @@ func (auth *Auth) UpdateUser(ctx context.Context, user *User) (*UserRecord, erro
 		PhotoUrl:      user.PhotoURL,
 	}).Context(ctx).Do()
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	res, err := auth.GetUser(ctx, resp.LocalId)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+	return nil
 }
 
 // SendPasswordResetEmail sends password reset for the given user
