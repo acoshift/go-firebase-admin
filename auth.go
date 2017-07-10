@@ -42,7 +42,7 @@ func newAuth(app *App) *Auth {
 // with firebase server using signInWithCustomToken
 // see https://firebase.google.com/docs/auth/admin/create-custom-tokens
 func (auth *Auth) CreateCustomToken(userID string, claims interface{}) (string, error) {
-	if auth.app.jwtConfig == nil || auth.app.privateKey == nil {
+	if auth.app.privateKey == nil {
 		return "", ErrRequireServiceAccount
 	}
 	now := time.Now()
@@ -236,6 +236,7 @@ func (auth *Auth) createUserCustomID(ctx context.Context, user *User) error {
 		return err
 	}
 	if len(resp.Error) > 0 {
+		// TODO: merge errors into one error
 		return errors.New("firebaseauth: create user error")
 	}
 	return nil
