@@ -13,7 +13,9 @@ type FCM struct {
 }
 
 const (
-	fcmEndpoint = "https://fcm.googleapis.com/fcm/send"
+	fcmSendEndpoint        = "https://fcm.googleapis.com/fcm/send"
+	fcmTopicAddEndpoint    = "https://iid.googleapis.com/iid/v1:batchAdd"
+	fcmTopicRemoveEndpoint = "https://iid.googleapis.com/iid/v1:batchRemove"
 )
 
 func newFCM(app *App) *FCM {
@@ -80,28 +82,28 @@ func (fcm *FCM) SendToCondition(condition string, payload Message) (*Response, e
 	return fcm.sendFirebaseRequest(payload)
 }
 
-// SubscribeDeviceToTopic TODO NOT IMPLEMENTED
+// SubscribeDeviceToTopic subscribe to a device to a topic by providing a registration token for the device to subscribe
 // see https://firebase.google.com/docs/cloud-messaging/admin/manage-topic-subscriptions#subscribe_to_a_topic
 func (fcm *FCM) SubscribeDeviceToTopic(registrationToken string, topic string) (*Response, error) {
-	return nil, ErrNotImplemented
+	return fcm.sendFirebaseTopicRequest(fcmTopicAddEndpoint, Topic{To: topic, RegistrationTokens: []string{registrationToken}})
 }
 
-// SubscribeDevicesToTopic TODO NOT IMPLEMENTED
+// SubscribeDevicesToTopic subscribe devices to a topic by providing a registrationtokens for the devices to subscribe
 // see https://firebase.google.com/docs/cloud-messaging/admin/manage-topic-subscriptions#subscribe_to_a_topic
 func (fcm *FCM) SubscribeDevicesToTopic(registrationTokens []string, topic string) (*Response, error) {
-	return nil, ErrNotImplemented
+	return fcm.sendFirebaseTopicRequest(fcmTopicAddEndpoint, Topic{To: topic, RegistrationTokens: registrationTokens})
 }
 
-// UnSubscribeDeviceFromTopic TODO NOT IMPLEMENTED
+// UnSubscribeDeviceFromTopic Unsubscribe a device to a topic by providing a registration token for the device to unsubscribe
 // see https://firebase.google.com/docs/cloud-messaging/admin/manage-topic-subscriptions#unsubscribe_from_a_topic
 func (fcm *FCM) UnSubscribeDeviceFromTopic(registrationToken string, topic string) (*Response, error) {
-	return nil, ErrNotImplemented
+	return fcm.sendFirebaseTopicRequest(fcmTopicRemoveEndpoint, Topic{To: topic, RegistrationTokens: []string{registrationToken}})
 }
 
-// UnSubscribeDevicesFromTopic TODO NOT IMPLEMENTED
+// UnSubscribeDevicesFromTopic Unsubscribe devices to a topic by providing a registrationtokens for the devices to unsubscribe
 // see https://firebase.google.com/docs/cloud-messaging/admin/manage-topic-subscriptions#unsubscribe_from_a_topic
 func (fcm *FCM) UnSubscribeDevicesFromTopic(registrationTokens []string, topic string) (*Response, error) {
-	return nil, ErrNotImplemented
+	return fcm.sendFirebaseTopicRequest(fcmTopicRemoveEndpoint, Topic{To: topic, RegistrationTokens: registrationTokens})
 }
 
 func (fcm *FCM) sendFirebaseRequest(payload Message) (*Response, error) {
@@ -118,7 +120,7 @@ func (fcm *FCM) sendFirebaseRequest(payload Message) (*Response, error) {
 	}
 
 	// create request
-	req, err := http.NewRequest("POST", fcmEndpoint, bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", fcmSendEndpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return nil, err
 	}
@@ -138,8 +140,63 @@ func (fcm *FCM) sendFirebaseRequest(payload Message) (*Response, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Printf("HTTP status: %d\n", resp.StatusCode)
-		fmt.Printf("HTTP body: %d\n", resp.Body)
+
+		switch resp.StatusCode {
+		case http.StatusBadRequest:
+			return nil, fmt.Errorf("StatusCode=%d, Desc=%s", resp.StatusCode, ErrInvalidParameters.Error())
+
+		case http.StatusUnauthorized:
+			return nil, fmt.Errorf("StatusCode=%d, Desc=%s", resp.StatusCode, ErrAuthentication.Error())
+
+		case http.StatusInternalServerError:
+		default:
+			return nil, fmt.Errorf("StatusCode=%d, Desc=%s", resp.StatusCode, ErrInternalServerError.Error())
+		}
+	}
+
+	// build response
+	response := new(Response)
+	if err := json.NewDecoder(resp.Body).Decode(response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (fcm *FCM) sendFirebaseTopicRequest(endpoint string, payload Topic) (*Response, error) {
+
+	// validate Topic
+	if err := payload.Validate(); err != nil {
+		return nil, err
+	}
+
+	// marshal Topic
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	// create request
+	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, err
+	}
+
+	// add headers
+	req.Header.Set("Authorization", fmt.Sprintf("key=%s", fcm.app.apiKey))
+	req.Header.Set("Content-Type", "application/json")
+
+	// TODO use fcm.app.client if possible (not working actually)
+	client := &http.Client{}
+
+	// execute request
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
 
 		switch resp.StatusCode {
 		case http.StatusBadRequest:

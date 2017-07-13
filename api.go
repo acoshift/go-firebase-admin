@@ -303,6 +303,18 @@ type (
 		// Error that occurred when processing the message. The possible values can be found in table 9.
 		Error error `json:"error"`
 	}
+
+	// Topic is the FCM topic
+	// See https://developers.google.com/instance-id/reference/server#manage_relationship_maps_for_multiple_app_instances
+	Topic struct {
+
+		// To this parameter specifies the The topic name.
+		//
+		To string `json:"to,omitempty"`
+
+		// This parameter specifies The array of IID tokens for the app instances you want to add or remove
+		RegistrationTokens []string `json:"registration_tokens,omitempty"`
+	}
 )
 
 // toFirebaseErr map an error string returned by firebase to error
@@ -374,6 +386,22 @@ func (payload *Message) Validate() error {
 
 	// TODO validate size
 	// 4096 bytes for messages or 2048 bytes for topics
+
+	return nil
+}
+
+// Validate returns an error if the payload topic is not valid.
+func (payload *Topic) Validate() error {
+
+	// validate recipient is not empty
+	if payload.To == "" && strings.HasPrefix(payload.To, "/topics/") {
+		return &ErrInvalidMessage{"firebaseFCM: A recipient is missing"}
+	}
+
+	// validate max RegistrationIDs
+	if len(payload.RegistrationTokens) < 1 {
+		return &ErrInvalidMessage{"firebaseFCM: registration_token is missing"}
+	}
 
 	return nil
 }
