@@ -26,6 +26,10 @@ type Reference struct {
 	limitToLast  int
 }
 
+type PushResp struct {
+	Name string
+}
+
 func marshalJSON(v interface{}) (string, error) {
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -152,17 +156,23 @@ func (ref *Reference) Set(value interface{}) error {
 }
 
 // Push pushs data to current location
-func (ref *Reference) Push(value interface{}) error {
+func (ref *Reference) Push(value interface{}) (*PushResp, error) {
 	buf := bytes.NewBuffer([]byte{})
 	err := json.NewEncoder(buf).Encode(value)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, err = ref.invokeRequest(http.MethodPost, buf)
+	body, err := ref.invokeRequest(http.MethodPost, buf)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	var res PushResp
+	if err = json.Unmarshal(body, &res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }
 
 // Remove removes data from current location
