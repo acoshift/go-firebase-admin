@@ -152,17 +152,29 @@ func (ref *Reference) Set(value interface{}) error {
 }
 
 // Push pushs data to current location
-func (ref *Reference) Push(value interface{}) error {
+func (ref Reference) Push(value interface{}) (*Reference, error) {
 	buf := bytes.NewBuffer([]byte{})
 	err := json.NewEncoder(buf).Encode(value)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, err = ref.invokeRequest(http.MethodPost, buf)
+	b, err := ref.invokeRequest(http.MethodPost, buf)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	var r struct {
+		Name string `json:"name"`
+	}
+	err = json.Unmarshal(b, &r)
+	if err != nil {
+		return nil, err
+	}
+
+	nRef := ref
+	nRef.path = _path.Join(ref.path, r.Name)
+
+	return &nRef, nil
 }
 
 // Remove removes data from current location
