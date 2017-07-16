@@ -11,7 +11,7 @@ func TestReference(t *testing.T) {
 
 	r1 := db.Ref("test/path")
 	n := time.Now()
-	err := r1.Push(n)
+	_, err := r1.Push(n)
 	if err != nil {
 		t.Fatal(err)
 	}
