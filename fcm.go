@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -116,14 +118,15 @@ func (fcm *FCM) sendFirebaseRequest(ctx context.Context, payload Message) (*Resp
 		return nil, err
 	}
 
-	// marshal message
-	data, err := json.Marshal(payload)
+	// Encode Message
+	buf := bytes.NewBuffer([]byte{})
+	err := json.NewEncoder(buf).Encode(payload)
 	if err != nil {
 		return nil, err
 	}
 
 	// create request
-	req, err := http.NewRequest("POST", fcmSendEndpoint, bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", fcmSendEndpoint, buf)
 	if err != nil {
 		return nil, err
 	}
@@ -141,6 +144,7 @@ func (fcm *FCM) sendFirebaseRequest(ctx context.Context, payload Message) (*Resp
 		return nil, err
 	}
 	defer resp.Body.Close()
+	defer io.Copy(ioutil.Discard, resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 
@@ -173,14 +177,15 @@ func (fcm *FCM) sendFirebaseTopicRequest(ctx context.Context, endpoint string, p
 		return nil, err
 	}
 
-	// marshal Topic
-	data, err := json.Marshal(payload)
+	// Encode Topic
+	buf := bytes.NewBuffer([]byte{})
+	err := json.NewEncoder(buf).Encode(payload)
 	if err != nil {
 		return nil, err
 	}
 
 	// create request
-	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", endpoint, buf)
 	if err != nil {
 		return nil, err
 	}
@@ -198,6 +203,7 @@ func (fcm *FCM) sendFirebaseTopicRequest(ctx context.Context, endpoint string, p
 		return nil, err
 	}
 	defer resp.Body.Close()
+	defer io.Copy(ioutil.Discard, resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 
