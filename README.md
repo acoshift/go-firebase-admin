@@ -67,17 +67,17 @@ This go-firebase-admin SDK supports the following functions :
   * SendToDeviceGroup : Send Message to a device group
   * SendToTopic : Send Message to a topic
   * SendToCondition : Send a message to devices subscribed to the combination of topics
-  * SubscribeDeviceToTopic : TODO
-  * SubscribeDevicesToTopic : TODO
-  * UnSubscribeDeviceFromTopic : TODO
-  * UnSubscribeDevicesFromTopic : TODO
+  * SubscribeDeviceToTopic : subscribe a device to a topic
+  * SubscribeDevicesToTopic : subscribe devices to a topic
+  * UnSubscribeDeviceFromTopic : Unsubscribe a device to a topic
+  * UnSubscribeDevicesFromTopic : Unsubscribe devices to a topic
 
 To-Do List
 ----------
 
 - [ ] update documentation
 - [ ] add examples
-- [ ] add FCM
+- [ ] add tests
 
 Documentation
 -------------
