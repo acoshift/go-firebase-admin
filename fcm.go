@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 // FCM type
@@ -68,7 +69,7 @@ func (fcm *FCM) SendToDeviceGroup(ctx context.Context, notificationKey string, p
 // SendToTopic Send Message to a topic
 // see https://firebase.google.com/docs/cloud-messaging/admin/send-messages#send_to_a_topic
 func (fcm *FCM) SendToTopic(ctx context.Context, notificationKey string, payload Message) (*Response, error) {
-	return fcm.SendToDevice(ctx, fmt.Sprint("/topic/", notificationKey), payload)
+	return fcm.SendToDevice(ctx, normalizeTopicName(notificationKey), payload)
 }
 
 // SendToCondition Send a message to devices subscribed to the combination of topics
@@ -90,25 +91,25 @@ func (fcm *FCM) SendToCondition(ctx context.Context, condition string, payload M
 // SubscribeDeviceToTopic subscribe to a device to a topic by providing a registration token for the device to subscribe
 // see https://firebase.google.com/docs/cloud-messaging/admin/manage-topic-subscriptions#subscribe_to_a_topic
 func (fcm *FCM) SubscribeDeviceToTopic(ctx context.Context, registrationToken string, topic string) (*Response, error) {
-	return fcm.sendFirebaseTopicRequest(ctx, fcmTopicAddEndpoint, Topic{To: topic, RegistrationTokens: []string{registrationToken}})
+	return fcm.sendFirebaseTopicRequest(ctx, fcmTopicAddEndpoint, Topic{To: normalizeTopicName(topic), RegistrationTokens: []string{registrationToken}})
 }
 
 // SubscribeDevicesToTopic subscribe devices to a topic by providing a registrationtokens for the devices to subscribe
 // see https://firebase.google.com/docs/cloud-messaging/admin/manage-topic-subscriptions#subscribe_to_a_topic
 func (fcm *FCM) SubscribeDevicesToTopic(ctx context.Context, registrationTokens []string, topic string) (*Response, error) {
-	return fcm.sendFirebaseTopicRequest(ctx, fcmTopicAddEndpoint, Topic{To: topic, RegistrationTokens: registrationTokens})
+	return fcm.sendFirebaseTopicRequest(ctx, fcmTopicAddEndpoint, Topic{To: normalizeTopicName(topic), RegistrationTokens: registrationTokens})
 }
 
 // UnSubscribeDeviceFromTopic Unsubscribe a device to a topic by providing a registration token for the device to unsubscribe
 // see https://firebase.google.com/docs/cloud-messaging/admin/manage-topic-subscriptions#unsubscribe_from_a_topic
 func (fcm *FCM) UnSubscribeDeviceFromTopic(ctx context.Context, registrationToken string, topic string) (*Response, error) {
-	return fcm.sendFirebaseTopicRequest(ctx, fcmTopicRemoveEndpoint, Topic{To: topic, RegistrationTokens: []string{registrationToken}})
+	return fcm.sendFirebaseTopicRequest(ctx, fcmTopicRemoveEndpoint, Topic{To: normalizeTopicName(topic), RegistrationTokens: []string{registrationToken}})
 }
 
 // UnSubscribeDevicesFromTopic Unsubscribe devices to a topic by providing a registrationtokens for the devices to unsubscribe
 // see https://firebase.google.com/docs/cloud-messaging/admin/manage-topic-subscriptions#unsubscribe_from_a_topic
 func (fcm *FCM) UnSubscribeDevicesFromTopic(ctx context.Context, registrationTokens []string, topic string) (*Response, error) {
-	return fcm.sendFirebaseTopicRequest(ctx, fcmTopicRemoveEndpoint, Topic{To: topic, RegistrationTokens: registrationTokens})
+	return fcm.sendFirebaseTopicRequest(ctx, fcmTopicRemoveEndpoint, Topic{To: normalizeTopicName(topic), RegistrationTokens: registrationTokens})
 }
 
 func (fcm *FCM) sendFirebaseRequest(ctx context.Context, payload Message) (*Response, error) {
@@ -227,4 +228,12 @@ func (fcm *FCM) sendFirebaseTopicRequest(ctx context.Context, endpoint string, p
 	}
 
 	return response, nil
+}
+
+// normalizeTopicName with prefix /topics/
+func normalizeTopicName(topic string) (result string) {
+	if strings.HasPrefix(topic, "/topics/") {
+		return topic
+	}
+	return fmt.Sprint("/topic/", topic)
 }
