@@ -124,15 +124,51 @@ func main() {
     panic(err)
   }
 
+  // Firebase AUth
   firAuth := firApp.Auth()
+
+  // Firebase Database
   firDatabase := firApp.Database()
 
   // FCM
   firFCM := firApp.FCM()
 
-  resp, err := firFCM.SendToDevice("registrationToken", admin.Message{To: "toto"})
+  // SendToDevice
+  resp, err := firFCM.SendToDevice(context.Background(), "mydevicetoken",
+		admin.Message{Notification: admin.Notification{
+			Title: "Hello go firebase admin",
+			Body:  "My little Big Notification",
+			Color: "#ffcc33"},
+		})
 	if err != nil {
-    panic(err)
+		panic(err)
+	}
+
+  // SendToDevices
+  resp, err := firFCM.SendToDevices(context.Background(), []string{"mydevicetoken"},
+		admin.Message{Notification: admin.Notification{
+			Title: "Hello go firebase admin",
+			Body:  "My little Big Notification",
+			Color: "#ffcc33"},
+		})
+	if err != nil {
+		panic(err)
+	}
+
+  // SubscribeDeviceToTopic
+  resp, err := firFCM.SubscribeDeviceToTopic(context.Background(), "mydevicetoken", "/topics/gofirebaseadmin")
+  // it's possible to ommit the "/topics/" prefix
+  resp, err := firFCM.SubscribeDeviceToTopic(context.Background(), "mydevicetoken", "gofirebaseadmin")
+	if err != nil {
+		panic(err)
+	}
+
+  // UnSubscribeDeviceFromTopic
+  resp, err := firFCM.UnSubscribeDeviceFromTopic(context.Background(), "mydevicetoken", "/topics/gofirebaseadmin")
+  // it's possible to ommit the "/topics/" prefix
+  resp, err := firFCM.UnSubscribeDeviceFromTopic(context.Background(), "mydevicetoken", "gofirebaseadmin")
+	if err2 != nil {
+		panic(err)
 	}
   
 }

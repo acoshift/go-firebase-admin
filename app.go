@@ -12,20 +12,22 @@ import (
 
 // App holds information about application configuration
 type App struct {
-	projectID   string
-	jwtConfig   *jwt.Config
-	privateKey  *rsa.PrivateKey
-	databaseURL string
-	client      *http.Client
-	apiKey      string
+	projectID            string
+	jwtConfig            *jwt.Config
+	privateKey           *rsa.PrivateKey
+	databaseURL          string
+	databaseAuthVariable interface{}
+	client               *http.Client
+	apiKey               string
 }
 
 // AppOptions is the firebase app options for initialize app
 type AppOptions struct {
-	ProjectID      string
-	ServiceAccount []byte
-	DatabaseURL    string
-	APIKey         string
+	ProjectID                    string
+	ServiceAccount               []byte
+	DatabaseURL                  string
+	DatabaseAuthVariableOverride interface{}
+	APIKey                       string
 }
 
 // InitializeApp initializes firebase application with options
@@ -33,9 +35,10 @@ func InitializeApp(ctx context.Context, options AppOptions) (*App, error) {
 	var err error
 
 	app := App{
-		projectID:   options.ProjectID,
-		databaseURL: options.DatabaseURL,
-		apiKey:      options.APIKey,
+		projectID:            options.ProjectID,
+		databaseURL:          options.DatabaseURL,
+		databaseAuthVariable: options.DatabaseAuthVariableOverride,
+		apiKey:               options.APIKey,
 	}
 
 	if options.ServiceAccount != nil {
