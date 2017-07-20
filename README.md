@@ -1,12 +1,10 @@
-go-firebase-admin
-==============================
+# go-firebase-admin
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/acoshift/go-firebase-admin)](https://goreportcard.com/report/github.com/acoshift/go-firebase-admin)
 [![GoDoc](https://godoc.org/github.com/acoshift/go-firebase-admin?status.svg)](https://godoc.org/github.com/acoshift/go-firebase-admin)
 [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
 
-Table of Contents
-==============================
+## Table of Contents
 
  * [Overview](#overview)
  * [Installation](#installation)
@@ -16,8 +14,8 @@ Table of Contents
  * [Examples](#examples)
  * [License](#license)
 
-Overview
-==============================
+## Overview
+
 Firebase Admin SDK for Golang
 
 On Wednesday, May 17, 2017 [Google announced at Google IO][1] : Open sourcing the Firebase SDKs.
@@ -31,15 +29,13 @@ If you decide to use this unofficial SDK still in development,
 please use any package manager to fix version, there will be a lot of breaking changes.
 ```
 
-Installation
-------------
+## Installation
 
 Install the package with go:
 
     go get github.com/acoshift/go-firebase-admin
 
-Features
---------
+## Features
 
 This go-firebase-admin SDK supports the following functions :
 
@@ -72,18 +68,15 @@ This go-firebase-admin SDK supports the following functions :
   * UnSubscribeDeviceFromTopic : Unsubscribe a device to a topic
   * UnSubscribeDevicesFromTopic : Unsubscribe devices to a topic
 
-To-Do List
-----------
+## To-Do List
 
 - [ ] update documentation
 - [ ] add examples
 - [ ] add tests
 
-Documentation
--------------
+## Documentation
 
 You can find more details about go-firebase-admin on [godoc.org][2].
-
 
 * [Firebase Setup Guide](https://firebase.google.com/docs/admin/setup/)
 * [Firebase Database Guide](https://firebase.google.com/docs/database/admin/start/)
@@ -93,13 +86,108 @@ You can find more details about go-firebase-admin on [godoc.org][2].
 * [Firebase Release Notes](https://firebase.google.com/support/releases)
 
 
-Examples
---------
+## Usage
 
-You need a service_account.json file, if you don't have an admin SDK service_account.json, please [check this guide]
-(https://firebase.google.com/docs/admin/setup#add_firebase_to_your_app)  
+You need a *service_account.json* file, if you don't have an admin SDK service_account.json, please [check this guide](https://firebase.google.com/docs/admin/setup#add_firebase_to_your_app)  
+
+You need a Firebase API Key for FCM, whose value is available in the [Cloud Messaging tab of the Firebase console Settings panel](https://console.firebase.google.com/project/_/settings/cloudmessaging)
 
 Initialize Firebase Admin SDK
+
+```go
+package main
+
+import (
+  "io/ioutil"
+
+  "github.com/acoshift/go-firebase-admin"
+)
+
+func main() {
+  // Init App with service_account
+  serviceAccount, _ := ioutil.ReadFile("service_account.json")
+  firApp, err := admin.InitializeApp(context.Background(), admin.AppOptions{
+    ServiceAccount: serviceAccount,
+    ProjectID:      "YOUR_PROJECT_ID",
+  })
+
+  if err != nil {
+    panic(err)
+  }
+  
+}
+```
+### Authentication
+
+```go
+package main
+
+import (
+  "io/ioutil"
+
+  "github.com/acoshift/go-firebase-admin"
+)
+
+func main() {
+  // Init App with service_account
+  serviceAccount, _ := ioutil.ReadFile("service_account.json")
+  firApp, err := admin.InitializeApp(context.Background(), admin.AppOptions{
+    ServiceAccount: serviceAccount,
+    ProjectID:      "YOUR_PROJECT_ID",
+  })
+
+  if err != nil {
+    panic(err)
+  }
+
+  // Firebase AUth
+  firAuth := firApp.Auth()
+
+  // VerifyIDToken
+  claims, err := firAuth.VerifyIDToken("My token")
+
+  // CreateCustomToken
+  myClaims := make(map[string]string)
+	myClaims["name"] = "go-firebase-admin"
+  myClaims["name"] = "go-firebase-admin"
+
+	cutomToken, err := firAuth.CreateCustomToken(claims.UserID, myClaims)
+  
+}
+```
+
+### Database
+
+```go
+package main
+
+import (
+  "io/ioutil"
+
+  "github.com/acoshift/go-firebase-admin"
+)
+
+func main() {
+  // Init App with service_account
+  serviceAccount, _ := ioutil.ReadFile("service_account.json")
+  firApp, err := admin.InitializeApp(context.Background(), admin.AppOptions{
+    ServiceAccount: serviceAccount,
+    ProjectID:      "YOUR_PROJECT_ID",
+  })
+
+  if err != nil {
+    panic(err)
+  }
+
+  // Firebase Database
+  firDatabase := firApp.Database()
+
+  // TODO
+  
+}
+```
+
+### Messaging
 
 ```go
 package main
@@ -123,12 +211,6 @@ func main() {
   if err != nil {
     panic(err)
   }
-
-  // Firebase AUth
-  firAuth := firApp.Auth()
-
-  // Firebase Database
-  firDatabase := firApp.Database()
 
   // FCM
   firFCM := firApp.FCM()
@@ -174,8 +256,7 @@ func main() {
 }
 ```
 
-Licence
--------
+## Licence
 
 MIT License
 

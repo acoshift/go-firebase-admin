@@ -40,7 +40,7 @@ func newAuth(app *App) *Auth {
 
 // CreateCustomToken creates a custom token used for client to authenticate
 // with firebase server using signInWithCustomToken
-// see https://firebase.google.com/docs/auth/admin/create-custom-tokens
+// See https://firebase.google.com/docs/auth/admin/create-custom-tokens
 func (auth *Auth) CreateCustomToken(userID string, claims interface{}) (string, error) {
 	if auth.app.privateKey == nil {
 		return "", ErrRequireServiceAccount
@@ -61,6 +61,7 @@ func (auth *Auth) CreateCustomToken(userID string, claims interface{}) (string, 
 
 // VerifyIDToken validates given idToken
 // return Claims for that token only valid token
+// See https://firebase.google.com/docs/auth/admin/verify-id-tokens
 func (auth *Auth) VerifyIDToken(idToken string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(idToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
