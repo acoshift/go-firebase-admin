@@ -151,10 +151,10 @@ func main() {
 
   // CreateCustomToken
   myClaims := make(map[string]string)
-	myClaims["name"] = "go-firebase-admin"
   myClaims["name"] = "go-firebase-admin"
+  myClaims["ID"] = "go-go-go"
 
-	cutomToken, err := firAuth.CreateCustomToken(claims.UserID, myClaims)
+  cutomToken, err := firAuth.CreateCustomToken(claims.UserID, myClaims)
   
 }
 ```
@@ -225,9 +225,10 @@ func main() {
 			Body:  "My little Big Notification",
 			Color: "#ffcc33"},
 		})
-	if err != nil {
-		panic(err)
-	}
+
+  if err != nil {
+    panic(err)
+  }
 
   // SendToDevices
   resp, err := firFCM.SendToDevices(context.Background(), []string{"mydevicetoken"},
@@ -236,25 +237,28 @@ func main() {
 			Body:  "My little Big Notification",
 			Color: "#ffcc33"},
 		})
-	if err != nil {
-		panic(err)
-	}
+
+  if err != nil {
+    panic(err)
+  }
 
   // SubscribeDeviceToTopic
   resp, err := firFCM.SubscribeDeviceToTopic(context.Background(), "mydevicetoken", "/topics/gofirebaseadmin")
   // it's possible to ommit the "/topics/" prefix
   resp, err := firFCM.SubscribeDeviceToTopic(context.Background(), "mydevicetoken", "gofirebaseadmin")
-	if err != nil {
-		panic(err)
-	}
+
+  if err != nil {
+    panic(err)
+  }
 
   // UnSubscribeDeviceFromTopic
   resp, err := firFCM.UnSubscribeDeviceFromTopic(context.Background(), "mydevicetoken", "/topics/gofirebaseadmin")
   // it's possible to ommit the "/topics/" prefix
   resp, err := firFCM.UnSubscribeDeviceFromTopic(context.Background(), "mydevicetoken", "gofirebaseadmin")
-	if err2 != nil {
-		panic(err)
-	}
+
+  if err2 != nil {
+    panic(err)
+  }
   
 }
 ```
