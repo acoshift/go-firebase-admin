@@ -3,8 +3,10 @@ package admin_test
 import (
 	"context"
 	"io/ioutil"
+	"testing"
 
 	admin "github.com/acoshift/go-firebase-admin"
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 )
 
@@ -30,4 +32,31 @@ func initApp() *admin.App {
 
 	app, _ := admin.InitializeApp(context.Background(), admin.AppOptions(c))
 	return app
+}
+
+func TestAuth(t *testing.T) {
+
+	app := initApp()
+	firAuth := app.Auth()
+
+	assert.NotNil(t, app)
+	assert.NotNil(t, firAuth)
+}
+
+func TestDatabase(t *testing.T) {
+
+	app := initApp()
+	firDatabase := app.Database()
+
+	assert.NotNil(t, app)
+	assert.NotNil(t, firDatabase)
+}
+
+func TestFCM(t *testing.T) {
+
+	app := initApp()
+	firFCM := app.FCM()
+
+	assert.NotNil(t, app)
+	assert.NotNil(t, firFCM)
 }
