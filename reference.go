@@ -235,7 +235,7 @@ func (ref Reference) EqualTo(value interface{}) Query {
 }
 
 // IsEqual returns true if current and provided query is the same location,
-// save query params, and same App instance
+// same query params, and same App instance
 func (ref *Reference) IsEqual(other Query) bool {
 	r := other.Ref()
 
