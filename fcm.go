@@ -30,6 +30,21 @@ func newFCM(app *App) *FCM {
 	}
 }
 
+// NewFcmSendEndpoint set fcmSendEndpoint URL
+func (fcm *FCM) NewFcmSendEndpoint(endpoint string) {
+	fcmSendEndpoint = endpoint
+}
+
+// NewFcmTopicAddEndpoint set fcmTopicAddEndpoint URL
+func (fcm *FCM) NewFcmTopicAddEndpoint(endpoint string) {
+	fcmTopicAddEndpoint = endpoint
+}
+
+// NewFcmTopicRemoveEndpoint set fcmTopicRemoveEndpoint URL
+func (fcm *FCM) NewFcmTopicRemoveEndpoint(endpoint string) {
+	fcmTopicRemoveEndpoint = endpoint
+}
+
 // SendToDevice Send Message to individual device
 // see https://firebase.google.com/docs/cloud-messaging/admin/send-messages#send_to_individual_devices
 func (fcm *FCM) SendToDevice(ctx context.Context, registrationToken string, payload Message) (*Response, error) {

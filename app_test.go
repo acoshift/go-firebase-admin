@@ -22,6 +22,12 @@ func initApp() *admin.App {
 	var c config
 	yaml.Unmarshal(bs, &c)
 
+	// if service account is in separate file service_account.json
+	if len(c.ServiceAccount) <= 0 {
+		serviceAccount, _ := ioutil.ReadFile("private/service_account.json")
+		c.ServiceAccount = serviceAccount
+	}
+
 	app, _ := admin.InitializeApp(context.Background(), admin.AppOptions(c))
 	return app
 }
