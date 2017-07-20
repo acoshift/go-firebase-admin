@@ -11,7 +11,10 @@
  * [Features](#features)
  * [To-Do List](#to-do-list)
  * [Documentation](#documentation)
- * [Examples](#examples)
+ * [Usage](#usage)
+   * [Authentication](#authentication)
+   * [Database](#database)
+   * [Messaging](#messaging)
  * [License](#license)
 
 ## Overview
