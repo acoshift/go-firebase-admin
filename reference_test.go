@@ -11,9 +11,15 @@ func TestReference(t *testing.T) {
 
 	r1 := db.Ref("test/path")
 	n := time.Now()
-	err := r1.Push(n)
+	rr, err := r1.Push(n)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if rr == nil {
+		t.Fatalf("expected push result not nil; got nil")
+	}
+	if rr.Key() == r1.Key() {
+		t.Fatalf("expected push result key changed")
 	}
 	err = r1.Set(n)
 	if err != nil {
