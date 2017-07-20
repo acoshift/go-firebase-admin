@@ -17,7 +17,7 @@ type FCM struct {
 	client *http.Client
 }
 
-const (
+var (
 	fcmSendEndpoint        = "https://fcm.googleapis.com/fcm/send"
 	fcmTopicAddEndpoint    = "https://iid.googleapis.com/iid/v1:batchAdd"
 	fcmTopicRemoveEndpoint = "https://iid.googleapis.com/iid/v1:batchRemove"
@@ -235,5 +235,5 @@ func normalizeTopicName(topic string) (result string) {
 	if strings.HasPrefix(topic, "/topics/") {
 		return topic
 	}
-	return fmt.Sprint("/topic/", topic)
+	return fmt.Sprint("/topics/", topic)
 }

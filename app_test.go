@@ -9,10 +9,11 @@ import (
 )
 
 type config struct {
-	ProjectID      string `yaml:"projectId"`
-	ServiceAccount []byte `yaml:"serviceAccount"`
-	DatabaseURL    string `yaml:"databaseURL"`
-	APIKey         string `yaml:"apiKey"`
+	ProjectID                    string      `yaml:"projectId"`
+	ServiceAccount               []byte      `yaml:"serviceAccount"`
+	DatabaseURL                  string      `yaml:"databaseURL"`
+	DatabaseAuthVariableOverride interface{} `yaml:"DatabaseAuthVariableOverride"`
+	APIKey                       string      `yaml:"apiKey"`
 }
 
 func initApp() *admin.App {
