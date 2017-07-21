@@ -17,7 +17,7 @@ type FCM struct {
 	client *http.Client
 }
 
-const (
+var (
 	fcmSendEndpoint        = "https://fcm.googleapis.com/fcm/send"
 	fcmTopicAddEndpoint    = "https://iid.googleapis.com/iid/v1:batchAdd"
 	fcmTopicRemoveEndpoint = "https://iid.googleapis.com/iid/v1:batchRemove"
@@ -28,6 +28,21 @@ func newFCM(app *App) *FCM {
 		app:    app,
 		client: &http.Client{},
 	}
+}
+
+// NewFcmSendEndpoint set fcmSendEndpoint URL
+func (fcm *FCM) NewFcmSendEndpoint(endpoint string) {
+	fcmSendEndpoint = endpoint
+}
+
+// NewFcmTopicAddEndpoint set fcmTopicAddEndpoint URL
+func (fcm *FCM) NewFcmTopicAddEndpoint(endpoint string) {
+	fcmTopicAddEndpoint = endpoint
+}
+
+// NewFcmTopicRemoveEndpoint set fcmTopicRemoveEndpoint URL
+func (fcm *FCM) NewFcmTopicRemoveEndpoint(endpoint string) {
+	fcmTopicRemoveEndpoint = endpoint
 }
 
 // SendToDevice Send Message to individual device
@@ -235,5 +250,5 @@ func normalizeTopicName(topic string) (result string) {
 	if strings.HasPrefix(topic, "/topics/") {
 		return topic
 	}
-	return fmt.Sprint("/topic/", topic)
+	return fmt.Sprint("/topics/", topic)
 }
