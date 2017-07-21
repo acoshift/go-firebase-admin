@@ -2,6 +2,7 @@ package admin
 
 import (
 	"encoding/json"
+	"regexp"
 	"strings"
 	"time"
 
@@ -396,6 +397,12 @@ func (payload *Topic) Validate() error {
 	// validate recipient is not empty
 	if payload.To == "" && strings.HasPrefix(payload.To, "/topics/") {
 		return &ErrInvalidMessage{"firebaseFCM: A recipient is missing"}
+	}
+
+	// validate name
+	var validTopic = regexp.MustCompile(`[a-zA-Z0-9-_.~%]+`)
+	if !validTopic.MatchString(payload.To) {
+		return &ErrInvalidMessage{"firebaseFCM: Topic name is invalid must be : [a-zA-Z0-9-_.~%]+"}
 	}
 
 	// validate max RegistrationIDs
