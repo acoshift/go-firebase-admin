@@ -202,15 +202,15 @@ func main() {
 
   // Remove
   err = r.Remove()
-	if err != nil {
-		panic(err)
-	}
+  if err != nil {
+    panic(err)
+  }
 
   // Snapshot
   snapshot, err := r.OrderByChild("height").EqualTo(0.6).OnceValue()
-	if err != nil {
-		panic(err)
-	}
+  if err != nil {
+    panic(err)
+  }
   
 }
 ```
