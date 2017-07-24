@@ -185,7 +185,32 @@ func main() {
   // Firebase Database
   firDatabase := firApp.Database()
 
-  // TODO
+  type dinosaurs struct {
+    Appeared int64   `json:"appeared"`
+    Height   float32 `json:"height"`
+    Length   float32 `json:"length"`
+    Order    string  `json:"order"`
+    Vanished int64   `json:"vanished"`
+    Weight   int     `json:"weight"`
+  }
+
+  r := firDatabase.Ref("test/path")
+  err = r.Child("bruhathkayosaurus").Set(&dinosaurs{-70000000, 25, 44, "saurischia", -70000000, 135000})
+  if err != nil {
+    panic(err)
+  }
+
+  // Remove
+  err = r.Remove()
+	if err != nil {
+		panic(err)
+	}
+
+  // Snapshot
+  snapshot, err := r.OrderByChild("height").EqualTo(0.6).OnceValue()
+	if err != nil {
+		panic(err)
+	}
   
 }
 ```
