@@ -1,4 +1,4 @@
-package admin
+package firebase
 
 // Query is the query interface
 type Query interface {

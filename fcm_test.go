@@ -1,4 +1,4 @@
-package admin_test
+package firebase_test
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	admin "github.com/acoshift/go-firebase-admin"
+	"github.com/acoshift/go-firebase-admin"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,7 +29,7 @@ func TestSendToDevices(t *testing.T) {
 		assert.NotNil(t, firFCM)
 
 		response, err := firFCM.SendToDevice(context.Background(), "mydevicetoken",
-			admin.Message{Notification: admin.Notification{
+			firebase.Message{Notification: firebase.Notification{
 				Title: "Hello go firebase admin",
 				Body:  "My little Big Notification",
 				Color: "#ffcc33"},
@@ -41,7 +41,7 @@ func TestSendToDevices(t *testing.T) {
 		assert.Equal(t, 0, response.Failure)
 		assert.Equal(t, 0, response.CanonicalIDs)
 		assert.Equal(t, int64(5438046884136077786), response.MulticastID)
-		assert.Equal(t, []admin.Result{admin.Result{MessageID: "118218"}}, response.Results)
+		assert.Equal(t, []firebase.Result{firebase.Result{MessageID: "118218"}}, response.Results)
 	})
 
 	t.Run("send=BadToken", func(t *testing.T) {
@@ -60,7 +60,7 @@ func TestSendToDevices(t *testing.T) {
 		assert.NotNil(t, firFCM)
 
 		response, err := firFCM.SendToDevice(context.Background(), "mydevicetoken",
-			admin.Message{Notification: admin.Notification{
+			firebase.Message{Notification: firebase.Notification{
 				Title: "Hello go firebase admin",
 				Body:  "My little Big Notification",
 				Color: "#ffcc33"},
@@ -72,7 +72,7 @@ func TestSendToDevices(t *testing.T) {
 		assert.Equal(t, 1, response.Failure)
 		assert.Equal(t, 0, response.CanonicalIDs)
 		assert.Equal(t, int64(5438046884136077786), response.MulticastID)
-		assert.Equal(t, []admin.Result{admin.Result{Error: admin.ErrInvalidRegistration}}, response.Results)
+		assert.Equal(t, []firebase.Result{firebase.Result{Error: firebase.ErrInvalidRegistration}}, response.Results)
 	})
 
 	t.Run("send=missingDestination", func(t *testing.T) {
@@ -91,7 +91,7 @@ func TestSendToDevices(t *testing.T) {
 		assert.NotNil(t, firFCM)
 
 		response, err := firFCM.SendToDevice(context.Background(), "mydevicetoken",
-			admin.Message{Notification: admin.Notification{
+			firebase.Message{Notification: firebase.Notification{
 				Title: "Hello go firebase admin",
 				Body:  "My little Big Notification",
 				Color: "#ffcc33"},
@@ -99,7 +99,7 @@ func TestSendToDevices(t *testing.T) {
 
 		assert.NotNil(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, fmt.Errorf("StatusCode=%d, Desc=%s", http.StatusBadRequest, admin.ErrInvalidParameters.Error()), err)
+		assert.Equal(t, fmt.Errorf("StatusCode=%d, Desc=%s", http.StatusBadRequest, firebase.ErrInvalidParameters.Error()), err)
 	})
 
 	t.Run("send=BadRequest", func(t *testing.T) {
@@ -116,7 +116,7 @@ func TestSendToDevices(t *testing.T) {
 		assert.NotNil(t, firFCM)
 
 		response, err := firFCM.SendToDevice(context.Background(), "mydevicetoken",
-			admin.Message{Notification: admin.Notification{
+			firebase.Message{Notification: firebase.Notification{
 				Title: "Hello go firebase admin",
 				Body:  "My little Big Notification",
 				Color: "#ffcc33"},
@@ -124,7 +124,7 @@ func TestSendToDevices(t *testing.T) {
 
 		assert.NotNil(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, err, fmt.Errorf("StatusCode=%d, Desc=%s", http.StatusBadRequest, admin.ErrInvalidParameters.Error()))
+		assert.Equal(t, err, fmt.Errorf("StatusCode=%d, Desc=%s", http.StatusBadRequest, firebase.ErrInvalidParameters.Error()))
 	})
 
 	t.Run("send=Unauthorized", func(t *testing.T) {
@@ -141,7 +141,7 @@ func TestSendToDevices(t *testing.T) {
 		assert.NotNil(t, firFCM)
 
 		response, err := firFCM.SendToDevice(context.Background(), "mydevicetoken",
-			admin.Message{Notification: admin.Notification{
+			firebase.Message{Notification: firebase.Notification{
 				Title: "Hello go firebase admin",
 				Body:  "My little Big Notification",
 				Color: "#ffcc33"},
@@ -149,7 +149,7 @@ func TestSendToDevices(t *testing.T) {
 
 		assert.NotNil(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, err, fmt.Errorf("StatusCode=%d, Desc=%s", http.StatusUnauthorized, admin.ErrAuthentication.Error()))
+		assert.Equal(t, err, fmt.Errorf("StatusCode=%d, Desc=%s", http.StatusUnauthorized, firebase.ErrAuthentication.Error()))
 	})
 }
 
@@ -171,7 +171,7 @@ func TestSendToTopic(t *testing.T) {
 		assert.NotNil(t, firFCM)
 
 		response, err := firFCM.SendToTopic(context.Background(), "mytopic",
-			admin.Message{Notification: admin.Notification{
+			firebase.Message{Notification: firebase.Notification{
 				Title: "Hello go firebase admin",
 				Body:  "My little Big Notification",
 				Color: "#ffcc33"},
@@ -183,7 +183,7 @@ func TestSendToTopic(t *testing.T) {
 		assert.Equal(t, 0, response.Failure)
 		assert.Equal(t, 0, response.CanonicalIDs)
 		assert.Equal(t, int64(5438046884136077786), response.MulticastID)
-		assert.Equal(t, []admin.Result{admin.Result{MessageID: "118218"}}, response.Results)
+		assert.Equal(t, []firebase.Result{firebase.Result{MessageID: "118218"}}, response.Results)
 	})
 
 	t.Run("send=BadToken", func(t *testing.T) {
@@ -202,7 +202,7 @@ func TestSendToTopic(t *testing.T) {
 		assert.NotNil(t, firFCM)
 
 		response, err := firFCM.SendToTopic(context.Background(), "mytopic",
-			admin.Message{Notification: admin.Notification{
+			firebase.Message{Notification: firebase.Notification{
 				Title: "Hello go firebase admin",
 				Body:  "My little Big Notification",
 				Color: "#ffcc33"},
@@ -214,7 +214,7 @@ func TestSendToTopic(t *testing.T) {
 		assert.Equal(t, 1, response.Failure)
 		assert.Equal(t, 0, response.CanonicalIDs)
 		assert.Equal(t, int64(5438046884136077786), response.MulticastID)
-		assert.Equal(t, []admin.Result{admin.Result{Error: admin.ErrInvalidRegistration}}, response.Results)
+		assert.Equal(t, []firebase.Result{firebase.Result{Error: firebase.ErrInvalidRegistration}}, response.Results)
 	})
 
 	t.Run("send=missingDestination", func(t *testing.T) {
@@ -233,7 +233,7 @@ func TestSendToTopic(t *testing.T) {
 		assert.NotNil(t, firFCM)
 
 		response, err := firFCM.SendToTopic(context.Background(), "mytopic",
-			admin.Message{Notification: admin.Notification{
+			firebase.Message{Notification: firebase.Notification{
 				Title: "Hello go firebase admin",
 				Body:  "My little Big Notification",
 				Color: "#ffcc33"},
@@ -241,7 +241,7 @@ func TestSendToTopic(t *testing.T) {
 
 		assert.NotNil(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, fmt.Errorf("StatusCode=%d, Desc=%s", http.StatusBadRequest, admin.ErrInvalidParameters.Error()), err)
+		assert.Equal(t, fmt.Errorf("StatusCode=%d, Desc=%s", http.StatusBadRequest, firebase.ErrInvalidParameters.Error()), err)
 	})
 
 	t.Run("send=BadRequest", func(t *testing.T) {
@@ -258,7 +258,7 @@ func TestSendToTopic(t *testing.T) {
 		assert.NotNil(t, firFCM)
 
 		response, err := firFCM.SendToTopic(context.Background(), "mytopic",
-			admin.Message{Notification: admin.Notification{
+			firebase.Message{Notification: firebase.Notification{
 				Title: "Hello go firebase admin",
 				Body:  "My little Big Notification",
 				Color: "#ffcc33"},
@@ -266,7 +266,7 @@ func TestSendToTopic(t *testing.T) {
 
 		assert.NotNil(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, err, fmt.Errorf("StatusCode=%d, Desc=%s", http.StatusBadRequest, admin.ErrInvalidParameters.Error()))
+		assert.Equal(t, err, fmt.Errorf("StatusCode=%d, Desc=%s", http.StatusBadRequest, firebase.ErrInvalidParameters.Error()))
 	})
 
 	t.Run("send=Unauthorized", func(t *testing.T) {
@@ -283,7 +283,7 @@ func TestSendToTopic(t *testing.T) {
 		assert.NotNil(t, firFCM)
 
 		response, err := firFCM.SendToTopic(context.Background(), "mytopic",
-			admin.Message{Notification: admin.Notification{
+			firebase.Message{Notification: firebase.Notification{
 				Title: "Hello go firebase admin",
 				Body:  "My little Big Notification",
 				Color: "#ffcc33"},
@@ -291,7 +291,7 @@ func TestSendToTopic(t *testing.T) {
 
 		assert.NotNil(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, err, fmt.Errorf("StatusCode=%d, Desc=%s", http.StatusUnauthorized, admin.ErrAuthentication.Error()))
+		assert.Equal(t, err, fmt.Errorf("StatusCode=%d, Desc=%s", http.StatusUnauthorized, firebase.ErrAuthentication.Error()))
 	})
 
 }
