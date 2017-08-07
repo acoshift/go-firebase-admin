@@ -50,6 +50,8 @@ This go-firebase-admin SDK supports the following functions :
   * GetUsers : fetching list of profile information of users by their uid
   * GetUserByEmail : fetching the profile information of users by their email
   * GetUsersByEmail : fetching list of profile information of users by their email
+  * GetUserByPhoneNumber : fetching the profile information of users by their phoneNumber
+  * GetUsersByPhoneNumber : fetching list of profile information of users by their phoneNumber
   * ListUsers : fetching the profile information of users
   * CreateUser : create a new Firebase Authentication user
   * UpdateUser : modifying an existing Firebase user's data.
