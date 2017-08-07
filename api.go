@@ -29,6 +29,8 @@ type (
 		EmailVerified bool
 		// The user's display name.
 		DisplayName string
+		// The user's primary phone number.
+		phoneNumber string
 		// The user's photo URL.
 		PhotoURL string
 		// Whether or not the user is disabled: true for disabled; false for enabled.
@@ -57,6 +59,8 @@ type (
 		Email string
 		// The display name for the linked provider.
 		DisplayName string
+		// The phone number for the linked provider.
+		PhoneNumber string
 		// The photo URL for the linked provider.
 		PhotoURL string
 		// The linked provider ID (for example, "google.com" for the Google provider).

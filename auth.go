@@ -187,6 +187,29 @@ func (auth *Auth) GetUsersByEmail(ctx context.Context, emails []string) ([]*User
 	return toUserRecords(resp.Users), nil
 }
 
+// GetUserByPhoneNumber retrieves user by phoneNumber
+func (auth *Auth) GetUserByPhoneNumber(ctx context.Context, phoneNumber string) (*UserRecord, error) {
+	users, err := auth.GetUsersByPhoneNumber(ctx, []string{phoneNumber})
+	if err != nil {
+		return nil, err
+	}
+	if len(users) == 0 {
+		return nil, ErrUserNotFound
+	}
+	return users[0], nil
+}
+
+// GetUsersByPhoneNumber retrieves users by phoneNumber
+func (auth *Auth) GetUsersByPhoneNumber(ctx context.Context, phoneNumber []string) ([]*UserRecord, error) {
+	resp, err := auth.client.GetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartyGetAccountInfoRequest{
+		PhoneNumber: phoneNumber,
+	}).Context(ctx).Do()
+	if err != nil {
+		return nil, err
+	}
+	return toUserRecords(resp.Users), nil
+}
+
 // DeleteUser deletes an user by user id
 func (auth *Auth) DeleteUser(ctx context.Context, userID string) error {
 	if len(userID) == 0 {
