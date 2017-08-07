@@ -33,21 +33,39 @@ make backwards-incompatible changes.
 
 ## News
 
-_March 17, 2017_
+_July 31, 2017_
 
-Breaking Pubsub changes.
-* Publish is now asynchronous
-([announcement](https://groups.google.com/d/topic/google-api-go-announce/aaqRDIQ3rvU/discussion)).
-* Subscription.Pull replaced by Subscription.Receive, which takes a callback ([announcement](https://groups.google.com/d/topic/google-api-go-announce/8pt6oetAdKc/discussion)).
-* Message.Done replaced with Message.Ack and Message.Nack.
+*v0.11.0*
 
-_February 14, 2017_
+- Clients for spanner, pubsub and video are now in beta.
 
-Release of a client library for Spanner. See
-the
-[blog post](https://cloudplatform.googleblog.com/2017/02/introducing-Cloud-Spanner-a-global-database-service-for-mission-critical-applications.html).
+- New client for DLP.
 
-Note that although the Spanner service is beta, the Go client library is alpha.
+- spanner: performance and testing improvements.
+
+- storage: requester-pays buckets are supported.
+
+- storage, profiler, bigtable, bigquery: bug fixes and other minor improvements.
+
+- pubsub: bug fixes and other minor improvements
+
+_June 17, 2017_
+
+
+*v0.10.0*
+
+- pubsub: Subscription.ModifyPushConfig replaced with Subscription.Update.
+
+- pubsub: Subscription.Receive now runs concurrently for higher throughput.
+
+- vision: cloud.google.com/go/vision is deprecated. Use
+cloud.google.com/go/vision/apiv1 instead.
+
+- translation: now stable.
+
+- trace: several changes to the surface. See the link below.
+
+[Code changes required from v0.9.0.](https://github.com/GoogleCloudPlatform/google-cloud-go/blob/master/MIGRATION.md)
 
 
 [Older news](https://github.com/GoogleCloudPlatform/google-cloud-go/blob/master/old-news.md)
@@ -62,14 +80,14 @@ Google API                       | Status       | Package
 [BigQuery][cloud-bigquery]       | beta         | [`cloud.google.com/go/bigquery`][cloud-bigquery-ref]
 [Logging][cloud-logging]         | stable       | [`cloud.google.com/go/logging`][cloud-logging-ref]
 [Monitoring][cloud-monitoring]   | alpha        | [`cloud.google.com/go/monitoring/apiv3`][cloud-monitoring-ref]
-[Pub/Sub][cloud-pubsub]          | alpha        | [`cloud.google.com/go/pubsub`][cloud-pubsub-ref]
+[Pub/Sub][cloud-pubsub]          | beta         | [`cloud.google.com/go/pubsub`][cloud-pubsub-ref]
 [Vision][cloud-vision]           | beta         | [`cloud.google.com/go/vision/apiv1`][cloud-vision-ref]
 [Language][cloud-language]       | beta         | [`cloud.google.com/go/language/apiv1`][cloud-language-ref]
 [Speech][cloud-speech]           | beta         | [`cloud.google.com/go/speech/apiv1`][cloud-speech-ref]
-[Spanner][cloud-spanner]         | alpha        | [`cloud.google.com/go/spanner`][cloud-spanner-ref]
+[Spanner][cloud-spanner]         | beta         | [`cloud.google.com/go/spanner`][cloud-spanner-ref]
 [Translation][cloud-translation] | stable       | [`cloud.google.com/go/translate`][cloud-translation-ref]
 [Trace][cloud-trace]             | alpha        | [`cloud.google.com/go/trace`][cloud-trace-ref]
-[Video Intelligence][cloud-video]| alpha        | [`cloud.google.com/go/videointelligence/apiv1beta1`][cloud-video-ref]
+[Video Intelligence][cloud-video]| beta         | [`cloud.google.com/go/videointelligence/apiv1beta1`][cloud-video-ref]
 [ErrorReporting][cloud-errors]   | alpha        | [`cloud.google.com/go/errors`][cloud-errors-ref]
 
 

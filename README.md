@@ -28,7 +28,7 @@ So welcome go-firebase-admin SDK :)
 
 > Note
 ```
-If you decide to use this unofficial SDK still in development, 
+If you decide to use this unofficial SDK still in development,
 please use any package manager to fix version, there will be a lot of breaking changes.
 ```
 
@@ -50,6 +50,8 @@ This go-firebase-admin SDK supports the following functions :
   * GetUsers : fetching list of profile information of users by their uid
   * GetUserByEmail : fetching the profile information of users by their email
   * GetUsersByEmail : fetching list of profile information of users by their email
+  * GetUserByPhoneNumber : fetching the profile information of users by their phoneNumber
+  * GetUsersByPhoneNumber : fetching list of profile information of users by their phoneNumber
   * ListUsers : fetching the profile information of users
   * CreateUser : create a new Firebase Authentication user
   * UpdateUser : modifying an existing Firebase user's data.
@@ -59,7 +61,7 @@ This go-firebase-admin SDK supports the following functions :
 
 - Realtime Database API
   * not documented
-  
+
 - Cloud Messaging API
   * SendToDevice : Send Message to individual device
   * SendToDevices : Send multicast Message to a list of devices
@@ -91,7 +93,7 @@ You can find more details about go-firebase-admin on [godoc.org][2].
 
 ## Usage
 
-You need a *service_account.json* file, if you don't have an admin SDK service_account.json, please [check this guide](https://firebase.google.com/docs/admin/setup#add_firebase_to_your_app)  
+You need a *service_account.json* file, if you don't have an admin SDK service_account.json, please [check this guide](https://firebase.google.com/docs/admin/setup#add_firebase_to_your_app)
 
 You need a Firebase API Key for FCM, whose value is available in the [Cloud Messaging tab of the Firebase console Settings panel](https://console.firebase.google.com/project/_/settings/cloudmessaging)
 
@@ -109,7 +111,7 @@ import (
 func main() {
   // Init App with service_account
   serviceAccount, _ := ioutil.ReadFile("service_account.json")
-  firApp, err := admin.InitializeApp(context.Background(), admin.AppOptions{
+  firApp, err := firebase.InitializeApp(context.Background(), firebase.AppOptions{
     ServiceAccount: serviceAccount,
     ProjectID:      "YOUR_PROJECT_ID",
   })
@@ -117,7 +119,7 @@ func main() {
   if err != nil {
     panic(err)
   }
-  
+
 }
 ```
 ### Authentication
@@ -134,7 +136,7 @@ import (
 func main() {
   // Init App with service_account
   serviceAccount, _ := ioutil.ReadFile("service_account.json")
-  firApp, err := admin.InitializeApp(context.Background(), admin.AppOptions{
+  firApp, err := firebase.InitializeApp(context.Background(), firebase.AppOptions{
     ServiceAccount: serviceAccount,
     ProjectID:      "YOUR_PROJECT_ID",
   })
@@ -155,7 +157,7 @@ func main() {
   myClaims["ID"] = "go-go-go"
 
   cutomToken, err := firAuth.CreateCustomToken(claims.UserID, myClaims)
-  
+
 }
 ```
 
@@ -173,7 +175,7 @@ import (
 func main() {
   // Init App with service_account
   serviceAccount, _ := ioutil.ReadFile("service_account.json")
-  firApp, err := admin.InitializeApp(context.Background(), admin.AppOptions{
+  firApp, err := firebase.InitializeApp(context.Background(), firebase.AppOptions{
     ServiceAccount: serviceAccount,
     ProjectID:      "YOUR_PROJECT_ID",
   })
@@ -211,7 +213,7 @@ func main() {
   if err != nil {
     panic(err)
   }
-  
+
 }
 ```
 
@@ -229,7 +231,7 @@ import (
 func main() {
   // Init App with service_account
   serviceAccount, _ := ioutil.ReadFile("service_account.json")
-  firApp, err := admin.InitializeApp(context.Background(), admin.AppOptions{
+  firApp, err := firebase.InitializeApp(context.Background(), firebase.AppOptions{
     ServiceAccount: serviceAccount,
     ProjectID:      "YOUR_PROJECT_ID",
     DatabaseURL:    "YOUR_DATABASE_URL",
@@ -245,7 +247,7 @@ func main() {
 
   // SendToDevice
   resp, err := firFCM.SendToDevice(context.Background(), "mydevicetoken",
-		admin.Message{Notification: admin.Notification{
+		firebase.Message{Notification: firebase.Notification{
 			Title: "Hello go firebase admin",
 			Body:  "My little Big Notification",
 			Color: "#ffcc33"},
@@ -257,7 +259,7 @@ func main() {
 
   // SendToDevices
   resp, err := firFCM.SendToDevices(context.Background(), []string{"mydevicetoken"},
-		admin.Message{Notification: admin.Notification{
+		firebase.Message{Notification: firebase.Notification{
 			Title: "Hello go firebase admin",
 			Body:  "My little Big Notification",
 			Color: "#ffcc33"},
@@ -284,7 +286,7 @@ func main() {
   if err2 != nil {
     panic(err)
   }
-  
+
 }
 ```
 

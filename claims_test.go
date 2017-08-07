@@ -1,4 +1,4 @@
-package admin_test
+package firebase_test
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 
 	"fmt"
 
-	admin "github.com/acoshift/go-firebase-admin"
+	firebase "github.com/acoshift/go-firebase-admin"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +14,7 @@ func TestValidClaims(t *testing.T) {
 
 	t.Run("Valid", func(t *testing.T) {
 		now := time.Now()
-		claim := &admin.Claims{
+		claim := &firebase.Claims{
 			IssuedAt:  now.Unix(),
 			ExpiresAt: now.Unix(),
 		}
@@ -26,7 +26,7 @@ func TestValidClaims(t *testing.T) {
 	t.Run("usedbefore", func(t *testing.T) {
 		now := time.Now().AddDate(1, 0, 0)
 		now2 := time.Now()
-		claim := &admin.Claims{
+		claim := &firebase.Claims{
 			IssuedAt:  now.Unix(),
 			ExpiresAt: now2.Unix(),
 		}
@@ -38,7 +38,7 @@ func TestValidClaims(t *testing.T) {
 
 	t.Run("expired", func(t *testing.T) {
 		now := time.Now()
-		claim := &admin.Claims{
+		claim := &firebase.Claims{
 			IssuedAt:  now.Unix(),
 			ExpiresAt: 1500651130,
 		}

@@ -1,11 +1,11 @@
-package admin_test
+package firebase_test
 
 import (
 	"context"
 	"io/ioutil"
 	"testing"
 
-	admin "github.com/acoshift/go-firebase-admin"
+	"github.com/acoshift/go-firebase-admin"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 )
@@ -18,7 +18,7 @@ type config struct {
 	APIKey                       string      `yaml:"apiKey"`
 }
 
-func initApp() *admin.App {
+func initApp() *firebase.App {
 	// load config from ./private/config.yaml
 	bs, _ := ioutil.ReadFile("private/config.yaml")
 	var c config
@@ -30,7 +30,7 @@ func initApp() *admin.App {
 		c.ServiceAccount = serviceAccount
 	}
 
-	app, _ := admin.InitializeApp(context.Background(), admin.AppOptions(c))
+	app, _ := firebase.InitializeApp(context.Background(), firebase.AppOptions(c))
 	return app
 }
 

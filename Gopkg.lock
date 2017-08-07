@@ -4,8 +4,8 @@
 [[projects]]
   name = "cloud.google.com/go"
   packages = ["compute/metadata"]
-  revision = "a5913b3f7deecba45e98ff33cefbac4fd204ddd7"
-  version = "v0.10.0"
+  revision = "44bcd0b2078ba5e7fedbeb36808d1ed893534750"
+  version = "v0.11.0"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -23,7 +23,7 @@
   branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
-  revision = "0a4f71a498b7c4812f64969510bcb4eca251e33a"
+  revision = "748d386b5c1ea99658fd69fe9f03991ce86a90c1"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -41,19 +41,19 @@
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","context/ctxhttp"]
-  revision = "ab5485076ff3407ad2d02db054635913f017b0ed"
+  revision = "f5079bd7f6f74e23c4d65efa0f4ce14cbd6a3c0f"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/oauth2"
   packages = [".","google","internal","jws","jwt"]
-  revision = "b53b38ad8a6435bd399ea76d0fa74f23149cca4e"
+  revision = "96fca6c793ec32f068f97942ae3c7c073810dfc1"
 
 [[projects]]
   branch = "master"
   name = "google.golang.org/api"
   packages = ["gensupport","googleapi","googleapi/internal/uritemplates","identitytoolkit/v3","iterator"]
-  revision = "295e4bb0ade057ae2cfb9876ab0b54635dbfcea4"
+  revision = "93a219feb72690ca01348faec80d5a076a32f688"
 
 [[projects]]
   name = "google.golang.org/appengine"
