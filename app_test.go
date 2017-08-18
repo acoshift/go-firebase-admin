@@ -3,11 +3,11 @@ package firebase_test
 import (
 	"context"
 	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/acoshift/go-firebase-admin"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/yaml.v2"
 )
 
 type config struct {
@@ -19,10 +19,13 @@ type config struct {
 }
 
 func initApp() *firebase.App {
-	// load config from ./private/config.yaml
-	bs, _ := ioutil.ReadFile("private/config.yaml")
-	var c config
-	yaml.Unmarshal(bs, &c)
+	// load config from env
+	c := config{
+		ProjectID:      os.Getenv("PROJECT_ID"),
+		ServiceAccount: []byte(os.Getenv("SERVICE_ACCOUNT")),
+		DatabaseURL:    os.Getenv("DATABASE_URL"),
+		APIKey:         os.Getenv("API_KEY"),
+	}
 
 	// if service account is in separate file service_account.json
 	if len(c.ServiceAccount) <= 0 {

@@ -1,5 +1,7 @@
 # go-firebase-admin
 
+[![Build Status](https://travis-ci.org/acoshift/go-firebase-admin.svg?branch=master)](https://travis-ci.org/acoshift/go-firebase-admin)
+[![Coverage Status](https://coveralls.io/repos/github/acoshift/go-firebase-admin/badge.svg?branch=master)](https://coveralls.io/github/acoshift/go-firebase-admin?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/acoshift/go-firebase-admin)](https://goreportcard.com/report/github.com/acoshift/go-firebase-admin)
 [![GoDoc](https://godoc.org/github.com/acoshift/go-firebase-admin?status.svg)](https://godoc.org/github.com/acoshift/go-firebase-admin)
 [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
