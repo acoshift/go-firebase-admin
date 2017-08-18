@@ -41,7 +41,7 @@ func TestReference(t *testing.T) {
 	var ts time.Time
 	err = snapshot.Val(&ts)
 	assert.NoError(t, err)
-	assert.Equal(t, n, ts, "expected data to be %v; got %v", n, ts)
+	assert.True(t, n.Equal(ts), "expected data to be %v; got %v", n, ts)
 
 	err = r1.Remove()
 	assert.NoError(t, err)
