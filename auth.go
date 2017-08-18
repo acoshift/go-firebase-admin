@@ -62,7 +62,7 @@ func (auth *Auth) CreateCustomToken(userID string, claims interface{}) (string, 
 // VerifyIDToken validates given idToken
 // return Claims for that token only valid token
 // See https://firebase.google.com/docs/auth/admin/verify-id-tokens
-func (auth *Auth) VerifyIDToken(idToken string) (*Claims, error) {
+func (auth *Auth) VerifyIDToken(idToken string, leewayOpt ...int64) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(idToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, &ErrTokenInvalid{fmt.Sprintf("firebaseauth: Firebase ID token has incorrect algorithm. Expected \"RSA\" but got \"%#v\"", token.Header["alg"])}
@@ -82,9 +82,24 @@ func (auth *Auth) VerifyIDToken(idToken string) (*Claims, error) {
 	}
 
 	claims, ok := token.Claims.(*Claims)
-	if !ok || !token.Valid {
+	if !ok {
 		return nil, &ErrTokenInvalid{"firebaseauth: invalid token"}
 	}
+
+	var leeway int64
+	if len(leewayOpt) > 0 {
+		leeway = leewayOpt[0]
+	}
+
+	now := time.Now().Unix()
+	if !claims.verifyExpiresAt(now - leeway) {
+		delta := time.Unix(now-leeway, 0).Sub(time.Unix(claims.ExpiresAt, 0))
+		return nil, &ErrTokenInvalid{fmt.Sprintf("firebaseauth: token is expired by %v", delta)}
+	}
+	if !claims.verifyIssuedAt(now + leeway) {
+		return nil, &ErrTokenInvalid{"firebaseauth: token used before issued"}
+	}
+
 	if !claims.verifyAudience(auth.app.projectID) {
 		return nil, &ErrTokenInvalid{fmt.Sprintf("firebaseauth: Firebase ID token has incorrect \"aud\" (audience) claim. Expected \"%s\" but got \"%s\"", auth.app.projectID, claims.Audience)}
 	}
