@@ -811,6 +811,8 @@ type GoogleCloudMlV1__OperationMetadata struct {
 	//   "CREATE_VERSION" - An operation to create a new version.
 	//   "DELETE_VERSION" - An operation to delete an existing version.
 	//   "DELETE_MODEL" - An operation to delete an existing model.
+	//   "UPDATE_MODEL" - An operation to update an existing model.
+	//   "UPDATE_VERSION" - An operation to update an existing version.
 	OperationType string `json:"operationType,omitempty"`
 
 	// StartTime: The time operation processing started.
@@ -1723,10 +1725,11 @@ type GoogleCloudMlV1__Version struct {
 	// Possible values:
 	//   "UNKNOWN" - The version state is unspecified.
 	//   "READY" - The version is ready for prediction.
-	//   "CREATING" - The version is still in the process of creation.
+	//   "CREATING" - The version is in the process of creation.
 	//   "FAILED" - The version failed to be created, possibly
 	// cancelled.
 	// `error_message` should contain the details of the failure.
+	//   "DELETING" - The version is in the process of deletion.
 	State string `json:"state,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -1752,280 +1755,6 @@ type GoogleCloudMlV1__Version struct {
 
 func (s *GoogleCloudMlV1__Version) MarshalJSON() ([]byte, error) {
 	type noMethod GoogleCloudMlV1__Version
-	raw := noMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// GoogleCloudMlV1beta1__AutoScaling: Options for automatically scaling
-// a model.
-type GoogleCloudMlV1beta1__AutoScaling struct {
-	// MinNodes: Optional. The minimum number of nodes to allocate for this
-	// model. These
-	// nodes are always up, starting from the time the model is deployed, so
-	// the
-	// cost of operating this model will be at least
-	// `rate` * `min_nodes` * number of hours since last billing
-	// cycle,
-	// where `rate` is the cost per node-hour as documented
-	// in
-	// [pricing](https://cloud.google.com/ml-engine/pricing#prediction_pri
-	// cing),
-	// even if no predictions are performed. There is additional cost for
-	// each
-	// prediction performed.
-	//
-	// Unlike manual scaling, if the load gets too heavy for the nodes
-	// that are up, the service will automatically add nodes to handle
-	// the
-	// increased load as well as scale back as traffic drops, always
-	// maintaining
-	// at least `min_nodes`. You will be charged for the time in which
-	// additional
-	// nodes are used.
-	//
-	// If not specified, `min_nodes` defaults to 0, in which case, when
-	// traffic
-	// to a model stops (and after a cool-down period), nodes will be shut
-	// down
-	// and no charges will be incurred until traffic to the model resumes.
-	MinNodes int64 `json:"minNodes,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "MinNodes") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "MinNodes") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *GoogleCloudMlV1beta1__AutoScaling) MarshalJSON() ([]byte, error) {
-	type noMethod GoogleCloudMlV1beta1__AutoScaling
-	raw := noMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// GoogleCloudMlV1beta1__ManualScaling: Options for manually scaling a
-// model.
-type GoogleCloudMlV1beta1__ManualScaling struct {
-	// Nodes: The number of nodes to allocate for this model. These nodes
-	// are always up,
-	// starting from the time the model is deployed, so the cost of
-	// operating
-	// this model will be proportional to `nodes` * number of hours
-	// since
-	// last billing cycle plus the cost for each prediction performed.
-	Nodes int64 `json:"nodes,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Nodes") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Nodes") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *GoogleCloudMlV1beta1__ManualScaling) MarshalJSON() ([]byte, error) {
-	type noMethod GoogleCloudMlV1beta1__ManualScaling
-	raw := noMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// GoogleCloudMlV1beta1__OperationMetadata: Represents the metadata of
-// the long-running operation.
-//
-// Next ID: 9
-type GoogleCloudMlV1beta1__OperationMetadata struct {
-	// CreateTime: The time the operation was submitted.
-	CreateTime string `json:"createTime,omitempty"`
-
-	// EndTime: The time operation processing completed.
-	EndTime string `json:"endTime,omitempty"`
-
-	// IsCancellationRequested: Indicates whether a request to cancel this
-	// operation has been made.
-	IsCancellationRequested bool `json:"isCancellationRequested,omitempty"`
-
-	// ModelName: Contains the name of the model associated with the
-	// operation.
-	ModelName string `json:"modelName,omitempty"`
-
-	// OperationType: The operation type.
-	//
-	// Possible values:
-	//   "OPERATION_TYPE_UNSPECIFIED" - Unspecified operation type.
-	//   "CREATE_VERSION" - An operation to create a new version.
-	//   "DELETE_VERSION" - An operation to delete an existing version.
-	//   "DELETE_MODEL" - An operation to delete an existing model.
-	OperationType string `json:"operationType,omitempty"`
-
-	// StartTime: The time operation processing started.
-	StartTime string `json:"startTime,omitempty"`
-
-	// Version: Contains the version associated with the operation.
-	Version *GoogleCloudMlV1beta1__Version `json:"version,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "CreateTime") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "CreateTime") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *GoogleCloudMlV1beta1__OperationMetadata) MarshalJSON() ([]byte, error) {
-	type noMethod GoogleCloudMlV1beta1__OperationMetadata
-	raw := noMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// GoogleCloudMlV1beta1__Version: Represents a version of the
-// model.
-//
-// Each version is a trained model deployed in the cloud, ready to
-// handle
-// prediction requests. A model can have multiple versions. You can
-// get
-// information about all of the versions of a given model by
-// calling
-// [projects.models.versions.list](/ml-engine/reference/rest/v1be
-// ta1/projects.models.versions/list).
-//
-// Next ID: 18
-type GoogleCloudMlV1beta1__Version struct {
-	// AutoScaling: Automatically scale the number of nodes used to serve
-	// the model in
-	// response to increases and decreases in traffic. Care should be
-	// taken to ramp up traffic according to the model's ability to scale
-	// or you will start seeing increases in latency and 429 response codes.
-	AutoScaling *GoogleCloudMlV1beta1__AutoScaling `json:"autoScaling,omitempty"`
-
-	// CreateTime: Output only. The time the version was created.
-	CreateTime string `json:"createTime,omitempty"`
-
-	// DeploymentUri: Required. The Google Cloud Storage location of the
-	// trained model used to
-	// create the version. See the
-	// [overview of
-	// model
-	// deployment](/ml-engine/docs/concepts/deployment-overview) for
-	// more
-	// information.
-	//
-	// When passing Version
-	// to
-	// [projects.models.versions.create](/ml-engine/reference/rest/v1beta1
-	// /projects.models.versions/create)
-	// the model service uses the specified location as the source of the
-	// model.
-	// Once deployed, the model version is hosted by the prediction service,
-	// so
-	// this location is useful only as a historical record.
-	// The total number of model files can't exceed 1000.
-	DeploymentUri string `json:"deploymentUri,omitempty"`
-
-	// Description: Optional. The description specified for the version when
-	// it was created.
-	Description string `json:"description,omitempty"`
-
-	// ErrorMessage: Output only. The details of a failure or a
-	// cancellation.
-	ErrorMessage string `json:"errorMessage,omitempty"`
-
-	// IsDefault: Output only. If true, this version will be used to handle
-	// prediction
-	// requests that do not specify a version.
-	//
-	// You can change the default version by
-	// calling
-	// [projects.methods.versions.setDefault](/ml-engine/reference/re
-	// st/v1beta1/projects.models.versions/setDefault).
-	IsDefault bool `json:"isDefault,omitempty"`
-
-	// LastUseTime: Output only. The time the version was last used for
-	// prediction.
-	LastUseTime string `json:"lastUseTime,omitempty"`
-
-	// ManualScaling: Manually select the number of nodes to use for serving
-	// the
-	// model. You should generally use `auto_scaling` with an
-	// appropriate
-	// `min_nodes` instead, but this option is available if you want
-	// more
-	// predictable billing. Beware that latency and error rates will
-	// increase
-	// if the traffic exceeds that capability of the system to serve it
-	// based
-	// on the selected number of nodes.
-	ManualScaling *GoogleCloudMlV1beta1__ManualScaling `json:"manualScaling,omitempty"`
-
-	// Name: Required.The name specified for the version when it was
-	// created.
-	//
-	// The version name must be unique within the model it is created in.
-	Name string `json:"name,omitempty"`
-
-	// RuntimeVersion: Optional. The Google Cloud ML runtime version to use
-	// for this deployment.
-	// If not set, Google Cloud ML will choose a version.
-	RuntimeVersion string `json:"runtimeVersion,omitempty"`
-
-	// State: Output only. The state of a version.
-	//
-	// Possible values:
-	//   "UNKNOWN" - The version state is unspecified.
-	//   "READY" - The version is ready for prediction.
-	//   "CREATING" - The version is still in the process of creation.
-	//   "FAILED" - The version failed to be created, possibly
-	// cancelled.
-	// `error_message` should contain the details of the failure.
-	State string `json:"state,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "AutoScaling") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "AutoScaling") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *GoogleCloudMlV1beta1__Version) MarshalJSON() ([]byte, error) {
-	type noMethod GoogleCloudMlV1beta1__Version
 	raw := noMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -3832,6 +3561,148 @@ func (c *ProjectsJobsGetCall) Do(opts ...googleapi.CallOption) (*GoogleCloudMlV1
 
 }
 
+// method id "ml.projects.jobs.getIamPolicy":
+
+type ProjectsJobsGetIamPolicyCall struct {
+	s            *Service
+	resource     string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// GetIamPolicy: Gets the access control policy for a resource.
+// Returns an empty policy if the resource exists and does not have a
+// policy
+// set.
+func (r *ProjectsJobsService) GetIamPolicy(resource string) *ProjectsJobsGetIamPolicyCall {
+	c := &ProjectsJobsGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.resource = resource
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsJobsGetIamPolicyCall) Fields(s ...googleapi.Field) *ProjectsJobsGetIamPolicyCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *ProjectsJobsGetIamPolicyCall) IfNoneMatch(entityTag string) *ProjectsJobsGetIamPolicyCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsJobsGetIamPolicyCall) Context(ctx context.Context) *ProjectsJobsGetIamPolicyCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsJobsGetIamPolicyCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsJobsGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resource}:getIamPolicy")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"resource": c.resource,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "ml.projects.jobs.getIamPolicy" call.
+// Exactly one of *GoogleIamV1__Policy or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *GoogleIamV1__Policy.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsJobsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*GoogleIamV1__Policy, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &GoogleIamV1__Policy{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the access control policy for a resource.\nReturns an empty policy if the resource exists and does not have a policy\nset.",
+	//   "flatPath": "v1/projects/{projectsId}/jobs/{jobsId}:getIamPolicy",
+	//   "httpMethod": "GET",
+	//   "id": "ml.projects.jobs.getIamPolicy",
+	//   "parameterOrder": [
+	//     "resource"
+	//   ],
+	//   "parameters": {
+	//     "resource": {
+	//       "description": "REQUIRED: The resource for which the policy is being requested.\nSee the operation documentation for the appropriate value for this field.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/jobs/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+resource}:getIamPolicy",
+	//   "response": {
+	//     "$ref": "GoogleIamV1__Policy"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
 // method id "ml.projects.jobs.list":
 
 type ProjectsJobsListCall struct {
@@ -4037,6 +3908,289 @@ func (c *ProjectsJobsListCall) Pages(ctx context.Context, f func(*GoogleCloudMlV
 		}
 		c.PageToken(x.NextPageToken)
 	}
+}
+
+// method id "ml.projects.jobs.setIamPolicy":
+
+type ProjectsJobsSetIamPolicyCall struct {
+	s                                *Service
+	resource                         string
+	googleiamv1__setiampolicyrequest *GoogleIamV1__SetIamPolicyRequest
+	urlParams_                       gensupport.URLParams
+	ctx_                             context.Context
+	header_                          http.Header
+}
+
+// SetIamPolicy: Sets the access control policy on the specified
+// resource. Replaces any
+// existing policy.
+func (r *ProjectsJobsService) SetIamPolicy(resource string, googleiamv1__setiampolicyrequest *GoogleIamV1__SetIamPolicyRequest) *ProjectsJobsSetIamPolicyCall {
+	c := &ProjectsJobsSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.resource = resource
+	c.googleiamv1__setiampolicyrequest = googleiamv1__setiampolicyrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsJobsSetIamPolicyCall) Fields(s ...googleapi.Field) *ProjectsJobsSetIamPolicyCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsJobsSetIamPolicyCall) Context(ctx context.Context) *ProjectsJobsSetIamPolicyCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsJobsSetIamPolicyCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsJobsSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googleiamv1__setiampolicyrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resource}:setIamPolicy")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"resource": c.resource,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "ml.projects.jobs.setIamPolicy" call.
+// Exactly one of *GoogleIamV1__Policy or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *GoogleIamV1__Policy.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsJobsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*GoogleIamV1__Policy, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &GoogleIamV1__Policy{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Sets the access control policy on the specified resource. Replaces any\nexisting policy.",
+	//   "flatPath": "v1/projects/{projectsId}/jobs/{jobsId}:setIamPolicy",
+	//   "httpMethod": "POST",
+	//   "id": "ml.projects.jobs.setIamPolicy",
+	//   "parameterOrder": [
+	//     "resource"
+	//   ],
+	//   "parameters": {
+	//     "resource": {
+	//       "description": "REQUIRED: The resource for which the policy is being specified.\nSee the operation documentation for the appropriate value for this field.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/jobs/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+resource}:setIamPolicy",
+	//   "request": {
+	//     "$ref": "GoogleIamV1__SetIamPolicyRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleIamV1__Policy"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
+}
+
+// method id "ml.projects.jobs.testIamPermissions":
+
+type ProjectsJobsTestIamPermissionsCall struct {
+	s                                      *Service
+	resource                               string
+	googleiamv1__testiampermissionsrequest *GoogleIamV1__TestIamPermissionsRequest
+	urlParams_                             gensupport.URLParams
+	ctx_                                   context.Context
+	header_                                http.Header
+}
+
+// TestIamPermissions: Returns permissions that a caller has on the
+// specified resource.
+// If the resource does not exist, this will return an empty set
+// of
+// permissions, not a NOT_FOUND error.
+//
+// Note: This operation is designed to be used for building
+// permission-aware
+// UIs and command-line tools, not for authorization checking. This
+// operation
+// may "fail open" without warning.
+func (r *ProjectsJobsService) TestIamPermissions(resource string, googleiamv1__testiampermissionsrequest *GoogleIamV1__TestIamPermissionsRequest) *ProjectsJobsTestIamPermissionsCall {
+	c := &ProjectsJobsTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.resource = resource
+	c.googleiamv1__testiampermissionsrequest = googleiamv1__testiampermissionsrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ProjectsJobsTestIamPermissionsCall) Fields(s ...googleapi.Field) *ProjectsJobsTestIamPermissionsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ProjectsJobsTestIamPermissionsCall) Context(ctx context.Context) *ProjectsJobsTestIamPermissionsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ProjectsJobsTestIamPermissionsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ProjectsJobsTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.googleiamv1__testiampermissionsrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "v1/{+resource}:testIamPermissions")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"resource": c.resource,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "ml.projects.jobs.testIamPermissions" call.
+// Exactly one of *GoogleIamV1__TestIamPermissionsResponse or error will
+// be non-nil. Any non-2xx status code is an error. Response headers are
+// in either
+// *GoogleIamV1__TestIamPermissionsResponse.ServerResponse.Header or (if
+// a response was returned at all) in error.(*googleapi.Error).Header.
+// Use googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ProjectsJobsTestIamPermissionsCall) Do(opts ...googleapi.CallOption) (*GoogleIamV1__TestIamPermissionsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &GoogleIamV1__TestIamPermissionsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Returns permissions that a caller has on the specified resource.\nIf the resource does not exist, this will return an empty set of\npermissions, not a NOT_FOUND error.\n\nNote: This operation is designed to be used for building permission-aware\nUIs and command-line tools, not for authorization checking. This operation\nmay \"fail open\" without warning.",
+	//   "flatPath": "v1/projects/{projectsId}/jobs/{jobsId}:testIamPermissions",
+	//   "httpMethod": "POST",
+	//   "id": "ml.projects.jobs.testIamPermissions",
+	//   "parameterOrder": [
+	//     "resource"
+	//   ],
+	//   "parameters": {
+	//     "resource": {
+	//       "description": "REQUIRED: The resource for which the policy detail is being requested.\nSee the operation documentation for the appropriate value for this field.",
+	//       "location": "path",
+	//       "pattern": "^projects/[^/]+/jobs/[^/]+$",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "v1/{+resource}:testIamPermissions",
+	//   "request": {
+	//     "$ref": "GoogleIamV1__TestIamPermissionsRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "GoogleIamV1__TestIamPermissionsResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform"
+	//   ]
+	// }
+
 }
 
 // method id "ml.projects.models.create":
