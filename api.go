@@ -431,6 +431,7 @@ func toUserRecord(user *identitytoolkit.UserInfo) *UserRecord {
 		EmailVerified: user.EmailVerified,
 		DisplayName:   user.DisplayName,
 		PhotoURL:      user.PhotoUrl,
+		PhoneNumber:   user.PhoneNumber,
 		Disabled:      user.Disabled,
 		Metadata: UserMetadata{
 			CreatedAt:      parseDate(user.CreatedAt),
@@ -454,6 +455,7 @@ func toUserInfo(info *identitytoolkit.UserInfoProviderUserInfo) *UserInfo {
 		Email:       info.Email,
 		DisplayName: info.DisplayName,
 		PhotoURL:    info.PhotoUrl,
+		PhoneNumber: info.PhoneNumber,
 		ProviderID:  info.ProviderId,
 	}
 }
@@ -476,6 +478,7 @@ type User struct {
 	Password      string
 	DisplayName   string
 	PhotoURL      string
+	PhoneNumber   string
 	Disabled      bool
 }
 
