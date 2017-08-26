@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"go-firebase-admin/go-firebase-admin/vendor/google.golang.org/api/identitytoolkit/v3"
 	"google.golang.org/api/identitytoolkit/v3"
 )
 
@@ -30,7 +31,7 @@ type (
 		// The user's display name.
 		DisplayName string
 		// The user's primary phone number.
-		phoneNumber string
+		PhoneNumber string
 		// The user's photo URL.
 		PhotoURL string
 		// Whether or not the user is disabled: true for disabled; false for enabled.
