@@ -200,9 +200,9 @@ func (auth *Auth) GetUserByPhoneNumber(ctx context.Context, phoneNumber string) 
 }
 
 // GetUsersByPhoneNumber retrieves users by phoneNumber
-func (auth *Auth) GetUsersByPhoneNumber(ctx context.Context, phoneNumber []string) ([]*UserRecord, error) {
+func (auth *Auth) GetUsersByPhoneNumber(ctx context.Context, phoneNumbers []string) ([]*UserRecord, error) {
 	resp, err := auth.client.GetAccountInfo(&identitytoolkit.IdentitytoolkitRelyingpartyGetAccountInfoRequest{
-		PhoneNumber: phoneNumber,
+		PhoneNumber: phoneNumbers,
 	}).Context(ctx).Do()
 	if err != nil {
 		return nil, err
@@ -233,6 +233,7 @@ func (auth *Auth) createUserAutoID(ctx context.Context, user *User) (string, err
 		EmailVerified: user.EmailVerified,
 		Password:      user.Password,
 		PhotoUrl:      user.PhotoURL,
+		PhoneNumber:   user.PhoneNumber,
 	}).Context(ctx).Do()
 	if err != nil {
 		return "", err
@@ -253,6 +254,7 @@ func (auth *Auth) createUserCustomID(ctx context.Context, user *User) error {
 				DisplayName:   user.DisplayName,
 				Disabled:      user.Disabled,
 				PhotoUrl:      user.PhotoURL,
+				PhoneNumber:   user.PhoneNumber,
 			},
 		},
 	}).Context(ctx).Do()
@@ -324,6 +326,7 @@ func (auth *Auth) UpdateUser(ctx context.Context, user *User) error {
 		DisplayName:   user.DisplayName,
 		DisableUser:   user.Disabled,
 		PhotoUrl:      user.PhotoURL,
+		PhoneNumber:   user.PhoneNumber,
 	}).Context(ctx).Do()
 	if err != nil {
 		return err
