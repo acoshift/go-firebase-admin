@@ -8,7 +8,7 @@ import (
 )
 
 func TestReference(t *testing.T) {
-	app := initApp()
+	app := initApp(t)
 	db := app.Database()
 
 	err := db.Ref(".settings/rules").Set(map[string]interface{}{
@@ -61,7 +61,7 @@ type dinosaurs struct {
 }
 
 func TestOrderBy(t *testing.T) {
-	app := initApp()
+	app := initApp(t)
 	db := app.Database()
 	var err error
 

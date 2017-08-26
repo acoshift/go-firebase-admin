@@ -18,7 +18,9 @@ type config struct {
 	APIKey                       string      `yaml:"apiKey"`
 }
 
-func initApp() *firebase.App {
+func initApp(t *testing.T) *firebase.App {
+	t.Helper()
+
 	// load config from env
 	c := config{
 		ProjectID:      os.Getenv("PROJECT_ID"),
@@ -39,7 +41,7 @@ func initApp() *firebase.App {
 
 func TestAuth(t *testing.T) {
 
-	app := initApp()
+	app := initApp(t)
 	firAuth := app.Auth()
 
 	assert.NotNil(t, app)
@@ -48,7 +50,7 @@ func TestAuth(t *testing.T) {
 
 func TestDatabase(t *testing.T) {
 
-	app := initApp()
+	app := initApp(t)
 	firDatabase := app.Database()
 
 	assert.NotNil(t, app)
@@ -57,7 +59,7 @@ func TestDatabase(t *testing.T) {
 
 func TestFCM(t *testing.T) {
 
-	app := initApp()
+	app := initApp(t)
 	firFCM := app.FCM()
 
 	assert.NotNil(t, app)

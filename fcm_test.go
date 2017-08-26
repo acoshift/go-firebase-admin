@@ -21,7 +21,7 @@ func TestSendToDevices(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		app := initApp()
+		app := initApp(t)
 		firFCM := app.FCM()
 		firFCM.NewFcmSendEndpoint(srv.URL)
 
@@ -52,7 +52,7 @@ func TestSendToDevices(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		app := initApp()
+		app := initApp(t)
 		firFCM := app.FCM()
 		firFCM.NewFcmSendEndpoint(srv.URL)
 
@@ -83,7 +83,7 @@ func TestSendToDevices(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		app := initApp()
+		app := initApp(t)
 		firFCM := app.FCM()
 		firFCM.NewFcmSendEndpoint(srv.URL)
 
@@ -108,7 +108,7 @@ func TestSendToDevices(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		app := initApp()
+		app := initApp(t)
 		firFCM := app.FCM()
 		firFCM.NewFcmSendEndpoint(srv.URL)
 
@@ -133,7 +133,7 @@ func TestSendToDevices(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		app := initApp()
+		app := initApp(t)
 		firFCM := app.FCM()
 		firFCM.NewFcmSendEndpoint(srv.URL)
 
@@ -163,7 +163,7 @@ func TestSendToTopic(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		app := initApp()
+		app := initApp(t)
 		firFCM := app.FCM()
 		firFCM.NewFcmSendEndpoint(srv.URL)
 
@@ -194,7 +194,7 @@ func TestSendToTopic(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		app := initApp()
+		app := initApp(t)
 		firFCM := app.FCM()
 		firFCM.NewFcmSendEndpoint(srv.URL)
 
@@ -225,7 +225,7 @@ func TestSendToTopic(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		app := initApp()
+		app := initApp(t)
 		firFCM := app.FCM()
 		firFCM.NewFcmSendEndpoint(srv.URL)
 
@@ -250,7 +250,7 @@ func TestSendToTopic(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		app := initApp()
+		app := initApp(t)
 		firFCM := app.FCM()
 		firFCM.NewFcmSendEndpoint(srv.URL)
 
@@ -275,7 +275,7 @@ func TestSendToTopic(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		app := initApp()
+		app := initApp(t)
 		firFCM := app.FCM()
 		firFCM.NewFcmSendEndpoint(srv.URL)
 

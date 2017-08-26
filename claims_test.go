@@ -11,7 +11,6 @@ import (
 )
 
 func TestValidClaims(t *testing.T) {
-
 	t.Run("Valid", func(t *testing.T) {
 		now := time.Now()
 		claim := &firebase.Claims{
