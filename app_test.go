@@ -19,7 +19,7 @@ type config struct {
 }
 
 func initApp(t *testing.T) *firebase.App {
-	t.Helper()
+	// t.Helper()
 
 	// load config from env
 	c := config{
