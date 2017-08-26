@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"go-firebase-admin/go-firebase-admin/vendor/google.golang.org/api/identitytoolkit/v3"
 	"google.golang.org/api/identitytoolkit/v3"
 )
 
