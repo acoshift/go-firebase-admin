@@ -22,6 +22,8 @@ type Auth struct {
 	keysMutex *sync.RWMutex
 	keys      map[string]*rsa.PublicKey
 	keysExp   time.Time
+
+	Leeway time.Duration
 }
 
 const (
@@ -84,6 +86,15 @@ func (auth *Auth) VerifyIDToken(idToken string) (*Token, error) {
 	claims, ok := token.Claims.(*Token)
 	if !ok || !token.Valid {
 		return nil, &ErrTokenInvalid{"firebaseauth: invalid token"}
+	}
+
+	now := time.Now().Unix()
+	if !claims.verifyExpiresAt(now) {
+		delta := time.Unix(now, 0).Sub(time.Unix(claims.ExpiresAt, 0))
+		return nil, &ErrTokenInvalid{fmt.Sprintf("token is expired by %v", delta)}
+	}
+	if !claims.verifyIssuedAt(now + int64(auth.Leeway/time.Second)) {
+		return nil, &ErrTokenInvalid{fmt.Sprintf("token used before issued")}
 	}
 	if !claims.verifyAudience(auth.app.projectID) {
 		return nil, &ErrTokenInvalid{fmt.Sprintf("firebaseauth: Firebase ID token has incorrect \"aud\" (audience) claim. Expected \"%s\" but got \"%s\"", auth.app.projectID, claims.Audience)}

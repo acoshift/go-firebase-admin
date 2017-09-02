@@ -1,10 +1,5 @@
 package firebase
 
-import (
-	"fmt"
-	"time"
-)
-
 // Token is the firebase access token
 type Token struct {
 	Issuer        string `json:"iss"`
@@ -29,20 +24,7 @@ type Token struct {
 }
 
 // Valid implements jwt-go Claims interface
-// for validates time based claims, such as IssuedAt, and ExpiresAt
-// But not verify token signature and header
 func (t *Token) Valid() error {
-	now := time.Now().Unix()
-
-	if !t.verifyExpiresAt(now) {
-		delta := time.Unix(now, 0).Sub(time.Unix(t.ExpiresAt, 0))
-		return fmt.Errorf("token is expired by %v", delta)
-	}
-
-	if !t.verifyIssuedAt(now) {
-		return fmt.Errorf("token used before issued")
-	}
-
 	return nil
 }
 
