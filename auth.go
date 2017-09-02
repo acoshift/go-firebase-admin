@@ -46,7 +46,7 @@ func (auth *Auth) CreateCustomToken(userID string, claims interface{}) (string, 
 		return "", ErrRequireServiceAccount
 	}
 	now := time.Now()
-	payload := &Claims{
+	payload := &customClaims{
 		Issuer:    auth.app.jwtConfig.Email,
 		Subject:   auth.app.jwtConfig.Email,
 		Audience:  customTokenAudience,
@@ -62,8 +62,8 @@ func (auth *Auth) CreateCustomToken(userID string, claims interface{}) (string, 
 // VerifyIDToken validates given idToken
 // return Claims for that token only valid token
 // See https://firebase.google.com/docs/auth/admin/verify-id-tokens
-func (auth *Auth) VerifyIDToken(idToken string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(idToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+func (auth *Auth) VerifyIDToken(idToken string) (*Token, error) {
+	token, err := jwt.ParseWithClaims(idToken, &Token{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, &ErrTokenInvalid{fmt.Sprintf("firebaseauth: Firebase ID token has incorrect algorithm. Expected \"RSA\" but got \"%#v\"", token.Header["alg"])}
 		}
@@ -81,7 +81,7 @@ func (auth *Auth) VerifyIDToken(idToken string) (*Claims, error) {
 		return nil, &ErrTokenInvalid{err.Error()}
 	}
 
-	claims, ok := token.Claims.(*Claims)
+	claims, ok := token.Claims.(*Token)
 	if !ok || !token.Valid {
 		return nil, &ErrTokenInvalid{"firebaseauth: invalid token"}
 	}
@@ -98,7 +98,6 @@ func (auth *Auth) VerifyIDToken(idToken string) (*Claims, error) {
 		return nil, &ErrTokenInvalid{"firebaseauth: Firebase ID token has \"sub\" (subject) claim longer than 128 characters"}
 	}
 
-	claims.UserID = claims.Subject
 	return claims, nil
 }
 
