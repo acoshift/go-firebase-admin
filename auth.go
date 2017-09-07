@@ -49,8 +49,8 @@ func (auth *Auth) CreateCustomToken(userID string, claims interface{}) (string, 
 	}
 	now := time.Now()
 	payload := &customClaims{
-		Issuer:    auth.app.jwtConfig.Email,
-		Subject:   auth.app.jwtConfig.Email,
+		Issuer:    auth.app.clientEmail,
+		Subject:   auth.app.clientEmail,
 		Audience:  customTokenAudience,
 		IssuedAt:  now.Unix(),
 		ExpiresAt: now.Add(time.Hour).Unix(),

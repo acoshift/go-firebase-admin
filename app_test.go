@@ -2,17 +2,16 @@ package firebase_test
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"testing"
 
 	"github.com/acoshift/go-firebase-admin"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/api/option"
 )
 
 type config struct {
 	ProjectID                    string      `yaml:"projectId"`
-	ServiceAccount               []byte      `yaml:"serviceAccount"`
 	DatabaseURL                  string      `yaml:"databaseURL"`
 	DatabaseAuthVariableOverride interface{} `yaml:"DatabaseAuthVariableOverride"`
 	APIKey                       string      `yaml:"apiKey"`
@@ -23,19 +22,17 @@ func initApp(t *testing.T) *firebase.App {
 
 	// load config from env
 	c := config{
-		ProjectID:      os.Getenv("PROJECT_ID"),
-		ServiceAccount: []byte(os.Getenv("SERVICE_ACCOUNT")),
-		DatabaseURL:    os.Getenv("DATABASE_URL"),
-		APIKey:         os.Getenv("API_KEY"),
+		ProjectID:   os.Getenv("PROJECT_ID"),
+		DatabaseURL: os.Getenv("DATABASE_URL"),
+		APIKey:      os.Getenv("API_KEY"),
 	}
 
-	// if service account is in separate file service_account.json
-	if len(c.ServiceAccount) <= 0 {
-		serviceAccount, _ := ioutil.ReadFile("private/service_account.json")
-		c.ServiceAccount = serviceAccount
-	}
-
-	app, _ := firebase.InitializeApp(context.Background(), firebase.AppOptions(c))
+	app, _ := firebase.InitializeApp(context.Background(), firebase.AppOptions{
+		ProjectID:                    c.ProjectID,
+		DatabaseURL:                  c.DatabaseURL,
+		DatabaseAuthVariableOverride: c.DatabaseAuthVariableOverride,
+		APIKey: c.APIKey,
+	}, option.WithCredentialsFile("private/service_account.json"))
 	return app
 }
 

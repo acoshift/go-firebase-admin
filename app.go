@@ -3,11 +3,13 @@ package firebase
 import (
 	"context"
 	"crypto/rsa"
+	"encoding/json"
 	"net/http"
 
 	jwtgo "github.com/dgrijalva/jwt-go"
-	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
+	"google.golang.org/api/option"
+	"google.golang.org/api/transport"
 )
 
 // App holds information about application configuration
@@ -15,6 +17,7 @@ type App struct {
 	projectID            string
 	jwtConfig            *jwt.Config
 	privateKey           *rsa.PrivateKey
+	clientEmail          string
 	databaseURL          string
 	databaseAuthVariable interface{}
 	client               *http.Client
@@ -24,14 +27,15 @@ type App struct {
 // AppOptions is the firebase app options for initialize app
 type AppOptions struct {
 	ProjectID                    string
-	ServiceAccount               []byte
 	DatabaseURL                  string
 	DatabaseAuthVariableOverride interface{}
 	APIKey                       string
 }
 
 // InitializeApp initializes firebase application with options
-func InitializeApp(ctx context.Context, options AppOptions) (*App, error) {
+func InitializeApp(ctx context.Context, options AppOptions, opts ...option.ClientOption) (*App, error) {
+	opts = append([]option.ClientOption{option.WithScopes(scopes...)}, opts...)
+
 	var err error
 
 	app := App{
@@ -41,21 +45,32 @@ func InitializeApp(ctx context.Context, options AppOptions) (*App, error) {
 		apiKey:               options.APIKey,
 	}
 
-	if options.ServiceAccount != nil {
-		app.jwtConfig, err = google.JWTConfigFromJSON(options.ServiceAccount, scopes...)
+	app.client, _, err = transport.NewHTTPClient(ctx, opts...)
+	if err != nil {
+		app.client = http.DefaultClient
+	}
+
+	cred, err := transport.Creds(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(app.projectID) == 0 {
+		app.projectID = cred.ProjectID
+	}
+
+	// load private key from google credential
+	var serviceAccount struct {
+		PrivateKey  string `json:"private_key"`
+		ClientEmail string `json:"client_email"`
+	}
+	json.Unmarshal(cred.JSON, &serviceAccount)
+	if len(serviceAccount.PrivateKey) > 0 {
+		app.privateKey, err = jwtgo.ParseRSAPrivateKeyFromPEM([]byte(serviceAccount.PrivateKey))
 		if err != nil {
 			return nil, err
 		}
-		app.privateKey, err = jwtgo.ParseRSAPrivateKeyFromPEM(app.jwtConfig.PrivateKey)
-		if err != nil {
-			return nil, err
-		}
-		app.client = app.jwtConfig.Client(ctx)
-	} else {
-		app.client, err = google.DefaultClient(ctx, scopes...)
-		if err != nil {
-			return nil, err
-		}
+		app.clientEmail = serviceAccount.ClientEmail
 	}
 
 	return &app, nil
