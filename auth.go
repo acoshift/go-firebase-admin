@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"sync"
 	"time"
 
@@ -49,8 +48,8 @@ func (auth *Auth) CreateCustomToken(userID string, claims interface{}) (string, 
 	}
 	now := time.Now()
 	payload := &customClaims{
-		Issuer:    auth.app.jwtConfig.Email,
-		Subject:   auth.app.jwtConfig.Email,
+		Issuer:    auth.app.clientEmail,
+		Subject:   auth.app.clientEmail,
 		Audience:  customTokenAudience,
 		IssuedAt:  now.Unix(),
 		ExpiresAt: now.Add(time.Hour).Unix(),
@@ -115,7 +114,7 @@ func (auth *Auth) VerifyIDToken(idToken string) (*Token, error) {
 func (auth *Auth) fetchKeys() error {
 	auth.keysMutex.Lock()
 	defer auth.keysMutex.Unlock()
-	resp, err := http.Get(keysEndpoint)
+	resp, err := auth.app.client.Get(keysEndpoint)
 	if err != nil {
 		return err
 	}

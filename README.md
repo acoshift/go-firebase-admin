@@ -107,16 +107,15 @@ package main
 import (
   "io/ioutil"
 
+  "google.golang.org/api/option"
   "github.com/acoshift/go-firebase-admin"
 )
 
 func main() {
   // Init App with service_account
-  serviceAccount, _ := ioutil.ReadFile("service_account.json")
   firApp, err := firebase.InitializeApp(context.Background(), firebase.AppOptions{
-    ServiceAccount: serviceAccount,
     ProjectID:      "YOUR_PROJECT_ID",
-  })
+  }, option.WithCredentialsFile("service_account.json"))
 
   if err != nil {
     panic(err)
@@ -132,16 +131,15 @@ package main
 import (
   "io/ioutil"
 
+  "google.golang.org/api/option"
   "github.com/acoshift/go-firebase-admin"
 )
 
 func main() {
   // Init App with service_account
-  serviceAccount, _ := ioutil.ReadFile("service_account.json")
   firApp, err := firebase.InitializeApp(context.Background(), firebase.AppOptions{
-    ServiceAccount: serviceAccount,
     ProjectID:      "YOUR_PROJECT_ID",
-  })
+  }, option.WithCredentialsFile("service_account.json"))
 
   if err != nil {
     panic(err)
@@ -171,16 +169,15 @@ package main
 import (
   "io/ioutil"
 
+  "google.golang.org/api/option"
   "github.com/acoshift/go-firebase-admin"
 )
 
 func main() {
   // Init App with service_account
-  serviceAccount, _ := ioutil.ReadFile("service_account.json")
   firApp, err := firebase.InitializeApp(context.Background(), firebase.AppOptions{
-    ServiceAccount: serviceAccount,
     ProjectID:      "YOUR_PROJECT_ID",
-  })
+  }, option.WithCredentialsFile("service_account.json"))
 
   if err != nil {
     panic(err)
@@ -227,18 +224,17 @@ package main
 import (
   "io/ioutil"
 
+  "google.golang.org/api/option"
   "github.com/acoshift/go-firebase-admin"
 )
 
 func main() {
   // Init App with service_account
-  serviceAccount, _ := ioutil.ReadFile("service_account.json")
   firApp, err := firebase.InitializeApp(context.Background(), firebase.AppOptions{
-    ServiceAccount: serviceAccount,
     ProjectID:      "YOUR_PROJECT_ID",
     DatabaseURL:    "YOUR_DATABASE_URL",
     APIKey:         "YOUR_API_KEY",
-  })
+  }, option.WithCredentialsFile("service_account.json"))
 
   if err != nil {
     panic(err)
