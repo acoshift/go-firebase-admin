@@ -1,4 +1,4 @@
-// Copyright 2017, Google Inc. All rights reserved.
+// Copyright 2017, Google LLC All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package pubsub
 
 import (
 	emptypb "github.com/golang/protobuf/ptypes/empty"
+	timestamppb "github.com/golang/protobuf/ptypes/timestamp"
 	iampb "google.golang.org/genproto/googleapis/iam/v1"
 	pubsubpb "google.golang.org/genproto/googleapis/pubsub/v1"
 	field_maskpb "google.golang.org/genproto/protobuf/field_mask"
@@ -64,6 +65,18 @@ type mockPublisherServer struct {
 }
 
 func (s *mockPublisherServer) CreateTopic(ctx context.Context, req *pubsubpb.Topic) (*pubsubpb.Topic, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
+	s.reqs = append(s.reqs, req)
+	if s.err != nil {
+		return nil, s.err
+	}
+	return s.resps[0].(*pubsubpb.Topic), nil
+}
+
+func (s *mockPublisherServer) UpdateTopic(ctx context.Context, req *pubsubpb.UpdateTopicRequest) (*pubsubpb.Topic, error) {
 	md, _ := metadata.FromIncomingContext(ctx)
 	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
 		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
@@ -358,6 +371,18 @@ func (s *mockSubscriberServer) CreateSnapshot(ctx context.Context, req *pubsubpb
 	return s.resps[0].(*pubsubpb.Snapshot), nil
 }
 
+func (s *mockSubscriberServer) UpdateSnapshot(ctx context.Context, req *pubsubpb.UpdateSnapshotRequest) (*pubsubpb.Snapshot, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
+	s.reqs = append(s.reqs, req)
+	if s.err != nil {
+		return nil, s.err
+	}
+	return s.resps[0].(*pubsubpb.Snapshot), nil
+}
+
 func (s *mockSubscriberServer) DeleteSnapshot(ctx context.Context, req *pubsubpb.DeleteSnapshotRequest) (*emptypb.Empty, error) {
 	md, _ := metadata.FromIncomingContext(ctx)
 	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
@@ -466,6 +491,69 @@ func TestPublisherCreateTopicError(t *testing.T) {
 	}
 
 	resp, err := c.CreateTopic(context.Background(), request)
+
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
+		t.Errorf("got error code %q, want %q", c, errCode)
+	}
+	_ = resp
+}
+func TestPublisherUpdateTopic(t *testing.T) {
+	var name string = "name3373707"
+	var expectedResponse = &pubsubpb.Topic{
+		Name: name,
+	}
+
+	mockPublisher.err = nil
+	mockPublisher.reqs = nil
+
+	mockPublisher.resps = append(mockPublisher.resps[:0], expectedResponse)
+
+	var topic *pubsubpb.Topic = &pubsubpb.Topic{}
+	var updateMask *field_maskpb.FieldMask = &field_maskpb.FieldMask{}
+	var request = &pubsubpb.UpdateTopicRequest{
+		Topic:      topic,
+		UpdateMask: updateMask,
+	}
+
+	c, err := NewPublisherClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.UpdateTopic(context.Background(), request)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := request, mockPublisher.reqs[0]; !proto.Equal(want, got) {
+		t.Errorf("wrong request %q, want %q", got, want)
+	}
+
+	if want, got := expectedResponse, resp; !proto.Equal(want, got) {
+		t.Errorf("wrong response %q, want %q)", got, want)
+	}
+}
+
+func TestPublisherUpdateTopicError(t *testing.T) {
+	errCode := codes.PermissionDenied
+	mockPublisher.err = gstatus.Error(errCode, "test error")
+
+	var topic *pubsubpb.Topic = &pubsubpb.Topic{}
+	var updateMask *field_maskpb.FieldMask = &field_maskpb.FieldMask{}
+	var request = &pubsubpb.UpdateTopicRequest{
+		Topic:      topic,
+		UpdateMask: updateMask,
+	}
+
+	c, err := NewPublisherClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.UpdateTopic(context.Background(), request)
 
 	if st, ok := gstatus.FromError(err); !ok {
 		t.Errorf("got error %v, expected grpc error", err)
@@ -938,12 +1026,12 @@ func TestSubscriberGetSubscriptionError(t *testing.T) {
 func TestSubscriberUpdateSubscription(t *testing.T) {
 	var name string = "name3373707"
 	var topic string = "topic110546223"
-	var ackDeadlineSeconds int32 = 2135351438
+	var ackDeadlineSeconds2 int32 = -921632575
 	var retainAckedMessages bool = false
 	var expectedResponse = &pubsubpb.Subscription{
 		Name:                name,
 		Topic:               topic,
-		AckDeadlineSeconds:  ackDeadlineSeconds,
+		AckDeadlineSeconds:  ackDeadlineSeconds2,
 		RetainAckedMessages: retainAckedMessages,
 	}
 
@@ -952,8 +1040,15 @@ func TestSubscriberUpdateSubscription(t *testing.T) {
 
 	mockSubscriber.resps = append(mockSubscriber.resps[:0], expectedResponse)
 
-	var subscription *pubsubpb.Subscription = &pubsubpb.Subscription{}
-	var updateMask *field_maskpb.FieldMask = &field_maskpb.FieldMask{}
+	var ackDeadlineSeconds int32 = 42
+	var subscription = &pubsubpb.Subscription{
+		AckDeadlineSeconds: ackDeadlineSeconds,
+	}
+	var pathsElement string = "ack_deadline_seconds"
+	var paths = []string{pathsElement}
+	var updateMask = &field_maskpb.FieldMask{
+		Paths: paths,
+	}
 	var request = &pubsubpb.UpdateSubscriptionRequest{
 		Subscription: subscription,
 		UpdateMask:   updateMask,
@@ -983,8 +1078,15 @@ func TestSubscriberUpdateSubscriptionError(t *testing.T) {
 	errCode := codes.PermissionDenied
 	mockSubscriber.err = gstatus.Error(errCode, "test error")
 
-	var subscription *pubsubpb.Subscription = &pubsubpb.Subscription{}
-	var updateMask *field_maskpb.FieldMask = &field_maskpb.FieldMask{}
+	var ackDeadlineSeconds int32 = 42
+	var subscription = &pubsubpb.Subscription{
+		AckDeadlineSeconds: ackDeadlineSeconds,
+	}
+	var pathsElement string = "ack_deadline_seconds"
+	var paths = []string{pathsElement}
+	var updateMask = &field_maskpb.FieldMask{
+		Paths: paths,
+	}
 	var request = &pubsubpb.UpdateSubscriptionRequest{
 		Subscription: subscription,
 		UpdateMask:   updateMask,
@@ -1573,6 +1675,91 @@ func TestSubscriberCreateSnapshotError(t *testing.T) {
 	}
 
 	resp, err := c.CreateSnapshot(context.Background(), request)
+
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
+		t.Errorf("got error code %q, want %q", c, errCode)
+	}
+	_ = resp
+}
+func TestSubscriberUpdateSnapshot(t *testing.T) {
+	var name string = "name3373707"
+	var topic string = "topic110546223"
+	var expectedResponse = &pubsubpb.Snapshot{
+		Name:  name,
+		Topic: topic,
+	}
+
+	mockSubscriber.err = nil
+	mockSubscriber.reqs = nil
+
+	mockSubscriber.resps = append(mockSubscriber.resps[:0], expectedResponse)
+
+	var seconds int64 = 123456
+	var expireTime = &timestamppb.Timestamp{
+		Seconds: seconds,
+	}
+	var snapshot = &pubsubpb.Snapshot{
+		ExpireTime: expireTime,
+	}
+	var pathsElement string = "expire_time"
+	var paths = []string{pathsElement}
+	var updateMask = &field_maskpb.FieldMask{
+		Paths: paths,
+	}
+	var request = &pubsubpb.UpdateSnapshotRequest{
+		Snapshot:   snapshot,
+		UpdateMask: updateMask,
+	}
+
+	c, err := NewSubscriberClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.UpdateSnapshot(context.Background(), request)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := request, mockSubscriber.reqs[0]; !proto.Equal(want, got) {
+		t.Errorf("wrong request %q, want %q", got, want)
+	}
+
+	if want, got := expectedResponse, resp; !proto.Equal(want, got) {
+		t.Errorf("wrong response %q, want %q)", got, want)
+	}
+}
+
+func TestSubscriberUpdateSnapshotError(t *testing.T) {
+	errCode := codes.PermissionDenied
+	mockSubscriber.err = gstatus.Error(errCode, "test error")
+
+	var seconds int64 = 123456
+	var expireTime = &timestamppb.Timestamp{
+		Seconds: seconds,
+	}
+	var snapshot = &pubsubpb.Snapshot{
+		ExpireTime: expireTime,
+	}
+	var pathsElement string = "expire_time"
+	var paths = []string{pathsElement}
+	var updateMask = &field_maskpb.FieldMask{
+		Paths: paths,
+	}
+	var request = &pubsubpb.UpdateSnapshotRequest{
+		Snapshot:   snapshot,
+		UpdateMask: updateMask,
+	}
+
+	c, err := NewSubscriberClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.UpdateSnapshot(context.Background(), request)
 
 	if st, ok := gstatus.FromError(err); !ok {
 		t.Errorf("got error %v, expected grpc error", err)
