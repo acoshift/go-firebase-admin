@@ -56,6 +56,14 @@ func InitializeApp(ctx context.Context, options AppOptions, opts ...option.Clien
 			return nil, err
 		}
 		app.client = jwtConfig.Client(ctx)
+		app.clientEmail = jwtConfig.Email
+
+		// load project id
+		var serviceAccount struct {
+			ProjectID string `json:"project_id"`
+		}
+		json.Unmarshal(options.ServiceAccount, &serviceAccount)
+		app.projectID = serviceAccount.ProjectID
 	} else {
 		// load service account using google's option
 		app.client, _, err = transport.NewHTTPClient(ctx, opts...)
