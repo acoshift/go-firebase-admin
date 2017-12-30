@@ -4,8 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/acoshift/go-firebase-admin"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/acoshift/go-firebase-admin"
 )
 
 func TestCreateCustomToken(t *testing.T) {
@@ -27,43 +28,45 @@ func TestCreateCustomToken(t *testing.T) {
 
 func TestUser(t *testing.T) {
 	ctx := context.Background()
-	app := initApp(t)
-	auth := app.Auth()
 
-	createUser := &firebase.User{
-		DisplayName:   "Tester",
-		Email:         "test@test.com",
-		EmailVerified: true,
-		Password:      "test123",
+	for _, app := range []*firebase.App{initApp(t), initAppServiceAccount(t)} {
+		auth := app.Auth()
+
+		createUser := &firebase.User{
+			DisplayName:   "Tester",
+			Email:         "test@test.com",
+			EmailVerified: true,
+			Password:      "test123",
+		}
+
+		var userID string
+
+		t.Run("Create", func(t *testing.T) {
+			uID, err := auth.CreateUser(ctx, createUser)
+			assert.NoError(t, err)
+			assert.NotNil(t, uID)
+			userID = uID
+		})
+
+		t.Run("Get", func(t *testing.T) {
+			u, err := auth.GetUser(ctx, userID)
+			assert.NoError(t, err)
+			assert.NotNil(t, u)
+			assert.Equal(t, createUser.DisplayName, u.DisplayName)
+			assert.Equal(t, createUser.Email, u.Email)
+			assert.Equal(t, createUser.EmailVerified, u.EmailVerified)
+			assert.NotEmpty(t, u.Metadata.CreatedAt)
+		})
+
+		t.Run("Delete", func(t *testing.T) {
+			err := auth.DeleteUser(ctx, userID)
+			assert.NoError(t, err)
+
+			u, err := auth.GetUser(ctx, userID)
+			assert.Error(t, err)
+			assert.Nil(t, u)
+		})
 	}
-
-	var userID string
-
-	t.Run("Create", func(t *testing.T) {
-		uID, err := auth.CreateUser(ctx, createUser)
-		assert.NoError(t, err)
-		assert.NotNil(t, uID)
-		userID = uID
-	})
-
-	t.Run("Get", func(t *testing.T) {
-		u, err := auth.GetUser(ctx, userID)
-		assert.NoError(t, err)
-		assert.NotNil(t, u)
-		assert.Equal(t, createUser.DisplayName, u.DisplayName)
-		assert.Equal(t, createUser.Email, u.Email)
-		assert.Equal(t, createUser.EmailVerified, u.EmailVerified)
-		assert.NotEmpty(t, u.Metadata.CreatedAt)
-	})
-
-	t.Run("Delete", func(t *testing.T) {
-		err := auth.DeleteUser(ctx, userID)
-		assert.NoError(t, err)
-
-		u, err := auth.GetUser(ctx, userID)
-		assert.Error(t, err)
-		assert.Nil(t, u)
-	})
 }
 
 // func TestVerifyIDToken(t *testing.T) {
