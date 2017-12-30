@@ -18,10 +18,12 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"time"
 
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 
 	"golang.org/x/net/context"
 )
@@ -66,6 +68,10 @@ func NewClient(ctx context.Context, projectID string, opts ...option.ClientOptio
 			// TODO(grpc/grpc-go#1388) using connection pool without WithBlock
 			// can cause RPCs to fail randomly. We can delete this after the issue is fixed.
 			option.WithGRPCDialOption(grpc.WithBlock()),
+
+			option.WithGRPCDialOption(grpc.WithKeepaliveParams(keepalive.ClientParameters{
+				Time: 5 * time.Minute,
+			})),
 		}
 	}
 	o = append(o, opts...)
@@ -82,9 +88,11 @@ func NewClient(ctx context.Context, projectID string, opts ...option.ClientOptio
 	return c, nil
 }
 
-// Close closes any resources held by the client.
+// Close releases any resources held by the client,
+// such as memory and goroutines.
 //
-// Close need not be called at program exit.
+// If the client is available for the lifetime of the program, then Close need not be
+// called at exit.
 func (c *Client) Close() error {
 	return c.s.close()
 }

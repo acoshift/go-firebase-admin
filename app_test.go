@@ -2,12 +2,14 @@ package firebase_test
 
 import (
 	"context"
+	"io/ioutil"
 	"os"
 	"testing"
 
-	"github.com/acoshift/go-firebase-admin"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/api/option"
+
+	"github.com/acoshift/go-firebase-admin"
 )
 
 type config struct {
@@ -36,8 +38,35 @@ func initApp(t *testing.T) *firebase.App {
 	return app
 }
 
-func TestAuth(t *testing.T) {
+func initAppServiceAccount(t *testing.T) *firebase.App {
+	// t.Helper()
 
+	// load config from env
+	c := config{
+		ProjectID:   os.Getenv("PROJECT_ID"),
+		DatabaseURL: os.Getenv("DATABASE_URL"),
+		APIKey:      os.Getenv("API_KEY"),
+	}
+
+	serviceAccount, err := ioutil.ReadFile("private/service_account.json")
+	if err != nil {
+		assert.Fail(t, "can not load service account; %v", err)
+	}
+	app, _ := firebase.InitializeApp(context.Background(), firebase.AppOptions{
+		ProjectID:                    c.ProjectID,
+		ServiceAccount:               serviceAccount,
+		DatabaseURL:                  c.DatabaseURL,
+		DatabaseAuthVariableOverride: c.DatabaseAuthVariableOverride,
+		APIKey: c.APIKey,
+	})
+	return app
+}
+
+func initApps(t *testing.T) []*firebase.App {
+	return []*firebase.App{initApp(t), initAppServiceAccount(t)}
+}
+
+func TestAuth(t *testing.T) {
 	app := initApp(t)
 	firAuth := app.Auth()
 
@@ -46,7 +75,6 @@ func TestAuth(t *testing.T) {
 }
 
 func TestDatabase(t *testing.T) {
-
 	app := initApp(t)
 	firDatabase := app.Database()
 
@@ -55,7 +83,6 @@ func TestDatabase(t *testing.T) {
 }
 
 func TestFCM(t *testing.T) {
-
 	app := initApp(t)
 	firFCM := app.FCM()
 

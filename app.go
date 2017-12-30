@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	jwtgo "github.com/dgrijalva/jwt-go"
-	"golang.org/x/oauth2/jwt"
+	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 	"google.golang.org/api/transport"
 )
@@ -15,7 +15,6 @@ import (
 // App holds information about application configuration
 type App struct {
 	projectID            string
-	jwtConfig            *jwt.Config
 	privateKey           *rsa.PrivateKey
 	clientEmail          string
 	databaseURL          string
@@ -27,6 +26,7 @@ type App struct {
 // AppOptions is the firebase app options for initialize app
 type AppOptions struct {
 	ProjectID                    string
+	ServiceAccount               []byte
 	DatabaseURL                  string
 	DatabaseAuthVariableOverride interface{}
 	APIKey                       string
@@ -45,32 +45,54 @@ func InitializeApp(ctx context.Context, options AppOptions, opts ...option.Clien
 		apiKey:               options.APIKey,
 	}
 
-	app.client, _, err = transport.NewHTTPClient(ctx, opts...)
-	if err != nil {
-		app.client = http.DefaultClient
-	}
-
-	cred, err := transport.Creds(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(app.projectID) == 0 {
-		app.projectID = cred.ProjectID
-	}
-
-	// load private key from google credential
-	var serviceAccount struct {
-		PrivateKey  string `json:"private_key"`
-		ClientEmail string `json:"client_email"`
-	}
-	json.Unmarshal(cred.JSON, &serviceAccount)
-	if len(serviceAccount.PrivateKey) > 0 {
-		app.privateKey, err = jwtgo.ParseRSAPrivateKeyFromPEM([]byte(serviceAccount.PrivateKey))
+	// check service account first
+	if len(options.ServiceAccount) > 0 {
+		jwtConfig, err := google.JWTConfigFromJSON(options.ServiceAccount, scopes...)
 		if err != nil {
 			return nil, err
 		}
-		app.clientEmail = serviceAccount.ClientEmail
+		app.privateKey, err = jwtgo.ParseRSAPrivateKeyFromPEM(jwtConfig.PrivateKey)
+		if err != nil {
+			return nil, err
+		}
+		app.client = jwtConfig.Client(ctx)
+		app.clientEmail = jwtConfig.Email
+
+		// load project id
+		var serviceAccount struct {
+			ProjectID string `json:"project_id"`
+		}
+		json.Unmarshal(options.ServiceAccount, &serviceAccount)
+		app.projectID = serviceAccount.ProjectID
+	} else {
+		// load service account using google's option
+		app.client, _, err = transport.NewHTTPClient(ctx, opts...)
+		if err != nil {
+			app.client = http.DefaultClient
+		}
+
+		cred, err := transport.Creds(ctx, opts...)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(app.projectID) == 0 {
+			app.projectID = cred.ProjectID
+		}
+
+		// load private key from google credential
+		var serviceAccount struct {
+			PrivateKey  string `json:"private_key"`
+			ClientEmail string `json:"client_email"`
+		}
+		json.Unmarshal(cred.JSON, &serviceAccount)
+		if len(serviceAccount.PrivateKey) > 0 {
+			app.privateKey, err = jwtgo.ParseRSAPrivateKeyFromPEM([]byte(serviceAccount.PrivateKey))
+			if err != nil {
+				return nil, err
+			}
+			app.clientEmail = serviceAccount.ClientEmail
+		}
 	}
 
 	return &app, nil

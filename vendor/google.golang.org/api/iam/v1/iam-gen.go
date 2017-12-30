@@ -195,8 +195,8 @@ type AuditData struct {
 }
 
 func (s *AuditData) MarshalJSON() ([]byte, error) {
-	type noMethod AuditData
-	raw := noMethod(*s)
+	type NoMethod AuditData
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -261,8 +261,8 @@ type Binding struct {
 }
 
 func (s *Binding) MarshalJSON() ([]byte, error) {
-	type noMethod Binding
-	raw := noMethod(*s)
+	type NoMethod Binding
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -278,13 +278,6 @@ type BindingDelta struct {
 	//   "ADD" - Addition of a Binding.
 	//   "REMOVE" - Removal of a Binding.
 	Action string `json:"action,omitempty"`
-
-	// Condition: The condition that is associated with this binding.
-	// This field is GOOGLE_INTERNAL.
-	// This field is not logged in IAM side because it's only for audit
-	// logging.
-	// Optional
-	Condition *Expr `json:"condition,omitempty"`
 
 	// Member: A single identity requesting access for a Cloud Platform
 	// resource.
@@ -316,8 +309,8 @@ type BindingDelta struct {
 }
 
 func (s *BindingDelta) MarshalJSON() ([]byte, error) {
-	type noMethod BindingDelta
-	raw := noMethod(*s)
+	type NoMethod BindingDelta
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -347,8 +340,8 @@ type CreateRoleRequest struct {
 }
 
 func (s *CreateRoleRequest) MarshalJSON() ([]byte, error) {
-	type noMethod CreateRoleRequest
-	raw := noMethod(*s)
+	type NoMethod CreateRoleRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -397,8 +390,8 @@ type CreateServiceAccountKeyRequest struct {
 }
 
 func (s *CreateServiceAccountKeyRequest) MarshalJSON() ([]byte, error) {
-	type noMethod CreateServiceAccountKeyRequest
-	raw := noMethod(*s)
+	type NoMethod CreateServiceAccountKeyRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -437,8 +430,8 @@ type CreateServiceAccountRequest struct {
 }
 
 func (s *CreateServiceAccountRequest) MarshalJSON() ([]byte, error) {
-	type noMethod CreateServiceAccountRequest
-	raw := noMethod(*s)
+	type NoMethod CreateServiceAccountRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -458,60 +451,6 @@ type Empty struct {
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
 	googleapi.ServerResponse `json:"-"`
-}
-
-// Expr: Represents an expression text. Example:
-//
-//     title: "User account presence"
-//     description: "Determines whether the request has a user account"
-//     expression: "size(request.user) > 0"
-type Expr struct {
-	// Description: An optional description of the expression. This is a
-	// longer text which
-	// describes the expression, e.g. when hovered over it in a UI.
-	Description string `json:"description,omitempty"`
-
-	// Expression: Textual representation of an expression in
-	// Common Expression Language syntax.
-	//
-	// The application context of the containing message determines
-	// which
-	// well-known feature set of CEL is supported.
-	Expression string `json:"expression,omitempty"`
-
-	// Location: An optional string indicating the location of the
-	// expression for error
-	// reporting, e.g. a file name and a position in the file.
-	Location string `json:"location,omitempty"`
-
-	// Title: An optional title for the expression, i.e. a short string
-	// describing
-	// its purpose. This can be used e.g. in UIs which allow to enter
-	// the
-	// expression.
-	Title string `json:"title,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Description") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Description") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *Expr) MarshalJSON() ([]byte, error) {
-	type noMethod Expr
-	raw := noMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
 // ListRolesResponse: The response containing the roles defined under a
@@ -547,8 +486,8 @@ type ListRolesResponse struct {
 }
 
 func (s *ListRolesResponse) MarshalJSON() ([]byte, error) {
-	type noMethod ListRolesResponse
-	raw := noMethod(*s)
+	type NoMethod ListRolesResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -580,8 +519,8 @@ type ListServiceAccountKeysResponse struct {
 }
 
 func (s *ListServiceAccountKeysResponse) MarshalJSON() ([]byte, error) {
-	type noMethod ListServiceAccountKeysResponse
-	raw := noMethod(*s)
+	type NoMethod ListServiceAccountKeysResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -618,8 +557,8 @@ type ListServiceAccountsResponse struct {
 }
 
 func (s *ListServiceAccountsResponse) MarshalJSON() ([]byte, error) {
-	type noMethod ListServiceAccountsResponse
-	raw := noMethod(*s)
+	type NoMethod ListServiceAccountsResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -676,8 +615,8 @@ type Permission struct {
 }
 
 func (s *Permission) MarshalJSON() ([]byte, error) {
-	type noMethod Permission
-	raw := noMethod(*s)
+	type NoMethod Permission
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -767,8 +706,8 @@ type Policy struct {
 }
 
 func (s *Policy) MarshalJSON() ([]byte, error) {
-	type noMethod Policy
-	raw := noMethod(*s)
+	type NoMethod Policy
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -795,8 +734,8 @@ type PolicyDelta struct {
 }
 
 func (s *PolicyDelta) MarshalJSON() ([]byte, error) {
-	type noMethod PolicyDelta
-	raw := noMethod(*s)
+	type NoMethod PolicyDelta
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -845,8 +784,8 @@ type QueryGrantableRolesRequest struct {
 }
 
 func (s *QueryGrantableRolesRequest) MarshalJSON() ([]byte, error) {
-	type noMethod QueryGrantableRolesRequest
-	raw := noMethod(*s)
+	type NoMethod QueryGrantableRolesRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -882,8 +821,8 @@ type QueryGrantableRolesResponse struct {
 }
 
 func (s *QueryGrantableRolesResponse) MarshalJSON() ([]byte, error) {
-	type noMethod QueryGrantableRolesResponse
-	raw := noMethod(*s)
+	type NoMethod QueryGrantableRolesResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -928,8 +867,8 @@ type QueryTestablePermissionsRequest struct {
 }
 
 func (s *QueryTestablePermissionsRequest) MarshalJSON() ([]byte, error) {
-	type noMethod QueryTestablePermissionsRequest
-	raw := noMethod(*s)
+	type NoMethod QueryTestablePermissionsRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -966,8 +905,8 @@ type QueryTestablePermissionsResponse struct {
 }
 
 func (s *QueryTestablePermissionsResponse) MarshalJSON() ([]byte, error) {
-	type noMethod QueryTestablePermissionsResponse
-	raw := noMethod(*s)
+	type NoMethod QueryTestablePermissionsResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1044,8 +983,8 @@ type Role struct {
 }
 
 func (s *Role) MarshalJSON() ([]byte, error) {
-	type noMethod Role
-	raw := noMethod(*s)
+	type NoMethod Role
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1062,19 +1001,16 @@ func (s *Role) MarshalJSON() ([]byte, error) {
 //
 // If the account already exists, the account's resource name is
 // returned
-// in util::Status's ResourceInfo.resource_name in the format
-// of
-// projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}. The
-// caller can
-// use the name in other methods to access the account.
+// in the format of projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}. The
+// caller
+// can use the name in other methods to access the account.
 //
 // All other methods can identify the service account using the
 // format
-// `projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}`
-// .
-// Using `-` as a wildcard for the project will infer the project
+// `projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`.
+// Using `-` as a wildcard for the `PROJECT_ID` will infer the project
 // from
-// the account. The `account` value can be the `email` address or
+// the account. The `ACCOUNT` value can be the `email` address or
 // the
 // `unique_id` of the service account.
 type ServiceAccount struct {
@@ -1091,22 +1027,20 @@ type ServiceAccount struct {
 
 	// Name: The resource name of the service account in the following
 	// format:
-	// `projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}
-	// `.
+	// `projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`.
 	//
-	// Requests using `-` as a wildcard for the project will infer the
-	// project
-	// from the `account` and the `account` value can be the `email` address
-	// or
-	// the `unique_id` of the service account.
+	// Requests using `-` as a wildcard for the `PROJECT_ID` will infer
+	// the
+	// project from the `account` and the `ACCOUNT` value can be the
+	// `email`
+	// address or the `unique_id` of the service account.
 	//
 	// In responses the resource name will always be in the
 	// format
-	// `projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}`
-	// .
+	// `projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`.
 	Name string `json:"name,omitempty"`
 
-	// Oauth2ClientId: @OutputOnly. The OAuth2 client id for the service
+	// Oauth2ClientId: @OutputOnly The OAuth2 client id for the service
 	// account.
 	// This is used in conjunction with the OAuth2 clientconfig API to
 	// make
@@ -1143,8 +1077,8 @@ type ServiceAccount struct {
 }
 
 func (s *ServiceAccount) MarshalJSON() ([]byte, error) {
-	type noMethod ServiceAccount
-	raw := noMethod(*s)
+	type NoMethod ServiceAccount
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1183,8 +1117,7 @@ type ServiceAccountKey struct {
 
 	// Name: The resource name of the service account key in the following
 	// format
-	// `projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}/
-	// keys/{key}`.
+	// `projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}/keys/{key}`.
 	Name string `json:"name,omitempty"`
 
 	// PrivateKeyData: The private key data. Only provided in
@@ -1251,8 +1184,8 @@ type ServiceAccountKey struct {
 }
 
 func (s *ServiceAccountKey) MarshalJSON() ([]byte, error) {
-	type noMethod ServiceAccountKey
-	raw := noMethod(*s)
+	type NoMethod ServiceAccountKey
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1284,8 +1217,8 @@ type SetIamPolicyRequest struct {
 }
 
 func (s *SetIamPolicyRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SetIamPolicyRequest
-	raw := noMethod(*s)
+	type NoMethod SetIamPolicyRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1312,8 +1245,8 @@ type SignBlobRequest struct {
 }
 
 func (s *SignBlobRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SignBlobRequest
-	raw := noMethod(*s)
+	type NoMethod SignBlobRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1347,8 +1280,8 @@ type SignBlobResponse struct {
 }
 
 func (s *SignBlobResponse) MarshalJSON() ([]byte, error) {
-	type noMethod SignBlobResponse
-	raw := noMethod(*s)
+	type NoMethod SignBlobResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1375,8 +1308,8 @@ type SignJwtRequest struct {
 }
 
 func (s *SignJwtRequest) MarshalJSON() ([]byte, error) {
-	type noMethod SignJwtRequest
-	raw := noMethod(*s)
+	type NoMethod SignJwtRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1410,8 +1343,8 @@ type SignJwtResponse struct {
 }
 
 func (s *SignJwtResponse) MarshalJSON() ([]byte, error) {
-	type noMethod SignJwtResponse
-	raw := noMethod(*s)
+	type NoMethod SignJwtResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1445,8 +1378,8 @@ type TestIamPermissionsRequest struct {
 }
 
 func (s *TestIamPermissionsRequest) MarshalJSON() ([]byte, error) {
-	type noMethod TestIamPermissionsRequest
-	raw := noMethod(*s)
+	type NoMethod TestIamPermissionsRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1480,8 +1413,8 @@ type TestIamPermissionsResponse struct {
 }
 
 func (s *TestIamPermissionsResponse) MarshalJSON() ([]byte, error) {
-	type noMethod TestIamPermissionsResponse
-	raw := noMethod(*s)
+	type NoMethod TestIamPermissionsResponse
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1508,8 +1441,8 @@ type UndeleteRoleRequest struct {
 }
 
 func (s *UndeleteRoleRequest) MarshalJSON() ([]byte, error) {
-	type noMethod UndeleteRoleRequest
-	raw := noMethod(*s)
+	type NoMethod UndeleteRoleRequest
+	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
@@ -1613,7 +1546,7 @@ func (c *OrganizationsRolesCreateCall) Do(opts ...googleapi.CallOption) (*Role, 
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -1759,7 +1692,7 @@ func (c *OrganizationsRolesDeleteCall) Do(opts ...googleapi.CallOption) (*Role, 
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -1904,7 +1837,7 @@ func (c *OrganizationsRolesGetCall) Do(opts ...googleapi.CallOption) (*Role, err
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2075,7 +2008,7 @@ func (c *OrganizationsRolesListCall) Do(opts ...googleapi.CallOption) (*ListRole
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2260,7 +2193,7 @@ func (c *OrganizationsRolesPatchCall) Do(opts ...googleapi.CallOption) (*Role, e
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2401,7 +2334,7 @@ func (c *OrganizationsRolesUndeleteCall) Do(opts ...googleapi.CallOption) (*Role
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2534,7 +2467,7 @@ func (c *PermissionsQueryTestablePermissionsCall) Do(opts ...googleapi.CallOptio
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2680,7 +2613,7 @@ func (c *ProjectsRolesCreateCall) Do(opts ...googleapi.CallOption) (*Role, error
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2826,7 +2759,7 @@ func (c *ProjectsRolesDeleteCall) Do(opts ...googleapi.CallOption) (*Role, error
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -2971,7 +2904,7 @@ func (c *ProjectsRolesGetCall) Do(opts ...googleapi.CallOption) (*Role, error) {
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3142,7 +3075,7 @@ func (c *ProjectsRolesListCall) Do(opts ...googleapi.CallOption) (*ListRolesResp
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3327,7 +3260,7 @@ func (c *ProjectsRolesPatchCall) Do(opts ...googleapi.CallOption) (*Role, error)
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3468,7 +3401,7 @@ func (c *ProjectsRolesUndeleteCall) Do(opts ...googleapi.CallOption) (*Role, err
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3604,7 +3537,7 @@ func (c *ProjectsServiceAccountsCreateCall) Do(opts ...googleapi.CallOption) (*S
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3732,7 +3665,7 @@ func (c *ProjectsServiceAccountsDeleteCall) Do(opts ...googleapi.CallOption) (*E
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3746,7 +3679,7 @@ func (c *ProjectsServiceAccountsDeleteCall) Do(opts ...googleapi.CallOption) (*E
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}`.\nUsing `-` as a wildcard for the project will infer the project from\nthe account. The `account` value can be the `email` address or the\n`unique_id` of the service account.",
+	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`.\nUsing `-` as a wildcard for the `PROJECT_ID` will infer the project from\nthe account. The `ACCOUNT` value can be the `email` address or the\n`unique_id` of the service account.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/serviceAccounts/[^/]+$",
 	//       "required": true,
@@ -3871,7 +3804,7 @@ func (c *ProjectsServiceAccountsGetCall) Do(opts ...googleapi.CallOption) (*Serv
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -3885,7 +3818,7 @@ func (c *ProjectsServiceAccountsGetCall) Do(opts ...googleapi.CallOption) (*Serv
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}`.\nUsing `-` as a wildcard for the project will infer the project from\nthe account. The `account` value can be the `email` address or the\n`unique_id` of the service account.",
+	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`.\nUsing `-` as a wildcard for the `PROJECT_ID` will infer the project from\nthe account. The `ACCOUNT` value can be the `email` address or the\n`unique_id` of the service account.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/serviceAccounts/[^/]+$",
 	//       "required": true,
@@ -3998,7 +3931,7 @@ func (c *ProjectsServiceAccountsGetIamPolicyCall) Do(opts ...googleapi.CallOptio
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4157,7 +4090,7 @@ func (c *ProjectsServiceAccountsListCall) Do(opts ...googleapi.CallOption) (*Lis
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4323,7 +4256,7 @@ func (c *ProjectsServiceAccountsSetIamPolicyCall) Do(opts ...googleapi.CallOptio
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4459,7 +4392,7 @@ func (c *ProjectsServiceAccountsSignBlobCall) Do(opts ...googleapi.CallOption) (
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4473,7 +4406,7 @@ func (c *ProjectsServiceAccountsSignBlobCall) Do(opts ...googleapi.CallOption) (
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}`.\nUsing `-` as a wildcard for the project will infer the project from\nthe account. The `account` value can be the `email` address or the\n`unique_id` of the service account.",
+	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`.\nUsing `-` as a wildcard for the `PROJECT_ID` will infer the project from\nthe account. The `ACCOUNT` value can be the `email` address or the\n`unique_id` of the service account.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/serviceAccounts/[^/]+$",
 	//       "required": true,
@@ -4601,7 +4534,7 @@ func (c *ProjectsServiceAccountsSignJwtCall) Do(opts ...googleapi.CallOption) (*
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4615,7 +4548,7 @@ func (c *ProjectsServiceAccountsSignJwtCall) Do(opts ...googleapi.CallOption) (*
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}`.\nUsing `-` as a wildcard for the project will infer the project from\nthe account. The `account` value can be the `email` address or the\n`unique_id` of the service account.",
+	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`.\nUsing `-` as a wildcard for the `PROJECT_ID` will infer the project from\nthe account. The `ACCOUNT` value can be the `email` address or the\n`unique_id` of the service account.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/serviceAccounts/[^/]+$",
 	//       "required": true,
@@ -4738,7 +4671,7 @@ func (c *ProjectsServiceAccountsTestIamPermissionsCall) Do(opts ...googleapi.Cal
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4877,7 +4810,7 @@ func (c *ProjectsServiceAccountsUpdateCall) Do(opts ...googleapi.CallOption) (*S
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -4891,7 +4824,7 @@ func (c *ProjectsServiceAccountsUpdateCall) Do(opts ...googleapi.CallOption) (*S
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}`.\n\nRequests using `-` as a wildcard for the project will infer the project\nfrom the `account` and the `account` value can be the `email` address or\nthe `unique_id` of the service account.\n\nIn responses the resource name will always be in the format\n`projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}`.",
+	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`.\n\nRequests using `-` as a wildcard for the `PROJECT_ID` will infer the\nproject from the `account` and the `ACCOUNT` value can be the `email`\naddress or the `unique_id` of the service account.\n\nIn responses the resource name will always be in the format\n`projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/serviceAccounts/[^/]+$",
 	//       "required": true,
@@ -5013,7 +4946,7 @@ func (c *ProjectsServiceAccountsKeysCreateCall) Do(opts ...googleapi.CallOption)
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5027,7 +4960,7 @@ func (c *ProjectsServiceAccountsKeysCreateCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}`.\nUsing `-` as a wildcard for the project will infer the project from\nthe account. The `account` value can be the `email` address or the\n`unique_id` of the service account.",
+	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`.\nUsing `-` as a wildcard for the `PROJECT_ID` will infer the project from\nthe account. The `ACCOUNT` value can be the `email` address or the\n`unique_id` of the service account.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/serviceAccounts/[^/]+$",
 	//       "required": true,
@@ -5141,7 +5074,7 @@ func (c *ProjectsServiceAccountsKeysDeleteCall) Do(opts ...googleapi.CallOption)
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5155,7 +5088,7 @@ func (c *ProjectsServiceAccountsKeysDeleteCall) Do(opts ...googleapi.CallOption)
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The resource name of the service account key in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}/keys/{key}`.\nUsing `-` as a wildcard for the project will infer the project from\nthe account. The `account` value can be the `email` address or the\n`unique_id` of the service account.",
+	//       "description": "The resource name of the service account key in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}/keys/{key}`.\nUsing `-` as a wildcard for the `PROJECT_ID` will infer the project from\nthe account. The `ACCOUNT` value can be the `email` address or the\n`unique_id` of the service account.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/serviceAccounts/[^/]+/keys/[^/]+$",
 	//       "required": true,
@@ -5294,7 +5227,7 @@ func (c *ProjectsServiceAccountsKeysGetCall) Do(opts ...googleapi.CallOption) (*
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5308,7 +5241,7 @@ func (c *ProjectsServiceAccountsKeysGetCall) Do(opts ...googleapi.CallOption) (*
 	//   ],
 	//   "parameters": {
 	//     "name": {
-	//       "description": "The resource name of the service account key in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}/keys/{key}`.\n\nUsing `-` as a wildcard for the project will infer the project from\nthe account. The `account` value can be the `email` address or the\n`unique_id` of the service account.",
+	//       "description": "The resource name of the service account key in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}/keys/{key}`.\n\nUsing `-` as a wildcard for the `PROJECT_ID` will infer the project from\nthe account. The `ACCOUNT` value can be the `email` address or the\n`unique_id` of the service account.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/serviceAccounts/[^/]+/keys/[^/]+$",
 	//       "required": true,
@@ -5457,7 +5390,7 @@ func (c *ProjectsServiceAccountsKeysListCall) Do(opts ...googleapi.CallOption) (
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5482,7 +5415,7 @@ func (c *ProjectsServiceAccountsKeysListCall) Do(opts ...googleapi.CallOption) (
 	//       "type": "string"
 	//     },
 	//     "name": {
-	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{SERVICE_ACCOUNT_EMAIL}`.\n\nUsing `-` as a wildcard for the project, will infer the project from\nthe account. The `account` value can be the `email` address or the\n`unique_id` of the service account.",
+	//       "description": "The resource name of the service account in the following format:\n`projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`.\n\nUsing `-` as a wildcard for the `PROJECT_ID`, will infer the project from\nthe account. The `ACCOUNT` value can be the `email` address or the\n`unique_id` of the service account.",
 	//       "location": "path",
 	//       "pattern": "^projects/[^/]+/serviceAccounts/[^/]+$",
 	//       "required": true,
@@ -5607,7 +5540,7 @@ func (c *RolesGetCall) Do(opts ...googleapi.CallOption) (*Role, error) {
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5784,7 +5717,7 @@ func (c *RolesListCall) Do(opts ...googleapi.CallOption) (*ListRolesResponse, er
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
@@ -5957,7 +5890,7 @@ func (c *RolesQueryGrantableRolesCall) Do(opts ...googleapi.CallOption) (*QueryG
 		},
 	}
 	target := &ret
-	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+	if err := gensupport.DecodeResponse(target, res); err != nil {
 		return nil, err
 	}
 	return ret, nil
