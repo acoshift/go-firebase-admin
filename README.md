@@ -177,6 +177,7 @@ func main() {
   // Init App with service_account
   firApp, err := firebase.InitializeApp(context.Background(), firebase.AppOptions{
     ProjectID:      "YOUR_PROJECT_ID",
+    DatabaseURL:    "YOUR_DATABASE_URL",
   }, option.WithCredentialsFile("service_account.json"))
 
   if err != nil {
