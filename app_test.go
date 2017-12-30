@@ -62,6 +62,10 @@ func initAppServiceAccount(t *testing.T) *firebase.App {
 	return app
 }
 
+func initApps(t *testing.T) []*firebase.App {
+	return []*firebase.App{initApp(t), initAppServiceAccount(t)}
+}
+
 func TestAuth(t *testing.T) {
 	app := initApp(t)
 	firAuth := app.Auth()

@@ -10,26 +10,27 @@ import (
 )
 
 func TestCreateCustomToken(t *testing.T) {
-	app := initApp(t)
-	firAuth := app.Auth()
+	for _, app := range initApps(t) {
+		firAuth := app.Auth()
 
-	assert.NotNil(t, app)
-	assert.NotNil(t, firAuth)
+		assert.NotNil(t, app)
+		assert.NotNil(t, firAuth)
 
-	// my claims
-	myClaims := make(map[string]string)
-	myClaims["name"] = "go-firebase-admin"
+		// my claims
+		myClaims := make(map[string]string)
+		myClaims["name"] = "go-firebase-admin"
 
-	token, err := firAuth.CreateCustomToken("go-firebase-admin", myClaims)
+		token, err := firAuth.CreateCustomToken("go-firebase-admin", myClaims)
 
-	assert.Nil(t, err)
-	assert.NotNil(t, token)
+		assert.Nil(t, err)
+		assert.NotNil(t, token)
+	}
 }
 
 func TestUser(t *testing.T) {
 	ctx := context.Background()
 
-	for _, app := range []*firebase.App{initApp(t), initAppServiceAccount(t)} {
+	for _, app := range initApps(t) {
 		auth := app.Auth()
 
 		createUser := &firebase.User{
