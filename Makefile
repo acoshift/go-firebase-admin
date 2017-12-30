@@ -7,4 +7,4 @@ test:
 		PROJECT_ID='$(PROJECT_ID)' \
 		DATABASE_URL='$(DATABASE_URL)' \
 		API_KEY='$(API_KEY)' \
-	go test .
+	go test -v .
